@@ -1,0 +1,19 @@
+<?php
+
+namespace Evirma\Bundle\CoreBundle\Form\Type;
+
+use Evirma\Bundle\CoreBundle\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+
+class MarkdownType extends AbstractType
+{
+    public function getParent()
+    {
+        return TextareaType::class;
+    }
+
+    public function getBlockPrefix()
+    {
+        return 'markdown';
+    }
+}

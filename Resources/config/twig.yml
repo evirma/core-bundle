@@ -1,0 +1,8 @@
+#twig:
+#  form_themes:
+#    - '@Core/form/type/bootstrap.html.twig'
+#    - '@Core/form/type/form_tabs.html.twig'
+#    - '@Core/form/type/markdown.html.twig'
+#    - '@Core/form/type/codemirror.html.twig'
+#    - '@Core/form/type/super_collection.html.twig'
+#    - '@Core/form/type/fields.html.twig'
