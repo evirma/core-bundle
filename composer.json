@@ -26,7 +26,6 @@
         "ext-iconv": "*",
         "symfony/framework-bundle": "~4.4",
         "sensio/framework-extra-bundle": "^5.2",
-        "sentry/sentry-symfony": "^3.2.0",
         "symfony/security": "^4.4",
         "symfony/security-bundle": "^4.4",
         "symfony/templating": "^4.4",
