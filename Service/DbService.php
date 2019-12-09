@@ -66,6 +66,16 @@ final class DbService
     }
 
     /**
+     * @param $name
+     * @return Connection|object
+     */
+    public function getConnection($name)
+    {
+        return $this->manager->getConnection($name);
+    }
+
+
+    /**
      * @return Connection|object
      */
     public function getConn()

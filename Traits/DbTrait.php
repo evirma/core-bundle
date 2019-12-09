@@ -32,6 +32,16 @@ trait DbTrait
     }
 
     /**
+     * @param $name
+     * @return Connection|object
+     */
+    public function getConnection($name)
+    {
+        return $this->dbTraitDb->getConnection($name);
+
+    }
+
+    /**
      * @return Connection|object
      */
     public function getConn()
