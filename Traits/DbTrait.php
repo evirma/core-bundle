@@ -2,6 +2,7 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\ORM\EntityManager;
@@ -30,6 +31,15 @@ trait DbTrait
     {
         return $this->dbTraitDb->getEm();
     }
+
+    /**
+     * @return ManagerRegistry
+     */
+    public function getDoctrineManager()
+    {
+        return $this->dbTraitDb->getDoctrineManager();
+    }
+
 
     /**
      * @param $name
