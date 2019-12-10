@@ -54,6 +54,14 @@ final class DbService
     }
 
     /**
+     * @return ManagerRegistry
+     */
+    public function getDoctrineManager()
+    {
+        return $this->manager;
+    }
+
+    /**
      * @return EntityManager|object
      */
     public function getEm()
