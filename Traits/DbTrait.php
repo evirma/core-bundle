@@ -2,26 +2,26 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\ORM\EntityManager;
-use Evirma\Bundle\CoreBundle\Service\Db;
+use Evirma\Bundle\CoreBundle\Service\DbService;
 
 trait DbTrait
 {
     /**
-     * @var Db
+     * @var DbService
      */
     private $dbTraitDb;
 
     /**
      * @required
-     * @param Db $Db
+     * @param DbService $dbService
      */
-    public function setDb(Db $Db)
+    public function setDbService(DbService $dbService)
     {
-        $this->dbTraitDb = $Db;
+        $this->dbTraitDb = $dbService;
     }
 
     /**
