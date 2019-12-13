@@ -8,7 +8,7 @@ use Evirma\Bundle\CoreBundle\Filter\Rule\Slug;
 use Evirma\Bundle\CoreBundle\Service\LoggerService;
 use Evirma\Bundle\CoreBundle\Service\MemcacheService;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 use Evirma\Bundle\CoreBundle\Traits\DbTrait;
 use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;

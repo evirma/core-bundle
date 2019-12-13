@@ -4,7 +4,7 @@ namespace Evirma\Bundle\CoreBundle\Service;
 
 use InvalidArgumentException;
 use \PDO;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
@@ -258,7 +258,7 @@ final class DbService
         } catch (DBALException $e) {
             $message = $e->getMessage();
             $message = preg_replace('#VALUES(.*?)ON#usi', '{{VALUES}}', $message);
-            $message = preg_replace('#with params\s*\[.*?\]#usi', 'with params [{{PARAMS}}]', $message);
+            $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
 
             $this->getLogger()->error('SQL Execute Error', ['message' => $message, 'sql' => $query, 'params' => $params, 'types' => $types, 'exception' => $e]);
         }
