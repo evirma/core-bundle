@@ -4,7 +4,7 @@ namespace Evirma\Bundle\CoreBundle\Service;
 
 use InvalidArgumentException;
 use \PDO;
-use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
