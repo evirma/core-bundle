@@ -27,7 +27,7 @@
         "cocur/slugify": "^3.2",
         "ramsey/uuid-doctrine": "^1.5",
 
-        "doctrine/orm-pack": "^1.0.7",
+        "symfony/orm-pack": "^1.0.7",
 
         "meniam/autotext": "^4.0",
         "meniam/typograph-bundle": "^1.0",
