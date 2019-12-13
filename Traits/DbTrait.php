@@ -6,22 +6,22 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\ORM\EntityManager;
-use Evirma\Bundle\CoreBundle\Service\DbService;
+use Evirma\Bundle\CoreBundle\Service\Db;
 
 trait DbTrait
 {
     /**
-     * @var DbService
+     * @var Db
      */
     private $dbTraitDb;
 
     /**
      * @required
-     * @param DbService $dbService
+     * @param Db $Db
      */
-    public function setDbService(DbService $dbService)
+    public function setDb(Db $Db)
     {
-        $this->dbTraitDb = $dbService;
+        $this->dbTraitDb = $Db;
     }
 
     /**
