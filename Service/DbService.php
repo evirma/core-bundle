@@ -2,9 +2,9 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use InvalidArgumentException;
 use \PDO;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
@@ -16,7 +16,7 @@ use Psr\Log\LoggerInterface;
 final class DbService
 {
     /**
-     * @var ManagerRegistry
+     * @var Registry
      */
     private $manager;
 
@@ -35,7 +35,7 @@ final class DbService
      */
     private $conn;
 
-    public function __construct(ManagerRegistry $manager, LoggerInterface $logger)
+    public function __construct(Registry $manager, LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->logger = $logger;
@@ -54,7 +54,7 @@ final class DbService
     }
 
     /**
-     * @return ManagerRegistry
+     * @return Registry
      */
     public function getDoctrineManager()
     {
@@ -258,7 +258,7 @@ final class DbService
         } catch (DBALException $e) {
             $message = $e->getMessage();
             $message = preg_replace('#VALUES(.*?)ON#usi', '{{VALUES}}', $message);
-            $message = preg_replace('#with params\s*\[.*?\]#usi', 'with params [{{PARAMS}}]', $message);
+            $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
 
             $this->getLogger()->error('SQL Execute Error', ['message' => $message, 'sql' => $query, 'params' => $params, 'types' => $types, 'exception' => $e]);
         }
