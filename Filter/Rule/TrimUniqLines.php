@@ -12,6 +12,7 @@ class TrimUniqLines extends FilterRule
         $value = array_map('trim', $value);
         $value = array_filter($value);
         $value = array_unique($value);
+
         return implode("\n", $value);
     }
 }

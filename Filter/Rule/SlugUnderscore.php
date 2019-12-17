@@ -14,6 +14,7 @@ class SlugUnderscore extends Name
     public function filter($value)
     {
         $value = parent::filter($value);
+
         return trim($this->getSlugify()->slugify($value, ['separator' => '_']), '_');
     }
 

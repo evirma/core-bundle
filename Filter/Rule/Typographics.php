@@ -17,7 +17,7 @@ class Typographics extends Trim
             'Text.auto_links' => false,
             'Text.email' => false,
             'Text.breakline' => false,
-            'Text.no_repeat_words' => false
+            'Text.no_repeat_words' => false,
         ];
 
         return self::getTypo()->fast_apply($value, $options);

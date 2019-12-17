@@ -2,8 +2,8 @@
 
 namespace Evirma\Bundle\CoreBundle\Filter\Rule;
 
-use HtmlSanitizer\Sanitizer;
 use Evirma\Bundle\CoreBundle\Filter\FilterRule;
+use HtmlSanitizer\Sanitizer;
 
 class HtmlSanitizeInline extends FilterRule
 {
@@ -21,32 +21,34 @@ class HtmlSanitizeInline extends FilterRule
     private function getSanitize()
     {
         if (!$this->sanitizer) {
-            $this->sanitizer = Sanitizer::create([
-                'extensions' => ['basic'],
-                'tags' => [
-                    'em' => [
-                        'allowed_attributes' => ['class', 'title'],
+            $this->sanitizer = Sanitizer::create(
+                [
+                    'extensions' => ['basic'],
+                    'tags' => [
+                        'em' => [
+                            'allowed_attributes' => ['class', 'title'],
+                        ],
+                        'i' => [
+                            'allowed_attributes' => ['class', 'title'],
+                        ],
+                        'del' => [
+                            'allowed_attributes' => ['class', 'title'],
+                        ],
+                        'small' => [
+                            'allowed_attributes' => ['class'],
+                        ],
+                        'strong' => [
+                            'allowed_attributes' => ['class'],
+                        ],
+                        'sub' => [
+                            'allowed_attributes' => ['class'],
+                        ],
+                        'sup' => [
+                            'allowed_attributes' => ['class'],
+                        ],
                     ],
-                    'i' => [
-                        'allowed_attributes' => ['class', 'title'],
-                    ],
-                    'del' => [
-                        'allowed_attributes' => ['class', 'title'],
-                    ],
-                    'small' => [
-                        'allowed_attributes' => ['class'],
-                    ],
-                    'strong' => [
-                        'allowed_attributes' => ['class'],
-                    ],
-                    'sub' => [
-                        'allowed_attributes' => ['class'],
-                    ],
-                    'sup' => [
-                        'allowed_attributes' => ['class'],
-                    ],
-                ],
-            ]);
+                ]
+            );
         }
 
         return $this->sanitizer;

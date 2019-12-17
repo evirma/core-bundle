@@ -2,8 +2,9 @@
 
 namespace Evirma\Bundle\CoreBundle\Filter\Rule;
 
+use DateInterval;
 use Evirma\Bundle\CoreBundle\Filter\FilterRule;
-use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
+use Exception;
 
 class DurationToSeconds extends FilterRule
 {
@@ -11,8 +12,8 @@ class DurationToSeconds extends FilterRule
     {
         $interval = null;
         try {
-            $interval = new \DateInterval($value);
-        } catch (\Exception $e) {
+            $interval = new DateInterval($value);
+        } catch (Exception $e) {
         }
 
         if ($interval) {

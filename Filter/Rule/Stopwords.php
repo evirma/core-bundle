@@ -11,6 +11,7 @@ class Stopwords extends FilterRule
     public function filter($value)
     {
         $stopWords = $this->getStopwords();
+
         return preg_replace($stopWords, '', $value);
     }
 
@@ -18,7 +19,7 @@ class Stopwords extends FilterRule
     {
         if (!self::$stopwords) {
             $words = array_map('trim', file(__DIR__.'/stopwords.txt'));
-            self::$stopwords = '#\b(' . implode('|', $words) . ')\b#usi';
+            self::$stopwords = '#\b('.implode('|', $words).')\b#usi';
         }
 
         return self::$stopwords;

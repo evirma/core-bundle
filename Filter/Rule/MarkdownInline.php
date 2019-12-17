@@ -25,20 +25,22 @@ class MarkdownInline extends HtmlSanitizeInline
             $environment = new Environment();
             $environment->addExtension(new InlinesOnlyExtension());
 
-            $this->markdownParser = new CommonMarkConverter([
-                'renderer' => [
-                    'block_separator' => "\n",
-                    'inner_separator' => "\n",
-                    'soft_break'      => "\n",
-                ],
-                'enable_em' => true,
-                'enable_emphasis' => true,
-                'enable_strong' => true,
-                'use_asterisk' => true,
-                'use_underscore' => true,
-                'html_input' => 'strip',
-                'allow_unsafe_links' => true,
-            ], $environment);
+            $this->markdownParser = new CommonMarkConverter(
+                [
+                    'renderer' => [
+                        'block_separator' => "\n",
+                        'inner_separator' => "\n",
+                        'soft_break' => "\n",
+                    ],
+                    'enable_em' => true,
+                    'enable_emphasis' => true,
+                    'enable_strong' => true,
+                    'use_asterisk' => true,
+                    'use_underscore' => true,
+                    'html_input' => 'strip',
+                    'allow_unsafe_links' => true,
+                ], $environment
+            );
         }
 
         return $this->markdownParser;

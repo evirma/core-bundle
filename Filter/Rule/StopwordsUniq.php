@@ -15,6 +15,7 @@ class StopwordsUniq extends FilterRule
         }
         $value = array_filter($value);
         $value = array_unique($value);
+
         return trim(implode("\n", $value));
     }
 }

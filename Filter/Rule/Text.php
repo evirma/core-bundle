@@ -9,6 +9,7 @@ class Text extends FilterRule
     public function filter($value)
     {
         $value = trim(preg_replace('#\s+#', ' ', $value));
+
         return trim($value);
     }
 }

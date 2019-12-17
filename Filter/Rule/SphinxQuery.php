@@ -11,6 +11,7 @@ class SphinxQuery extends FilterRule
     {
         $value = FilterStatic::filterValue($value, HtmlAndUnicode::class);
         $value = preg_replace('#\s+#', ' ', $value);
+
         return trim($value);
     }
 }
