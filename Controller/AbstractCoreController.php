@@ -63,11 +63,12 @@ abstract class AbstractCoreController extends AbstractController
     /**
      * @param string $type
      * @param string $message
-     * @param null   $params
+     * @param array  $params
+     * @param null   $domain
      */
-    protected function addFlashTrans(string $type, string $message, $params = null)
+    protected function addFlashTrans(string $type, string $message, array $params = [], $domain = null)
     {
-        $this->addFlash($type, $this->trans($message, $params));
+        $this->addFlash($type, $this->trans($message, $params, $domain));
     }
 
     /**
