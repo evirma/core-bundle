@@ -36,8 +36,6 @@ class MemcacheService
      */
     private $prefix;
 
-
-
     /**
      * @var bool
      */
@@ -48,9 +46,13 @@ class MemcacheService
      */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    /**
+     * @required
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
     {
-        $this->logger = $logger;
+
     }
 
     /**
@@ -132,7 +134,7 @@ class MemcacheService
         try {
             return $this->getMemcachedAdapter()->set($key, $value, time() + $ttl);
         } catch (Exception $e) {
-            $this->logger->error("Memcached set failed", ['key' => $key, 'value' => $value, 'e' => $e]);
+            $this->logger && $this->logger->error("Memcached set failed", ['key' => $key, 'value' => $value, 'e' => $e]);
             return false;
         }
     }
@@ -147,7 +149,7 @@ class MemcacheService
         try {
             return $this->getMemcachedAdapter()->setMulti($values, time() + $ttl);
         } catch (Exception $e) {
-            $this->logger->error("Memcached setMultiple failed", ['values' => $values, 'e' => $e]);
+            $this->logger && $this->logger->error("Memcached setMultiple failed", ['values' => $values, 'e' => $e]);
             return false;
         }
     }
@@ -169,7 +171,7 @@ class MemcacheService
             }
             return $result;
         } catch (Exception $e) {
-            $this->logger->error("Memcached get failed", ['key' => $key, 'e' => $e]);
+            $this->logger && $this->logger->error("Memcached get failed", ['key' => $key, 'e' => $e]);
             return $default;
         }
     }
@@ -187,7 +189,7 @@ class MemcacheService
         try {
             return $this->getMemcachedAdapter()->getMulti($keys);
         } catch (Exception $e) {
-            $this->logger->error("Memcached getMultiple failed", ['keys' => $keys, 'default' => $default, 'e' => $e]);
+            $this->logger && $this->logger->error("Memcached getMultiple failed", ['keys' => $keys, 'default' => $default, 'e' => $e]);
             return $default;
         }
     }
@@ -224,7 +226,7 @@ class MemcacheService
         try {
             return $this->getMemcachedAdapter()->delete($key);
         } catch (Exception $e) {
-            $this->logger->error("Memcached deleteMultiple failed", ['key' => $key, 'e' => $e]);
+            $this->logger && $this->logger->error("Memcached deleteMultiple failed", ['key' => $key, 'e' => $e]);
             return false;
         }
     }
@@ -238,7 +240,7 @@ class MemcacheService
         try {
             return $this->getMemcachedAdapter()->deleteMulti($keys);
         } catch (Exception $e) {
-            $this->logger->error("Memcached deleteMultiple failed", ['keys' => $keys, 'e' => $e]);
+            $this->logger && $this->logger->error("Memcached deleteMultiple failed", ['keys' => $keys, 'e' => $e]);
             return false;
         }
     }
@@ -252,7 +254,7 @@ class MemcacheService
             $this->getMemcachedAdapter(true);
             return true;
         } catch (Exception $e) {
-            $this->logger->error("Delete Prefix Key Failed", ['e' => $e]);
+            $this->logger && $this->logger->error("Delete Prefix Key Failed", ['e' => $e]);
             return false;
         }
     }
