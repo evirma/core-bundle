@@ -2,22 +2,21 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
-use Exception;
-use Evirma\Bundle\CoreBundle\Traits\DbTrait;
-use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
+use Doctrine\Persistence\ManagerRegistry;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
 use Evirma\Bundle\CoreBundle\Filter\Rule\SuggestionSearch;
 use Evirma\Bundle\CoreBundle\Filter\Rule\SuggestionSearchId;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
+use Evirma\Bundle\CoreBundle\Traits\DbTrait;
 use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
-use Doctrine\ORM\EntityManagerInterface;
+use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
+use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
@@ -37,8 +36,6 @@ abstract class AbstractCoreService implements ServiceSubscriberInterface
     public static function getSubscribedServices()
     {
         return [
-            DbService::class,
-            EntityManagerInterface::class,
             'validator' => '?'.ValidatorInterface::class,
             'router' => '?'.RouterInterface::class,
             'request_stack' => '?'.RequestStack::class,

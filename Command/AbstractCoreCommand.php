@@ -2,7 +2,6 @@
 
 namespace Evirma\Bundle\CoreBundle\Command;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
 use Evirma\Bundle\CoreBundle\Filter\Rule\Slug;
@@ -43,7 +42,6 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
     public static function getSubscribedServices()
     {
         return [
-            EntityManagerInterface::class,
             'router' => '?'.RouterInterface::class,
             'request_stack' => '?'.RequestStack::class,
             'http_kernel' => '?'.HttpKernelInterface::class,
@@ -58,15 +56,6 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
     }
 
     /**
-     * @required
-     * @param ContainerInterface $container
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
      * @return ContainerInterface
      */
     protected function getContainer()
@@ -75,26 +64,12 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
     }
 
     /**
-     * @return mixed
+     * @required
+     * @param ContainerInterface $container
      */
-    protected function getStorageDir()
+    public function setContainer(ContainerInterface $container)
     {
-        return $this->getParameter('storage_directory');
-    }
-
-    /**
-     * Gets a container parameter by its name.
-     *
-     * @param string $name
-     * @return mixed
-     */
-    protected function getParameter(string $name)
-    {
-        if (!$this->container->has('parameter_bag')) {
-            throw new ServiceNotFoundException('parameter_bag', null, null, [], sprintf('The "%s::getParameter()" method is missing a parameter bag to work properly. Did you forget to register your controller as a service subscriber? This can be fixed either by using autoconfiguration or by manually wiring a "parameter_bag" in the service locator passed to the controller.', get_class($this)));
-        }
-
-        return $this->container->get('parameter_bag')->get($name);
+        $this->container = $container;
     }
 
     /**
@@ -109,7 +84,7 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
         try {
             $help->run($input, $output);
         } catch (Exception $e) {
-            $this->getLogger()->error("Help command failed: " . $e->getMessage());
+            $this->getLogger()->error("Help command failed: ".$e->getMessage());
         }
     }
 
@@ -131,44 +106,76 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
         }
     }
 
-
     /**
      * @param string          $commandName
      * @param array           $arguments
      * @param OutputInterface $output
-     *
      * @throws Exception
      */
     protected function runCommand($commandName, array $arguments, OutputInterface $output)
     {
         $command = $this->getApplication()->find($commandName);
-        $this->getLogger()->info('Running command: ' . $commandName);
+        $this->getLogger()->info('Running command: '.$commandName);
         $greetInput = new ArrayInput($arguments);
         $command->run($greetInput, $output);
-        $this->getLogger()->info('Finished command: ' . $commandName);
-    }
-
-    protected function getMemoryUsage()
-    {
-        return round((memory_get_usage() / 1024 / 1024), 2) . 'Mb';
+        $this->getLogger()->info('Finished command: '.$commandName);
     }
 
     protected function logMemoryUsage()
     {
-        $this->getLogger()->info('<info>MEMORY USAGE:</info> <fg=white;options=bold>' . $this->getMemoryUsage() . '</>');
+        $this->getLogger()->info('<info>MEMORY USAGE:</info> <fg=white;options=bold>'.$this->getMemoryUsage().'</>');
+    }
+
+    protected function getMemoryUsage()
+    {
+        return round((memory_get_usage() / 1024 / 1024), 2).'Mb';
     }
 
     protected function saveReport($type, array $report = [])
     {
-        $reportsDir = rtrim($this->getStorageDir() . '/reports/', '/') . '/';
-        if (!is_dir($reportsDir)) mkdir($reportsDir, 0755, true);
+        $reportsDir = rtrim($this->getStorageDir().'/reports/', '/').'/';
+        if (!is_dir($reportsDir)) {
+            mkdir($reportsDir, 0755, true);
+        }
 
 
         $type = preg_replace('#^x:#', '', $type);
         $type = FilterStatic::filterValue($type, Slug::class);
 
-        $file = $reportsDir . $type . '.json';
+        $file = $reportsDir.$type.'.json';
         file_put_contents($file, json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getStorageDir()
+    {
+        return $this->getParameter('storage_directory');
+    }
+
+    /**
+     * Gets a container parameter by its name.
+     *
+     * @param string $name
+     * @return mixed
+     */
+    protected function getParameter(string $name)
+    {
+        if (!$this->container->has('parameter_bag')) {
+            throw new ServiceNotFoundException(
+                'parameter_bag',
+                null,
+                null,
+                [],
+                sprintf(
+                    'The "%s::getParameter()" method is missing a parameter bag to work properly. Did you forget to register your controller as a service subscriber? This can be fixed either by using autoconfiguration or by manually wiring a "parameter_bag" in the service locator passed to the controller.',
+                    get_class($this)
+                )
+            );
+        }
+
+        return $this->container->get('parameter_bag')->get($name);
     }
 
 }

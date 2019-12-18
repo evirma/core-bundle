@@ -2,7 +2,6 @@
 
 namespace Evirma\Bundle\CoreBundle\Controller;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Evirma\Bundle\CoreBundle\Service\PageCache;
 use Evirma\Bundle\CoreBundle\Service\PageMeta;
 use Evirma\Bundle\CoreBundle\Service\RequestService;
@@ -27,13 +26,15 @@ abstract class AbstractCoreController extends AbstractController
 
     public static function getSubscribedServices()
     {
-        return array_merge(parent::getSubscribedServices(), [
-            RequestService::class,
-            EntityManagerInterface::class,
-            PageMeta::class,
-            PageCache::class,
-            Autotext::class
-        ]);
+        return array_merge(
+            parent::getSubscribedServices(),
+            [
+                RequestService::class,
+                PageMeta::class,
+                PageCache::class,
+                Autotext::class,
+            ]
+        );
     }
 
     /**
@@ -48,6 +49,7 @@ abstract class AbstractCoreController extends AbstractController
     {
         $form = $this->createForm($type, $data, $options);
         $form->handleRequest($this->getRequest());
+
         return $form;
     }
 
