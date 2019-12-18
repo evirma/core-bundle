@@ -3,8 +3,8 @@
 namespace Evirma\Bundle\CoreBundle\Service;
 
 use ErrorException;
-use \Exception;
-use \Memcached;
+use Exception;
+use Memcached;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 
@@ -14,37 +14,40 @@ class MemcacheService
 
     public static $prefetchCacheData = [];
     public static $addToPrefetchOnSet = false;
-
-    /**
-     * Transaction started flag
-     * @var bool
-     */
-    private $transaction = false;
-
-    /**
-     * @var array
-     */
-    private $transactionCachedIds = [];
-
-    /**
-     * @var Memcached
-     */
-    private $memcached;
-
-    /**
-     * @var string
-     */
-    private $prefix;
-
     /**
      * @var bool
      */
     public static $isCacheAllowed = true;
-
+    /**
+     * Transaction started flag
+     *
+     * @var bool
+     */
+    private $transaction = false;
+    /**
+     * @var array
+     */
+    private $transactionCachedIds = [];
+    /**
+     * @var Memcached
+     */
+    private $memcached;
+    /**
+     * @var string
+     */
+    private $prefix;
     /**
      * @var LoggerInterface
      */
     private $logger;
+
+    /**
+     * @param bool $state
+     */
+    public static function setCacheAllowed(bool $state)
+    {
+        self::$isCacheAllowed = $state;
+    }
 
     /**
      * @required
@@ -52,7 +55,7 @@ class MemcacheService
      */
     public function setLogger(LoggerInterface $logger)
     {
-
+        $this->logger = $logger;
     }
 
     /**
@@ -63,41 +66,10 @@ class MemcacheService
         $this->prefix = $prefix;
     }
 
-    protected function getPrefixStoreKey()
-    {
-        return $this->prefix.'prefix_store';
-    }
-
-    /**
-     * @param bool $renewStoreKey
-     * @return Memcached
-     * @throws ErrorException
-     */
-    private function getMemcachedAdapter($renewStoreKey = false)
-    {
-        if ($this->memcached && !$renewStoreKey) return $this->memcached;
-
-        $options = [];
-        $this->memcached = MemcachedAdapter::createConnection(
-            'memcached://memcached-server',
-            $options
-        );
-
-        if ($this->prefix) {
-            $prefixStoreKey = $this->getPrefixStoreKey();
-            if (!($prefix = $this->get($prefixStoreKey)) || $renewStoreKey) {
-                $prefix = $this->prefix.mt_rand(1, 100000).'_';
-                $this->set($prefixStoreKey, $prefix, 365*86400);
-            }
-            $this->memcached->setOption(Memcached::OPT_PREFIX_KEY, $prefix);
-        }
-
-        return $this->memcached;
-    }
-
     public function beginTransaction()
     {
         $this->transaction = true;
+
         return $this;
     }
 
@@ -105,6 +77,7 @@ class MemcacheService
     {
         $this->transaction = false;
         $this->transactionCachedIds = [];
+
         return $this;
     }
 
@@ -122,6 +95,90 @@ class MemcacheService
     }
 
     /**
+     * @param array $keys
+     * @return bool|array
+     */
+    public function deleteMultiple(array $keys)
+    {
+        try {
+            return $this->getMemcachedAdapter()->deleteMulti($keys);
+        } catch (Exception $e) {
+            $this->logger && $this->logger->error("Memcached deleteMultiple failed", ['keys' => $keys, 'e' => $e]);
+
+            return false;
+        }
+    }
+
+    /**
+     * @param bool $renewStoreKey
+     * @return Memcached
+     * @throws ErrorException
+     */
+    private function getMemcachedAdapter($renewStoreKey = false)
+    {
+        if ($this->memcached && !$renewStoreKey) {
+            return $this->memcached;
+        }
+
+        $options = [];
+        $this->memcached = MemcachedAdapter::createConnection(
+            'memcached://memcached-server',
+            $options
+        );
+
+        if ($this->prefix) {
+            $prefixStoreKey = $this->getPrefixStoreKey();
+            if (!($prefix = $this->get($prefixStoreKey)) || $renewStoreKey) {
+                $prefix = $this->prefix.mt_rand(1, 100000).'_';
+                $this->set($prefixStoreKey, $prefix, 365 * 86400);
+            }
+            $this->memcached->setOption(Memcached::OPT_PREFIX_KEY, $prefix);
+        }
+
+        return $this->memcached;
+    }
+
+    protected function getPrefixStoreKey()
+    {
+        return $this->prefix.'prefix_store';
+    }
+
+    /**
+     * @param      $key
+     * @param      $default
+     * @param bool $cached
+     * @return mixed|null
+     */
+    public function get($key, $default = false, $cached = true)
+    {
+        if (!$this->isCacheAllowed($cached)) {
+            return $default;
+        }
+
+        try {
+            $result = $this->getMemcachedAdapter()->get($key);
+            if ($this->getMemcachedAdapter()->getResultCode() == Memcached::RES_NOTFOUND) {
+                return $default;
+            }
+
+            return $result;
+        } catch (Exception $e) {
+            $this->logger && $this->logger->error("Memcached get failed", ['key' => $key, 'e' => $e]);
+
+            return $default;
+        }
+    }
+
+    /**
+     * @param bool $cached
+     * @return bool
+     */
+    public static function isCacheAllowed($cached = true)
+    {
+        return self::$isCacheAllowed && $cached;
+    }
+
+    /**
      * @param       $key
      * @param null  $value
      * @param int   $ttl
@@ -129,12 +186,15 @@ class MemcacheService
      */
     public function set($key, $value = null, $ttl = null)
     {
-        if ($this->transaction) $this->transactionCachedIds[$key] = $key;
+        if ($this->transaction) {
+            $this->transactionCachedIds[$key] = $key;
+        }
 
         try {
             return $this->getMemcachedAdapter()->set($key, $value, time() + $ttl);
         } catch (Exception $e) {
             $this->logger && $this->logger->error("Memcached set failed", ['key' => $key, 'value' => $value, 'e' => $e]);
+
             return false;
         }
     }
@@ -150,29 +210,8 @@ class MemcacheService
             return $this->getMemcachedAdapter()->setMulti($values, time() + $ttl);
         } catch (Exception $e) {
             $this->logger && $this->logger->error("Memcached setMultiple failed", ['values' => $values, 'e' => $e]);
+
             return false;
-        }
-    }
-
-    /**
-     * @param      $key
-     * @param      $default
-     * @param bool $cached
-     * @return mixed|null
-     */
-    public function get($key, $default = false, $cached = true)
-    {
-        if (!$this->isCacheAllowed($cached)) return $default;
-
-        try {
-            $result = $this->getMemcachedAdapter()->get($key);
-            if ($this->getMemcachedAdapter()->getResultCode() == Memcached::RES_NOTFOUND) {
-                return $default;
-            }
-            return $result;
-        } catch (Exception $e) {
-            $this->logger && $this->logger->error("Memcached get failed", ['key' => $key, 'e' => $e]);
-            return $default;
         }
     }
 
@@ -184,12 +223,15 @@ class MemcacheService
      */
     public function getMultiple($keys, $default = false, $cached = true)
     {
-        if (!$this->isCacheAllowed($cached)) return $default;
+        if (!$this->isCacheAllowed($cached)) {
+            return $default;
+        }
 
         try {
             return $this->getMemcachedAdapter()->getMulti($keys);
         } catch (Exception $e) {
             $this->logger && $this->logger->error("Memcached getMultiple failed", ['keys' => $keys, 'default' => $default, 'e' => $e]);
+
             return $default;
         }
     }
@@ -198,12 +240,13 @@ class MemcacheService
      * @param      $key
      * @param      $default
      * @param bool $cached
-     *
      * @return mixed|null
      */
     public function getDecoded($key, $default = false, $cached = true)
     {
-        if (!$this->isCacheAllowed($cached)) return $default;
+        if (!$this->isCacheAllowed($cached)) {
+            return $default;
+        }
 
         $result = $this->get($key, self::MC_DEFAULT);
 
@@ -218,7 +261,6 @@ class MemcacheService
 
     /**
      * @param $key
-     *
      * @return bool
      */
     public function delete($key)
@@ -227,20 +269,7 @@ class MemcacheService
             return $this->getMemcachedAdapter()->delete($key);
         } catch (Exception $e) {
             $this->logger && $this->logger->error("Memcached deleteMultiple failed", ['key' => $key, 'e' => $e]);
-            return false;
-        }
-    }
 
-    /**
-     * @param array $keys
-     * @return bool|array
-     */
-    public function deleteMultiple(array $keys)
-    {
-        try {
-            return $this->getMemcachedAdapter()->deleteMulti($keys);
-        } catch (Exception $e) {
-            $this->logger && $this->logger->error("Memcached deleteMultiple failed", ['keys' => $keys, 'e' => $e]);
             return false;
         }
     }
@@ -252,27 +281,12 @@ class MemcacheService
     {
         try {
             $this->getMemcachedAdapter(true);
+
             return true;
         } catch (Exception $e) {
             $this->logger && $this->logger->error("Delete Prefix Key Failed", ['e' => $e]);
+
             return false;
         }
-    }
-
-    /**
-     * @param bool $state
-     */
-    public static function setCacheAllowed(bool $state)
-    {
-        self::$isCacheAllowed = $state;
-    }
-
-    /**
-     * @param bool $cached
-     * @return bool
-     */
-    public static function isCacheAllowed($cached = true)
-    {
-        return self::$isCacheAllowed && $cached;
     }
 }
