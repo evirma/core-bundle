@@ -5,9 +5,10 @@ namespace Evirma\Bundle\CoreBundle\Service;
 use ErrorException;
 use \Exception;
 use \Memcached;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 
-class MemcacheService extends AbstractCoreService
+class MemcacheService
 {
     const MC_DEFAULT = '-1~1982~06~01';
 
@@ -30,12 +31,27 @@ class MemcacheService extends AbstractCoreService
      */
     private $memcached;
 
+    /**
+     * @var string
+     */
     private $prefix;
+
+
 
     /**
      * @var bool
      */
     public static $isCacheAllowed = true;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
 
     /**
      * @param $prefix
@@ -116,7 +132,7 @@ class MemcacheService extends AbstractCoreService
         try {
             return $this->getMemcachedAdapter()->set($key, $value, time() + $ttl);
         } catch (Exception $e) {
-            $this->getLogger()->error("Memcached set failed", ['key' => $key, 'value' => $value, 'e' => $e]);
+            $this->logger->error("Memcached set failed", ['key' => $key, 'value' => $value, 'e' => $e]);
             return false;
         }
     }
@@ -131,7 +147,7 @@ class MemcacheService extends AbstractCoreService
         try {
             return $this->getMemcachedAdapter()->setMulti($values, time() + $ttl);
         } catch (Exception $e) {
-            $this->getLogger()->error("Memcached setMultiple failed", ['values' => $values, 'e' => $e]);
+            $this->logger->error("Memcached setMultiple failed", ['values' => $values, 'e' => $e]);
             return false;
         }
     }
@@ -153,7 +169,7 @@ class MemcacheService extends AbstractCoreService
             }
             return $result;
         } catch (Exception $e) {
-            $this->getLogger()->error("Memcached get failed", ['key' => $key, 'e' => $e]);
+            $this->logger->error("Memcached get failed", ['key' => $key, 'e' => $e]);
             return $default;
         }
     }
@@ -171,7 +187,7 @@ class MemcacheService extends AbstractCoreService
         try {
             return $this->getMemcachedAdapter()->getMulti($keys);
         } catch (Exception $e) {
-            $this->getLogger()->error("Memcached getMultiple failed", ['keys' => $keys, 'default' => $default, 'e' => $e]);
+            $this->logger->error("Memcached getMultiple failed", ['keys' => $keys, 'default' => $default, 'e' => $e]);
             return $default;
         }
     }
@@ -208,7 +224,7 @@ class MemcacheService extends AbstractCoreService
         try {
             return $this->getMemcachedAdapter()->delete($key);
         } catch (Exception $e) {
-            $this->getLogger()->error("Memcached deleteMultiple failed", ['key' => $key, 'e' => $e]);
+            $this->logger->error("Memcached deleteMultiple failed", ['key' => $key, 'e' => $e]);
             return false;
         }
     }
@@ -222,7 +238,7 @@ class MemcacheService extends AbstractCoreService
         try {
             return $this->getMemcachedAdapter()->deleteMulti($keys);
         } catch (Exception $e) {
-            $this->getLogger()->error("Memcached deleteMultiple failed", ['keys' => $keys, 'e' => $e]);
+            $this->logger->error("Memcached deleteMultiple failed", ['keys' => $keys, 'e' => $e]);
             return false;
         }
     }
@@ -236,7 +252,7 @@ class MemcacheService extends AbstractCoreService
             $this->getMemcachedAdapter(true);
             return true;
         } catch (Exception $e) {
-            $this->getLogger()->error("Delete Prefix Key Failed", ['e' => $e]);
+            $this->logger->error("Delete Prefix Key Failed", ['e' => $e]);
             return false;
         }
     }
@@ -247,5 +263,14 @@ class MemcacheService extends AbstractCoreService
     public static function setCacheAllowed(bool $state)
     {
         self::$isCacheAllowed = $state;
+    }
+
+    /**
+     * @param bool $cached
+     * @return bool
+     */
+    public static function isCacheAllowed($cached = true)
+    {
+        return self::$isCacheAllowed && $cached;
     }
 }

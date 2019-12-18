@@ -3,14 +3,23 @@
 namespace Evirma\Bundle\CoreBundle\Traits;
 
 use Evirma\Bundle\CoreBundle\Service\MemcacheService;
-use LogicException;
-use Psr\Container\ContainerInterface;
 
-/**
- * @property ContainerInterface $container
- */
 trait CacheTrait
 {
+    /**
+     * @var MemcacheService
+     */
+    protected $memcache;
+
+    /**
+     * @required
+     * @param MemcacheService $memcache
+     */
+    public function setMemcache(MemcacheService $memcache): void
+    {
+        $this->memcache = $memcache;
+    }
+
     /**
      * @param bool $flag
      * @return bool
@@ -19,7 +28,6 @@ trait CacheTrait
     {
         $currentValue = MemcacheService::$addToPrefetchOnSet;
         MemcacheService::$addToPrefetchOnSet = $flag;
-
         return $currentValue;
     }
 
@@ -54,20 +62,21 @@ trait CacheTrait
      */
     public function getMemcache()
     {
-        if (isset($this->memcacheService) && $this->memcacheService instanceof MemcacheService) {
-            return $this->memcacheService;
-        } elseif (isset($this->container)) {
-            $class = MemcacheService::class;
-            if (!$this->container->has(MemcacheService::class)) {
-                $message = "The {$class} is not registered in your application.";
-                throw new LogicException($message);
-            }
-
-            return $this->container->get($class);
-        } else {
-            $message = "MemcachedService is not registered in your application.";
-            throw new LogicException($message);
-        }
+        return $this->memcache;
+//        if (isset($this->memcacheService) && $this->memcacheService instanceof MemcacheService) {
+//            return $this->memcacheService;
+//        } elseif (isset($this->container)) {
+//            $class = MemcacheService::class;
+//            if (!$this->container->has($class)) {
+//                $message = "The {$class} is not registered in your application.";
+//                throw new LogicException($message);
+//            }
+//
+//            return $this->container->get($class);
+//        } else {
+//            $message = "MemcachedService is not registered in your application.";
+//            throw new LogicException($message);
+//        }
     }
 
     /**
@@ -97,7 +106,7 @@ trait CacheTrait
      */
     protected function isCacheAllowed($cached = true)
     {
-        return MemcacheService::$isCacheAllowed && $cached;
+        return MemcacheService::isCacheAllowed($cached);
     }
 
     /**

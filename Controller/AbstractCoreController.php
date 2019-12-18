@@ -3,7 +3,6 @@
 namespace Evirma\Bundle\CoreBundle\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Evirma\Bundle\CoreBundle\Service\MemcacheService;
 use Evirma\Bundle\CoreBundle\Service\PageCache;
 use Evirma\Bundle\CoreBundle\Service\PageMeta;
 use Evirma\Bundle\CoreBundle\Service\RequestService;
@@ -14,10 +13,8 @@ use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
 use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
 use Evirma\Bundle\CoreBundle\Traits\TranslatorTrait;
 use Meniam\AutotextBundle\Autotext;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class AbstractCoreController extends AbstractController
 {
@@ -32,13 +29,10 @@ abstract class AbstractCoreController extends AbstractController
     {
         return array_merge(parent::getSubscribedServices(), [
             RequestService::class,
-            MemcacheService::class,
-            LoggerInterface::class,
             EntityManagerInterface::class,
             PageMeta::class,
             PageCache::class,
-            Autotext::class,
-            ValidatorInterface::class,
+            Autotext::class
         ]);
     }
 

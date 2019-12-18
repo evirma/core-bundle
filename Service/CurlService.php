@@ -516,7 +516,7 @@ class CurlService
             $cookie = explode('=', $cookie[0]);
             $cookiename = trim(array_shift($cookie));
 
-            if (preg_match('#Expires=([^;]+)\;#usi', $cookiestr, $m)) {
+            if (preg_match('#Expires=([^;]+);#usi', $cookiestr, $m)) {
                 if (strtotime($m[1]) < time()) {
                     unset($this->_cookieArr[$cookiename]);
                     continue;

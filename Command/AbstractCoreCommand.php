@@ -2,34 +2,31 @@
 
 namespace Evirma\Bundle\CoreBundle\Command;
 
-use Exception;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
 use Evirma\Bundle\CoreBundle\Filter\Rule\Slug;
-use Evirma\Bundle\CoreBundle\Service\MemcacheService;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
-use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManagerInterface;
 use Evirma\Bundle\CoreBundle\Traits\DbTrait;
 use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
+use Exception;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Contracts\Service\ServiceSubscriberInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
-use Symfony\Component\Templating\EngineInterface;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Twig\Environment;
 
 abstract class AbstractCoreCommand extends Command implements ServiceSubscriberInterface
@@ -46,15 +43,12 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
     public static function getSubscribedServices()
     {
         return [
-            LoggerInterface::class,
-            MemcacheService::class,
             EntityManagerInterface::class,
             'router' => '?'.RouterInterface::class,
             'request_stack' => '?'.RequestStack::class,
             'http_kernel' => '?'.HttpKernelInterface::class,
             'session' => '?'.SessionInterface::class,
             'security.authorization_checker' => '?'.AuthorizationCheckerInterface::class,
-            'templating' => '?'.EngineInterface::class,
             'twig' => '?'.Environment::class,
             'doctrine' => '?'.ManagerRegistry::class,
             'form.factory' => '?'.FormFactoryInterface::class,

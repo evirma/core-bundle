@@ -21,10 +21,8 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
-use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 abstract class AbstractCoreService implements ServiceSubscriberInterface
@@ -39,17 +37,14 @@ abstract class AbstractCoreService implements ServiceSubscriberInterface
     public static function getSubscribedServices()
     {
         return [
-            MemcacheService::class,
             DbService::class,
             EntityManagerInterface::class,
-            TranslatorInterface::class,
             'validator' => '?'.ValidatorInterface::class,
             'router' => '?'.RouterInterface::class,
             'request_stack' => '?'.RequestStack::class,
             'http_kernel' => '?'.HttpKernelInterface::class,
             'session' => '?'.SessionInterface::class,
             'security.authorization_checker' => '?'.AuthorizationCheckerInterface::class,
-            'templating' => '?'.EngineInterface::class,
             'twig' => '?'.Environment::class,
             'doctrine' => '?'.ManagerRegistry::class,
             'security.token_storage' => '?'.TokenStorageInterface::class,
