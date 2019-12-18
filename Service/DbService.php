@@ -2,7 +2,6 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
 use InvalidArgumentException;
 use \PDO;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -17,7 +16,7 @@ use Psr\Log\LoggerInterface;
 final class DbService
 {
     /**
-     * @var Registry
+     * @var ManagerRegistry
      */
     private $manager;
 
@@ -55,7 +54,7 @@ final class DbService
     }
 
     /**
-     * @return Registry
+     * @return ManagerRegistry
      */
     public function getDoctrineManager()
     {

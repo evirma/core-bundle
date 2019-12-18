@@ -39,7 +39,6 @@ abstract class AbstractCoreService implements ServiceSubscriberInterface
     public static function getSubscribedServices()
     {
         return [
-            LoggerService::class,
             MemcacheService::class,
             DbService::class,
             EntityManagerInterface::class,
@@ -96,7 +95,6 @@ abstract class AbstractCoreService implements ServiceSubscriberInterface
         try {
             return $this->container->get('twig')->render($view, $parameters);
         } catch (Exception $e) {
-            $this->container->get(LoggerService::class)->critical("Cant render view {$view}", ['view' => $view, 'params' => $parameters]);
             return null;
         }
     }

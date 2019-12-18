@@ -3,8 +3,6 @@
 namespace Evirma\Bundle\CoreBundle\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Meniam\AutotextBundle\Autotext;
-use Evirma\Bundle\CoreBundle\Service\LoggerService;
 use Evirma\Bundle\CoreBundle\Service\MemcacheService;
 use Evirma\Bundle\CoreBundle\Service\PageCache;
 use Evirma\Bundle\CoreBundle\Service\PageMeta;
@@ -15,11 +13,10 @@ use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
 use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
 use Evirma\Bundle\CoreBundle\Traits\TranslatorTrait;
+use Meniam\AutotextBundle\Autotext;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Router;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class AbstractCoreController extends AbstractController
@@ -37,51 +34,12 @@ abstract class AbstractCoreController extends AbstractController
             RequestService::class,
             MemcacheService::class,
             LoggerInterface::class,
-            LoggerService::class,
             EntityManagerInterface::class,
             PageMeta::class,
             PageCache::class,
             Autotext::class,
             ValidatorInterface::class,
         ]);
-    }
-
-    /**
-     * Returns a JsonResponse that uses the serializer component if enabled, or json_encode.
-     *
-     * @param       $data
-     * @param int   $status
-     * @param array $headers
-     *
-     * @return JsonResponse
-     */
-    protected function jsonResponse($data, int $status = 200, array $headers = array()): JsonResponse
-    {
-        return new JsonResponse(json_encode($data, JSON_UNESCAPED_UNICODE), $status, $headers, true);
-    }
-
-    /**
-     * @param string $type
-     * @param string $message
-     * @param array  $params
-     * @param null   $domain
-     */
-    protected function addFlashTrans(string $type, string $message, array $params = [], $domain = null)
-    {
-        $this->addFlash($type, $this->trans($message, $params, $domain));
-    }
-
-    /**
-     * @param array $replace
-     * @param array $delete
-     * @param null  $route
-     * @param array $parameters
-     * @param int   $referenceType
-     * @return mixed|string|null
-     */
-    protected function urlSaveGet($replace = array(), $delete = array(), $route = null, $parameters = array(), $referenceType = Router::ABSOLUTE_PATH)
-    {
-        return $this->getRequestService()->urlSaveGet($replace, $delete, $route, $parameters, $referenceType);
     }
 
     /**

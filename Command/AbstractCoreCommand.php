@@ -5,7 +5,6 @@ namespace Evirma\Bundle\CoreBundle\Command;
 use Exception;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
 use Evirma\Bundle\CoreBundle\Filter\Rule\Slug;
-use Evirma\Bundle\CoreBundle\Service\LoggerService;
 use Evirma\Bundle\CoreBundle\Service\MemcacheService;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
 use Doctrine\Persistence\ManagerRegistry;
@@ -48,7 +47,6 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
     {
         return [
             LoggerInterface::class,
-            LoggerService::class,
             MemcacheService::class,
             EntityManagerInterface::class,
             'router' => '?'.RouterInterface::class,

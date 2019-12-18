@@ -2,8 +2,6 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
-use \LogicException;
-use Evirma\Bundle\CoreBundle\Service\LoggerService;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -13,33 +11,24 @@ use Psr\Log\LoggerInterface;
 trait LoggerTrait
 {
     /**
-     * @var LoggerService
+     * @var LoggerInterface
      */
-    private $loggerTraitLogger;
+    protected $logger;
 
     /**
      * @return LoggerInterface
      */
     public function getLogger()
     {
-        if ($this->loggerTraitLogger) {
-            return $this->loggerTraitLogger;
-        }
-
-        if (!isset($this->container) || !$this->container->has(LoggerService::class)) {
-            throw new LogicException('The LoggerService is not registered in your application.');
-        }
-
-        $this->loggerTraitLogger = $this->container->get(LoggerService::class);
-        return $this->loggerTraitLogger;
+        return $this->logger;
     }
 
     /**
      * @required
-     * @param LoggerService $loggerService
+     * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerService $loggerService)
+    public function setLogger(LoggerInterface $logger)
     {
-        $this->loggerTraitLogger = $loggerService;
+        $this->logger = $logger;
     }
 }

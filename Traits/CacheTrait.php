@@ -2,8 +2,8 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
-use LogicException;
 use Evirma\Bundle\CoreBundle\Service\MemcacheService;
+use LogicException;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -11,6 +11,44 @@ use Psr\Container\ContainerInterface;
  */
 trait CacheTrait
 {
+    /**
+     * @param bool $flag
+     * @return bool
+     */
+    public static function addToPrefetchOnSet($flag = true)
+    {
+        $currentValue = MemcacheService::$addToPrefetchOnSet;
+        MemcacheService::$addToPrefetchOnSet = $flag;
+
+        return $currentValue;
+    }
+
+    /**
+     *
+     */
+    public static function clearPrefetchedData()
+    {
+        MemcacheService::$prefetchCacheData = [];
+    }
+
+    /**
+     * @param      $keys
+     * @param null $default
+     * @param bool $cached
+     */
+    public function prefetchDecodedCache($keys, $default = null, $cached = true)
+    {
+        $result = $this->getMemcache()->getMultiple($keys, $default, $cached);
+
+        if ($result && is_array($result)) {
+            foreach ($result as $k => $v) {
+                if ($v) {
+                    MemcacheService::$prefetchCacheData[$k] = @json_decode($v, true);
+                }
+            }
+        }
+    }
+
     /**
      * @return MemcacheService
      */
@@ -33,24 +71,6 @@ trait CacheTrait
     }
 
     /**
-     * @param      $keys
-     * @param null $default
-     * @param bool $cached
-     */
-    public function prefetchDecodedCache($keys, $default = null, $cached = true)
-    {
-        $result = $this->getMemcache()->getMultiple($keys, $default, $cached);
-
-        if ($result && is_array($result)) {
-            foreach ($result as $k => $v) {
-                if ($v) {
-                    MemcacheService::$prefetchCacheData[$k] = @json_decode($v, true);
-                }
-            }
-        }
-    }
-
-    /**
      * @param      $cacheId
      * @param null $default
      * @param bool $cached
@@ -69,6 +89,15 @@ trait CacheTrait
         }
 
         return $result;
+    }
+
+    /**
+     * @param bool $cached
+     * @return bool
+     */
+    protected function isCacheAllowed($cached = true)
+    {
+        return MemcacheService::$isCacheAllowed && $cached;
     }
 
     /**
@@ -102,7 +131,9 @@ trait CacheTrait
      */
     public function setCacheItem($cacheId, $data, $ttl = 'cache_ttl_middle')
     {
-        if ($ttl == 'cache_ttl_middle') $ttl = $this->getCacheTtlMiddle();
+        if ($ttl == 'cache_ttl_middle') {
+            $ttl = $this->getCacheTtlMiddle();
+        }
         $this->getMemcache()->set($cacheId, $data, $ttl);
 
         if (MemcacheService::$addToPrefetchOnSet) {
@@ -113,6 +144,16 @@ trait CacheTrait
     }
 
     /**
+     * Time to live from 1 to 3 days
+     *
+     * @return int
+     */
+    public function getCacheTtlMiddle()
+    {
+        return mt_rand(86400, 3 * 86400);
+    }
+
+    /**
      * @param        $cacheId
      * @param        $data
      * @param string $ttl
@@ -120,7 +161,9 @@ trait CacheTrait
      */
     public function setCacheEncodedItem($cacheId, $data, $ttl = 'cache_ttl_middle')
     {
-        if ($ttl == 'cache_ttl_middle') $ttl = $this->getCacheTtlMiddle();
+        if ($ttl == 'cache_ttl_middle') {
+            $ttl = $this->getCacheTtlMiddle();
+        }
         $encodedData = json_encode($data, JSON_UNESCAPED_UNICODE);
         $this->getMemcache()->set($cacheId, $encodedData, $ttl);
 
@@ -133,6 +176,7 @@ trait CacheTrait
 
     /**
      * Time to live from 1 to 3 hours
+     *
      * @return int
      */
     public function getCacheTtlShort()
@@ -141,48 +185,12 @@ trait CacheTrait
     }
 
     /**
-     * Time to live from 1 to 3 days
-     * @return int
-     */
-    public function getCacheTtlMiddle()
-    {
-        return mt_rand(86400, 3 * 86400);
-    }
-
-    /**
      * Time to live from 7 to 21 days
+     *
      * @return int
      */
     public function getCacheTtlLong()
     {
         return mt_rand(7 * 86400, 21 * 86400);
-    }
-
-    /**
-     * @param bool $flag
-     * @return bool
-     */
-    public static function addToPrefetchOnSet($flag = true)
-    {
-        $currentValue = MemcacheService::$addToPrefetchOnSet;
-        MemcacheService::$addToPrefetchOnSet = $flag;
-        return $currentValue;
-    }
-
-    /**
-     *
-     */
-    public static function clearPrefetchedData()
-    {
-        MemcacheService::$prefetchCacheData = [];
-    }
-
-    /**
-     * @param bool $cached
-     * @return bool
-     */
-    protected function isCacheAllowed($cached = true)
-    {
-        return MemcacheService::$isCacheAllowed && $cached;
     }
 }
