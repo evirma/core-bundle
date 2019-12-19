@@ -87,6 +87,17 @@ trait CacheTrait
     }
 
     /**
+     * @param      $keys
+     * @param bool $default
+     * @param bool $cached
+     * @return bool|iterable|null
+     */
+    public function getCacheMultiple($keys, $default = false, $cached = true)
+    {
+        return $this->getMemcache()->getMultiple($keys, $default, $cached);
+    }
+
+    /**
      * @param bool $cached
      * @return bool
      */
