@@ -12,15 +12,6 @@ trait CacheTrait
     protected $memcache;
 
     /**
-     * @required
-     * @param MemcacheService $memcache
-     */
-    public function setMemcache(MemcacheService $memcache): void
-    {
-        $this->memcache = $memcache;
-    }
-
-    /**
      * @param bool $flag
      * @return bool
      */
@@ -28,6 +19,7 @@ trait CacheTrait
     {
         $currentValue = MemcacheService::$addToPrefetchOnSet;
         MemcacheService::$addToPrefetchOnSet = $flag;
+
         return $currentValue;
     }
 
@@ -66,6 +58,15 @@ trait CacheTrait
     }
 
     /**
+     * @required
+     * @param MemcacheService $memcache
+     */
+    public function setMemcache(MemcacheService $memcache): void
+    {
+        $this->memcache = $memcache;
+    }
+
+    /**
      * @param      $cacheId
      * @param null $default
      * @param bool $cached
@@ -87,6 +88,15 @@ trait CacheTrait
     }
 
     /**
+     * @param bool $cached
+     * @return bool
+     */
+    protected function isCacheAllowed($cached = true)
+    {
+        return MemcacheService::isCacheAllowed($cached);
+    }
+
+    /**
      * @param      $keys
      * @param bool $default
      * @param bool $cached
@@ -95,15 +105,6 @@ trait CacheTrait
     public function getCacheMultiple($keys, $default = false, $cached = true)
     {
         return $this->getMemcache()->getMultiple($keys, $default, $cached);
-    }
-
-    /**
-     * @param bool $cached
-     * @return bool
-     */
-    protected function isCacheAllowed($cached = true)
-    {
-        return MemcacheService::isCacheAllowed($cached);
     }
 
     /**
@@ -150,16 +151,6 @@ trait CacheTrait
     }
 
     /**
-     * @param      $values
-     * @param null $ttl
-     * @return bool
-     */
-    public function setCacheMultiple($values, $ttl = null)
-    {
-        return $this->getMemcache()->setMultiple($values, $ttl);
-    }
-
-    /**
      * Time to live from 1 to 3 days
      *
      * @return int
@@ -167,6 +158,16 @@ trait CacheTrait
     public function getCacheTtlMiddle()
     {
         return mt_rand(86400, 3 * 86400);
+    }
+
+    /**
+     * @param      $values
+     * @param null $ttl
+     * @return bool
+     */
+    public function setCacheMultiple($values, $ttl = null)
+    {
+        return $this->getMemcache()->setMultiple($values, $ttl);
     }
 
     /**
