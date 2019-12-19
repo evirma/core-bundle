@@ -63,20 +63,6 @@ trait CacheTrait
     public function getMemcache()
     {
         return $this->memcache;
-//        if (isset($this->memcacheService) && $this->memcacheService instanceof MemcacheService) {
-//            return $this->memcacheService;
-//        } elseif (isset($this->container)) {
-//            $class = MemcacheService::class;
-//            if (!$this->container->has($class)) {
-//                $message = "The {$class} is not registered in your application.";
-//                throw new LogicException($message);
-//            }
-//
-//            return $this->container->get($class);
-//        } else {
-//            $message = "MemcachedService is not registered in your application.";
-//            throw new LogicException($message);
-//        }
     }
 
     /**
@@ -160,6 +146,24 @@ trait CacheTrait
     public function getCacheTtlMiddle()
     {
         return mt_rand(86400, 3 * 86400);
+    }
+
+    /**
+     * @param $cacheId
+     * @return bool
+     */
+    public function deleteCacheItem($cacheId)
+    {
+        return $this->getMemcache()->delete($cacheId);
+    }
+
+    /**
+     * @param array $keys
+     * @return array|bool
+     */
+    public function deleteCacheMultiple(array $keys)
+    {
+        return $this->getMemcache()->deleteMultiple($keys);
     }
 
     /**
