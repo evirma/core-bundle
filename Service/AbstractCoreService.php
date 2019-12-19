@@ -10,6 +10,7 @@ use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
 use Evirma\Bundle\CoreBundle\Traits\DbTrait;
 use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
+use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
 use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
@@ -27,6 +28,7 @@ use Twig\Environment;
 abstract class AbstractCoreService implements ServiceSubscriberInterface
 {
     use CacheTrait;
+    use ServiceSystemTrait;
     use LoggerTrait;
     use DbTrait;
     use PagerTrait;
