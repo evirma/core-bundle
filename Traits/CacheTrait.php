@@ -150,6 +150,16 @@ trait CacheTrait
     }
 
     /**
+     * @param      $values
+     * @param null $ttl
+     * @return bool
+     */
+    public function setCacheMultiple($values, $ttl = null)
+    {
+        return $this->getMemcache()->setMultiple($values, $ttl);
+    }
+
+    /**
      * Time to live from 1 to 3 days
      *
      * @return int
