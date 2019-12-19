@@ -35,7 +35,7 @@ class PageCache
 
     private function getNginxFilename(Request $request)
     {
-        $dir = $this->storageDir.'/nginx_page_cache';
+        $dir = $this->storageDir.'/nginx_page_cache/'.$request->getHost();
 
         $parts = explode('?', $request->getRequestUri());
         $path = $parts[0];
