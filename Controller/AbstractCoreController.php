@@ -14,6 +14,7 @@ use Evirma\Bundle\CoreBundle\Traits\TranslatorTrait;
 use Meniam\AutotextBundle\Autotext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 abstract class AbstractCoreController extends AbstractController
 {
@@ -35,6 +36,20 @@ abstract class AbstractCoreController extends AbstractController
                 Autotext::class,
             ]
         );
+    }
+
+    /**
+     * Returns a JsonResponse that uses the serializer component if enabled, or json_encode.
+     *
+     * @param       $data
+     * @param int   $status
+     * @param array $headers
+     *
+     * @return JsonResponse
+     */
+    protected function jsonResponse($data, int $status = 200, array $headers = array()): JsonResponse
+    {
+        return new JsonResponse(json_encode($data, JSON_UNESCAPED_UNICODE), $status, $headers, true);
     }
 
     /**
