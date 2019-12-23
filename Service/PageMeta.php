@@ -88,7 +88,7 @@ class PageMeta implements HelperInterface
 
     public function isRubricEditor()
     {
-        return (true == $this->authorizationChecker->isGranted(User::ROLE_RUBRIC_EDITOR));
+        return (true == $this->authorizationChecker->isGranted(User::ROLE_ADMIN));
     }
 
     public function get($key, $default = null)
