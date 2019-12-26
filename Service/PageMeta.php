@@ -861,8 +861,8 @@ class PageMeta implements HelperInterface
 
         $result = "<script type=\"text/javascript\">\n";
         foreach ($this->getFromStorage($group) as $item) {
-            $item = preg_replace('#^\s*<script[^\>]*>#usi', '', $item);
-            $item = preg_replace('#</script[^\>]*>\s*$#usi', '', $item);
+            $item = preg_replace('#^\s*<script[^>]*>#usi', '', $item);
+            $item = preg_replace('#</script[^>]*>\s*$#usi', '', $item);
             $result .= trim($item) . "\n";
 
         }
