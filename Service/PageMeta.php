@@ -230,6 +230,13 @@ class PageMeta implements HelperInterface
             $this->setMetaTitle($metaTitle);
         }
 
+        if (!$this->getMetaTitle()) {
+            $metaTitleGenerated = isset($pageArray['meta_title_generated']) ? FilterStatic::filterValue($pageArray['meta_title_generated'], MetaTrim::class) : null;
+            if ($metaTitleGenerated) {
+                $this->setMetaTitle($metaTitleGenerated);
+            }
+        }
+
         $metaDescription = isset($pageArray['meta_description']) ? FilterStatic::filterValue($pageArray['meta_description'], MetaTrim::class) : null;
         if ($metaDescription) {
             $this->setMetaDescription($metaDescription);
