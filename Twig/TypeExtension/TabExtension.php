@@ -26,7 +26,8 @@ class TabExtension extends AbstractTypeExtension
             'tab' => [
                 'namespace' => null,
                 'name' => null,
-                'label' => null
+                'label' => null,
+                'pos' => 99
             ]
         ]);
     }
@@ -36,6 +37,7 @@ class TabExtension extends AbstractTypeExtension
         $namespace = $options['tab']['namespace'];
         $tabName = isset($options['tab']['name']) ? $options['tab']['name'] : $namespace;
         $tabLabel = isset($options['tab']['label']) ? $options['tab']['label'] : $namespace;
+        $tabPos = isset($options['tab']['pos']) ? $options['tab']['pos'] : 99;
 
         if (null === $namespace) {
             return;
@@ -47,21 +49,54 @@ class TabExtension extends AbstractTypeExtension
                 [
                     'name' => $tabName,
                     'label' => $tabLabel,
+                    'pos'   => $tabPos,
                 ];
         }
 
+        $item = [
+            'name' => $form->getName(),
+            'pos' => isset($view->vars['attr']['pos']) ? $view->vars['attr']['pos'] : 99
+        ];
+
         if (!isset($root->vars['tabs'][$namespace][$tabName]['elements'])) {
-            $root->vars['tabs'][$namespace][$tabName]['elements'] = [$form->getName()];
+            $root->vars['tabs'][$namespace][$tabName]['elements'] = [$item];
         } else {
-            $root->vars['tabs'][$namespace][$tabName]['elements'][] = $form->getName();
+            $root->vars['tabs'][$namespace][$tabName]['elements'][] = $item;
         }
+    }
+
+    public function finishView(FormView $view, FormInterface $form, array $options)
+    {
+        $root = $this->getRootView($view);
+        if (isset($root->vars['tabs'])) {
+            foreach ($root->vars['tabs'] as $namespace => &$tabs) {
+                if (count($tabs) > 1) {
+                    uasort(
+                        $tabs,
+                        function ($a, $b) {
+                            return $a['pos'] <=> $b['pos'];
+                        }
+                    );
+                }
+
+                foreach ($tabs as &$tab) {
+                    uasort($tab['elements'], function ($a, $b) {
+                        return $a['pos'] <=> $b['pos'];
+                    });
+                }
+            }
+        }
+
+        parent::finishView($view, $form, $options);
     }
 
     public function getRootView(FormView $view)
     {
         $root = $view->parent;
-
-        while (null === $root) {
+        while (null !== $root) {
+            if (is_null($root->parent)) {
+                break;
+            }
             $root = $root->parent;
         }
 
