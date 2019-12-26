@@ -26,7 +26,7 @@ trait CacheTrait
     /**
      *
      */
-    public static function clearPrefetchedData()
+    protected static function clearPrefetchedData()
     {
         MemcacheService::$prefetchCacheData = [];
     }
@@ -36,7 +36,7 @@ trait CacheTrait
      * @param null $default
      * @param bool $cached
      */
-    public function prefetchDecodedCache($keys, $default = null, $cached = true)
+    protected function prefetchDecodedCache($keys, $default = null, $cached = true)
     {
         $result = $this->getMemcache()->getMultiple($keys, $default, $cached);
 
@@ -52,7 +52,7 @@ trait CacheTrait
     /**
      * @return MemcacheService
      */
-    public function getMemcache()
+    protected function getMemcache()
     {
         return $this->memcache;
     }
@@ -72,7 +72,7 @@ trait CacheTrait
      * @param bool $cached
      * @return mixed|null
      */
-    public function getCacheItem($cacheId, $default = null, $cached = true)
+    protected function getCacheItem($cacheId, $default = null, $cached = true)
     {
         if ($this->isCacheAllowed($cached) && isset(MemcacheService::$prefetchCacheData[$cacheId]) && MemcacheService::$prefetchCacheData[$cacheId]) {
             $result = MemcacheService::$prefetchCacheData[$cacheId];
@@ -102,7 +102,7 @@ trait CacheTrait
      * @param bool $cached
      * @return bool|iterable|null
      */
-    public function getCacheMultiple($keys, $default = false, $cached = true)
+    protected function getCacheMultiple($keys, $default = false, $cached = true)
     {
         return $this->getMemcache()->getMultiple($keys, $default, $cached);
     }
@@ -113,7 +113,7 @@ trait CacheTrait
      * @param bool $cached
      * @return mixed|null
      */
-    public function getCacheDecodedItem($cacheId, $default = null, $cached = true)
+    protected function getCacheDecodedItem($cacheId, $default = null, $cached = true)
     {
         $mc = $this->getMemcache();
 
@@ -136,7 +136,7 @@ trait CacheTrait
      * @param string $ttl
      * @return mixed
      */
-    public function setCacheItem($cacheId, $data, $ttl = 'cache_ttl_middle')
+    protected function setCacheItem($cacheId, $data, $ttl = 'cache_ttl_middle')
     {
         if ($ttl == 'cache_ttl_middle') {
             $ttl = $this->getCacheTtlMiddle();
@@ -155,7 +155,7 @@ trait CacheTrait
      *
      * @return int
      */
-    public function getCacheTtlMiddle()
+    protected function getCacheTtlMiddle()
     {
         return mt_rand(86400, 3 * 86400);
     }
@@ -165,7 +165,7 @@ trait CacheTrait
      * @param null $ttl
      * @return bool
      */
-    public function setCacheMultiple($values, $ttl = null)
+    protected function setCacheMultiple($values, $ttl = null)
     {
         return $this->getMemcache()->setMultiple($values, $ttl);
     }
@@ -174,7 +174,7 @@ trait CacheTrait
      * @param $cacheId
      * @return bool
      */
-    public function deleteCacheItem($cacheId)
+    protected function deleteCacheItem($cacheId)
     {
         return $this->getMemcache()->delete($cacheId);
     }
@@ -183,7 +183,7 @@ trait CacheTrait
      * @param array $keys
      * @return array|bool
      */
-    public function deleteCacheMultiple(array $keys)
+    protected function deleteCacheMultiple(array $keys)
     {
         return $this->getMemcache()->deleteMultiple($keys);
     }
@@ -194,7 +194,7 @@ trait CacheTrait
      * @param string $ttl
      * @return mixed
      */
-    public function setCacheEncodedItem($cacheId, $data, $ttl = 'cache_ttl_middle')
+    protected function setCacheEncodedItem($cacheId, $data, $ttl = 'cache_ttl_middle')
     {
         if ($ttl == 'cache_ttl_middle') {
             $ttl = $this->getCacheTtlMiddle();
@@ -214,7 +214,7 @@ trait CacheTrait
      *
      * @return int
      */
-    public function getCacheTtlShort()
+    protected function getCacheTtlShort()
     {
         return mt_rand(3600, 10800);
     }
@@ -224,7 +224,7 @@ trait CacheTrait
      *
      * @return int
      */
-    public function getCacheTtlLong()
+    protected function getCacheTtlLong()
     {
         return mt_rand(7 * 86400, 21 * 86400);
     }
