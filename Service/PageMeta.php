@@ -261,7 +261,6 @@ class PageMeta implements HelperInterface
             }
         }
 
-
         $metaRobots = isset($pageArray['meta_robots']) ? FilterStatic::filterValue($pageArray['meta_robots'], MetaTrim::class) : null;
         if ($metaRobots) {
             $this->setMetaRobots($metaRobots);
@@ -270,6 +269,13 @@ class PageMeta implements HelperInterface
         $h1 = isset($pageArray['h1']) ? FilterStatic::filterValue($pageArray['h1'], MetaTrim::class) : null;
         if ($h1) {
             $this->setH1($h1);
+        }
+
+        if (!$this->getH1()) {
+            $h1Generated = isset($pageArray['h1_generated']) ? FilterStatic::filterValue($pageArray['h1_generated'], MetaTrim::class) : null;
+            if ($h1Generated) {
+                $this->setH1($h1Generated);
+            }
         }
 
         return $this;
