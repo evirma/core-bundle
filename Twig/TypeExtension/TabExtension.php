@@ -21,7 +21,6 @@ class TabExtension extends AbstractTypeExtension
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefined(['tab']);
-
         $resolver->setDefaults([
             'tab' => [
                 'namespace' => null,
@@ -32,16 +31,17 @@ class TabExtension extends AbstractTypeExtension
         ]);
     }
 
+
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $namespace = $options['tab']['namespace'];
-        $tabName = isset($options['tab']['name']) ? $options['tab']['name'] : $namespace;
-        $tabLabel = isset($options['tab']['label']) ? $options['tab']['label'] : $namespace;
-        $tabPos = isset($options['tab']['pos']) ? $options['tab']['pos'] : 99;
-
         if (null === $namespace) {
             return;
         }
+
+        $tabName = isset($options['tab']['name']) ? $options['tab']['name'] : $namespace;
+        $tabLabel = isset($options['tab']['label']) ? $options['tab']['label'] : $namespace;
+        $tabPos = isset($options['tab']['pos']) ? $options['tab']['pos'] : 99;
 
         $root = $this->getRootView($view);
         if (!isset($root->vars['tabs'][$namespace][$tabName])) {
