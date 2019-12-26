@@ -271,13 +271,6 @@ class PageMeta implements HelperInterface
             $this->setH1($h1);
         }
 
-        if (!$this->getH1()) {
-            $h1Generated = isset($pageArray['h1_generated']) ? FilterStatic::filterValue($pageArray['h1_generated'], MetaTrim::class) : null;
-            if ($h1Generated) {
-                $this->setH1($h1Generated);
-            }
-        }
-
         return $this;
     }
 
