@@ -242,10 +242,25 @@ class PageMeta implements HelperInterface
             $this->setMetaDescription($metaDescription);
         }
 
+        if (!$this->getMetaDescription()) {
+            $metaDescriptionGenerated = isset($pageArray['meta_description_generated']) ? FilterStatic::filterValue($pageArray['meta_description_generated'], MetaTrim::class) : null;
+            if ($metaDescriptionGenerated) {
+                $this->setMetaDescription($metaDescriptionGenerated);
+            }
+        }
+
         $metaKeywords = isset($pageArray['meta_keywords']) ? FilterStatic::filterValue($pageArray['meta_keywords'], MetaTrim::class) : null;
         if ($metaKeywords) {
             $this->setMetaKeywords($metaKeywords);
         }
+
+        if (!$this->getMetaKeywords()) {
+            $metaKeywordsGenerated = isset($pageArray['meta_keywords_generated']) ? FilterStatic::filterValue($pageArray['meta_keywords_generated'], MetaTrim::class) : null;
+            if ($metaKeywordsGenerated) {
+                $this->setMetaKeywords($metaKeywordsGenerated);
+            }
+        }
+
 
         $metaRobots = isset($pageArray['meta_robots']) ? FilterStatic::filterValue($pageArray['meta_robots'], MetaTrim::class) : null;
         if ($metaRobots) {
