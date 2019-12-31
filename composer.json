@@ -24,7 +24,7 @@
         "ext-gd": "*",
         "ext-libxml": "*",
         "ext-iconv": "*",
-        "cocur/slugify": "^3.2",
+        "cocur/slugify": "^4.0",
         "ramsey/uuid-doctrine": "^1.5",
 
         "symfony/orm-pack": "^1.0.7",
