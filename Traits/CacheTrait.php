@@ -26,7 +26,7 @@ trait CacheTrait
     /**
      *
      */
-    protected static function clearPrefetchedData()
+    public static function clearPrefetchedData()
     {
         MemcacheService::$prefetchCacheData = [];
     }
