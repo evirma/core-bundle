@@ -206,7 +206,7 @@ final class DbService
         $query = $this->executeQuery($query, $params, $types, $isSlave);
         if ($query && ($data = $query->fetchAll(FetchMode::NUMERIC))) {
             $result = [];
-            foreach ($data as $item) {
+            foreach ($data as &$item) {
                 $result[$item[0]] = $item[1];
             }
             return $result;
@@ -229,7 +229,7 @@ final class DbService
         $query = $this->executeQuery($query, $params, $types, $isSlave);
         if ($query && ($data = $query->fetchAll(FetchMode::NUMERIC))) {
             $result = [];
-            foreach ($data as $item) {
+            foreach ($data as &$item) {
                 $result[$item[0]] = $item[0];
             }
             return $result;
