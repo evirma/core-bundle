@@ -1,6 +1,6 @@
 {% block selectize_widget %}
     {{ form_widget(form) }}
-    <script type="text/javascript">
+    <script>
         $('#{{ id }}').data('preload-value', $('#{{ id }}').attr('value'));
         var selectizeInstance = $('#{{ id }}').selectize({
             persist: false,

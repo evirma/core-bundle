@@ -51,8 +51,8 @@ class RequestService extends AbstractCoreService
                     $k = urlencode($k);
                     $v = urlencode($v);
                 }
-                if (preg_match('/([&\?])'.preg_quote($k)."=[^&]*/i", $link)) {
-                    $link = preg_replace('/([&\?])'.preg_quote($k)."=[^&]*/i", "\\1".$k."=".$v, $link);
+                if (preg_match('/([&?])'.preg_quote($k)."=[^&]*/i", $link)) {
+                    $link = preg_replace('/([&?])'.preg_quote($k)."=[^&]*/i", "\\1".$k."=".$v, $link);
                 } else {
                     $link .= "&".$k."=".$v;
                 }
@@ -67,7 +67,7 @@ class RequestService extends AbstractCoreService
                 if (!$isLinkDecoded) {
                     $k = urlencode($k);
                 }
-                $link = preg_replace('/([&\?])'.preg_quote($k)."=[^&]*[&]?/i", "\\1", $link);
+                $link = preg_replace('/([&?])'.preg_quote($k)."=[^&]*[&]?/i", "\\1", $link);
             }
             if (substr($link, -1, 1) == '&') {
                 $link = substr($link, 0, -1);
