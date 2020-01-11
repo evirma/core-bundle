@@ -845,7 +845,11 @@ class PageMeta implements HelperInterface
         $result = '';
         foreach ($this->javascripts[$group] as $style)
         {
-            $result .= "<script type=\"{$style['type']}\" src=\"{$style['link']}\"></script>\n";
+            $typeParam = '';
+            if ($style['type'] != 'text/javascript') {
+                $typeParam = " type=\"{$style['type']}\"";
+            }
+            $result .= "<script{$typeParam} src=\"{$style['link']}\"></script>\n";
         }
 
         return $result;
