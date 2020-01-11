@@ -249,13 +249,13 @@ class PageMeta implements HelperInterface
             }
         }
 
-        $metaKeywords = isset($pageArray['meta_keywords']) ? FilterStatic::filterValue($pageArray['meta_keywords'], MetaTrim::class) : null;
+        $metaKeywords = isset($pageArray['meta_keywords']) ? $pageArray['meta_keywords'] : null;
         if ($metaKeywords) {
             $this->setMetaKeywords($metaKeywords);
         }
 
         if (!$this->getMetaKeywords()) {
-            $metaKeywordsGenerated = isset($pageArray['meta_keywords_generated']) ? FilterStatic::filterValue($pageArray['meta_keywords_generated'], MetaTrim::class) : null;
+            $metaKeywordsGenerated = isset($pageArray['meta_keywords_generated']) ? $pageArray['meta_keywords_generated'] : null;
             if ($metaKeywordsGenerated) {
                 $this->setMetaKeywords($metaKeywordsGenerated);
             }
@@ -448,7 +448,10 @@ class PageMeta implements HelperInterface
             $metaKeywords = explode(',', $metaKeywords);
         }
 
-        $metaKeywords = FilterStatic::filterValuesArray($metaKeywords, MetaTrim::class);
+        foreach ($metaKeywords as &$metaKeyword) {
+            $metaKeyword = FilterStatic::filterValuesArray($metaKeyword, MetaTrim::class);
+        }
+
         $this->metaKeywords = implode(', ', array_unique($metaKeywords));
         return $this;
     }
