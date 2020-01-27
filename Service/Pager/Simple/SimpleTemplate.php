@@ -75,7 +75,7 @@ class SimpleTemplate extends \Pagerfanta\View\Template\Template
 
     public function separator()
     {
-        return '<li class="pager-dots hidden-xs">&#133;</li>';
+        return '<li class="pager-dots hidden-xs">…</li>';
     }
 
     /**
