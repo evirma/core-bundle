@@ -6,6 +6,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
 use Evirma\Bundle\CoreBundle\Filter\Rule\Slug;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
+use Evirma\Bundle\CoreBundle\Traits\CommandTrait;
 use Evirma\Bundle\CoreBundle\Traits\DbTrait;
 use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Exception;
@@ -30,6 +31,7 @@ use Twig\Environment;
 
 abstract class AbstractCoreCommand extends Command implements ServiceSubscriberInterface
 {
+    use CommandTrait;
     use CacheTrait;
     use DbTrait;
     use LoggerTrait;
@@ -119,16 +121,6 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
         $greetInput = new ArrayInput($arguments);
         $command->run($greetInput, $output);
         $this->getLogger()->info('Finished command: '.$commandName);
-    }
-
-    protected function logMemoryUsage()
-    {
-        $this->getLogger()->info('<info>MEMORY USAGE:</info> <fg=white;options=bold>'.$this->getMemoryUsage().'</>');
-    }
-
-    protected function getMemoryUsage()
-    {
-        return round((memory_get_usage() / 1024 / 1024), 2).'Mb';
     }
 
     protected function saveReport($type, array $report = [])
