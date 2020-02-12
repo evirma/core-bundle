@@ -50,6 +50,14 @@ class PageMetaOpenGraph
             $result .= "<meta property=\"og:type\" content=\"{$type}\" />\n";
         }
 
+        if ($siteName = $this->getSiteName()) {
+            $result .= "<meta property=\"og:site_name\" content=\"{$siteName}\" />\n";
+        }
+
+        if ($locale = $this->getLocale()) {
+            $result .= "<meta property=\"og:locale\" content=\"{$locale}\" />\n";
+        }
+
         if ($url = $this->getUrl()) {
             $result .= "<meta property=\"og:url\" content=\"{$url}\" />\n";
         }
@@ -92,13 +100,6 @@ class PageMetaOpenGraph
             $result .= "<meta property=\"og:description\" content=\"{$description}\" />\n";
         }
 
-        if ($locale = $this->getLocale()) {
-            $result .= "<meta property=\"og:locale\" content=\"{$locale}\" />\n";
-        }
-
-        if ($siteName = $this->getSiteName()) {
-            $result .= "<meta property=\"og:site_name\" content=\"{$siteName}\" />\n";
-        }
 
         return $result;
     }
