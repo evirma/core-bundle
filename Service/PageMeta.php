@@ -67,6 +67,11 @@ class PageMeta implements HelperInterface
     private $autotext;
     private $autotextSeed;
 
+    /**
+     * @var PageMetaOpenGraph
+     */
+    private $og;
+
     public function __construct(RouterInterface $router, TranslatorInterface $translator, Autotext $autotext, AuthorizationCheckerInterface $authorizationChecker, Packages $packages)
     {
         $this->autotext = $autotext;
@@ -956,5 +961,14 @@ class PageMeta implements HelperInterface
         }
 
         return trim($result);
+    }
+
+    public function getOg()
+    {
+        if (!$this->og) {
+            $this->og = new PageMetaOpenGraph();
+        }
+
+        return $this->og;
     }
 }
