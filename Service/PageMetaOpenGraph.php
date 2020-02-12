@@ -70,6 +70,10 @@ class PageMetaOpenGraph
                     $result .= "<meta property=\"og:image:type\" content=\"{$image['type']}\" />\n";
                 }
 
+                if (isset($image['alt'])) {
+                    $result .= "<meta property=\"og:image:alt\" content=\"{$image['alt']}\" />\n";
+                }
+
                 if (isset($image['width'])) {
                     $result .= "<meta property=\"og:image:width\" content=\"{$image['width']}\" />\n";
                 }
