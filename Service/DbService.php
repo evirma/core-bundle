@@ -257,7 +257,7 @@ final class DbService
             $result = $conn->executeQuery($query, $params, $types);
         } catch (DBALException $e) {
             $message = $e->getMessage();
-            $message = preg_replace('#VALUES(.*?)ON\s+CONFLICT#usi', '{{VALUES}}', $message);
+            $message = preg_replace('#VALUES(.*?)ON\s+CONFLICT#usi', 'VALUES ({{VALUES}}) ON CONFLICT', $message);
             $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
 
             $this->getLogger()->error('SQL Execute Error', ['message' => $message, 'sql' => $query, 'params' => $params, 'types' => $types, 'exception' => $e]);

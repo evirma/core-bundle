@@ -16,4 +16,20 @@ class ArrayUtil
 
         return $result;
     }
+
+    public static function stringify($array)
+    {
+        foreach ($array as &$item) {
+            if (is_numeric($item)) {
+                $item = (string)$item;
+                continue;
+            }
+
+            if (is_object($item) || is_array($item)) {
+                $item = ArrayUtil::stringify($item);
+            }
+        } // recurse!
+
+        return $array;
+    }
 }
