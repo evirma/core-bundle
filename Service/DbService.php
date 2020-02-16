@@ -2,12 +2,12 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
+use Exception;
 use InvalidArgumentException;
 use \PDO;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\ORM\EntityManager;
@@ -255,7 +255,7 @@ final class DbService
         try {
             $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
             $result = $conn->executeQuery($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             $message = $e->getMessage();
             $message = preg_replace('#VALUES(.*?)ON#usi', '{{VALUES}}', $message);
             $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
@@ -280,7 +280,7 @@ final class DbService
         $result = false;
         try {
             $result = $this->getConn()->insert($tableExpression, $data, $types);
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
         }
 
@@ -302,7 +302,7 @@ final class DbService
         $result = false;
         try {
             $result = $this->getConn()->update($tableExpression, $data, $identifier, $types);
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'identifier' => $identifier, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
         }
 
