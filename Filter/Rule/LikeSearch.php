@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filter\Rule;
-
 namespace Evirma\Bundle\CoreBundle\Filter\Rule;
+
+use Evirma\Bundle\CoreBundle\Filter\FilterRule;
 
 class LikeSearch extends FilterRule
 {
