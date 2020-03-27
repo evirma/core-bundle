@@ -167,7 +167,7 @@ final class DbService
      * @param bool   $isSlave
      * @return array|false
      */
-    public function fetchAllObject($object, $sql, array $params = [], $types = [], $isSlave = false)
+    public function fetchObjectAll($object, $sql, array $params = [], $types = [], $isSlave = false)
     {
         $query = $this->executeQuery($sql, $params, $types, $isSlave);
         $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
