@@ -158,6 +158,23 @@ final class DbService
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an associative array.
+     *
+     * @param string $object The Object Class
+     * @param string $sql    The SQL query.
+     * @param array  $params The query parameters.
+     * @param array  $types  The query parameter types.
+     * @param bool   $isSlave
+     * @return array|false
+     */
+    public function fetchAllObject($object, $sql, array $params = [], $types = [], $isSlave = false)
+    {
+        $query = $this->executeQuery($sql, $params, $types, $isSlave);
+        $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
+        return $query ? $query->fetchAll() : false;
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
@@ -171,6 +188,24 @@ final class DbService
     {
         $query = $this->executeQuery($statement, $params, $types, $isSlave);
         return $query ? $query->fetch(FetchMode::ASSOCIATIVE) : false;
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the first row of the result
+     * as an associative array.
+     *
+     * @param string $object The Object Class
+     * @param string $statement The SQL query.
+     * @param array  $params    The query parameters.
+     * @param array  $types     The query parameter types.
+     * @param bool   $isSlave
+     * @return array|bool False is returned if no rows are found.
+     */
+    public function fetchObject($object, $statement, array $params = [], array $types = [], $isSlave = false)
+    {
+        $query = $this->executeQuery($statement, $params, $types, $isSlave);
+        $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
+        return $query ? $query->fetch(FetchMode::CUSTOM_OBJECT) : false;
     }
 
     /**
