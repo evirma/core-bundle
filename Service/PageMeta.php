@@ -763,13 +763,15 @@ class PageMeta implements HelperInterface
         return $this;
     }
 
-    public function addPreload($link, $as)
+    public function addPreload($link, $packageName = null, $as = 'style')
     {
+        $url = $this->getUrl($link, $packageName);
+
         $linkHash = $link.'_'.$as;
         if (!isset($this->preload[$linkHash])) {
             $this->preload[$linkHash] = [
-                'link' => $link,
-                'media' => $as
+                'link' => $url,
+                'as' => $as
             ];
         }
     }
@@ -786,7 +788,6 @@ class PageMeta implements HelperInterface
         }
 
         if (!in_array($linkHash, $this->styles[$group])) {
-            $this->addPreload($link, 'style');
             $this->styles[$group][$linkHash] = [
                 'link' => $url,
                 'media' => $media
@@ -846,7 +847,6 @@ class PageMeta implements HelperInterface
         }
 
         if (!in_array($linkHash, $this->javascripts[$group])) {
-            $this->addPreload($link, 'script');
             $this->javascripts[$group][$linkHash] = [
                 'link' => $url,
                 'as' => $type

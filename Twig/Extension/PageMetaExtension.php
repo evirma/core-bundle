@@ -30,6 +30,7 @@ class PageMetaExtension extends AbstractExtension
             new TwigFunction('page_meta_asset_style_links', array($this, 'assetStyleLinks'), ['is_safe' => ['html']]),
             new TwigFunction('page_meta_asset_remove_style', array($this, 'assetRemoveStyle'), ['is_safe' => ['html']]),
 
+            new TwigFunction('page_meta_asset_add_preload', array($this, 'assetAddStyle'), ['is_safe' => ['html']]),
             new TwigFunction('page_meta_asset_preload_links', array($this, 'assetPreloadLinks'), ['is_safe' => ['html']]),
 
             new TwigFunction('page_meta_asset_add_javascript', array($this, 'assetAddJavascript'), ['is_safe' => ['html']]),
@@ -70,6 +71,11 @@ class PageMetaExtension extends AbstractExtension
     public function assetStyleLinks($group = 'default')
     {
         return $this->pageMeta->getStyleLinks($group);
+    }
+
+    public function assetAddPreload($link, $packageName = null, $as = 'style')
+    {
+        $this->pageMeta->addPreload($link, $packageName, $as);
     }
 
     public function assetPreloadLinks()
