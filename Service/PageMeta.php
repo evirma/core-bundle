@@ -42,6 +42,7 @@ class PageMeta implements HelperInterface
     private $storage = [];
     private $styles = [];
     private $javascripts = [];
+    private $preload = [];
 
     private $links = [];
     private $headerMetas = [];
@@ -762,6 +763,17 @@ class PageMeta implements HelperInterface
         return $this;
     }
 
+    public function addPreload($link, $as)
+    {
+        $linkHash = $link.'_'.$as;
+        if (!isset($this->preload[$linkHash])) {
+            $this->preload[$linkHash] = [
+                'link' => $link,
+                'media' => $as
+            ];
+        }
+    }
+
     public function addStyle($link, $packageName = null, $group = 'default',  $media = 'all')
     {
         $url = $this->getUrl($link, $packageName);
@@ -774,6 +786,7 @@ class PageMeta implements HelperInterface
         }
 
         if (!in_array($linkHash, $this->styles[$group])) {
+            $this->addPreload($link, 'style');
             $this->styles[$group][$linkHash] = [
                 'link' => $url,
                 'media' => $media
@@ -810,6 +823,17 @@ class PageMeta implements HelperInterface
         return $result;
     }
 
+    public function getPreloadLinks()
+    {
+        $result = '';
+        foreach ($this->preload as $preload)
+        {
+            $result .= "<link rel=\"preload\" href=\"{$preload['link']}\" as=\"{$preload['as']}\" />\n";
+        }
+
+        return $result;
+    }
+
     public function addJavascript($link, $packageName = null, $group = 'default', $type = 'text/javascript')
     {
         $url = $this->getUrl($link, $packageName);
@@ -822,6 +846,7 @@ class PageMeta implements HelperInterface
         }
 
         if (!in_array($linkHash, $this->javascripts[$group])) {
+            $this->addPreload($link, 'script');
             $this->javascripts[$group][$linkHash] = [
                 'link' => $url,
                 'type' => $type
