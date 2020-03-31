@@ -879,7 +879,7 @@ class PageMeta implements HelperInterface
         foreach ($this->javascripts[$group] as $style)
         {
             $typeParam = '';
-            if ($style['type'] != 'text/javascript') {
+            if (isset($style['type']) && ($style['type'] != 'text/javascript')) {
                 $typeParam = " type=\"{$style['type']}\"";
             }
             $result .= "<script{$typeParam} src=\"{$style['link']}\"></script>\n";
