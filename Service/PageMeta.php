@@ -849,7 +849,7 @@ class PageMeta implements HelperInterface
             $this->addPreload($link, 'script');
             $this->javascripts[$group][$linkHash] = [
                 'link' => $url,
-                'type' => $type
+                'as' => $type
             ];
         }
 
