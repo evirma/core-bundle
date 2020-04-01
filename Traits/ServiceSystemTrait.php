@@ -6,7 +6,7 @@ use \LogicException;
 use Evirma\Bundle\CoreBundle\Entity\User;
 use Evirma\Bundle\CoreBundle\Service\FileStorageService;
 use Evirma\Bundle\CoreBundle\Service\PageMeta;
-use Meniam\AutotextBundle\Autotext;
+use AutotextBundle\Autotext;
 use Evirma\Bundle\CoreBundle\Service\RequestService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;

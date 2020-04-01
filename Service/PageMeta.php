@@ -2,7 +2,7 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
-use Meniam\AutotextBundle\Autotext;
+use AutotextBundle\Autotext;
 use Evirma\Bundle\CoreBundle\Entity\User;
 use Evirma\Bundle\CoreBundle\Filter\Rule\MetaTrim;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;

@@ -11,7 +11,7 @@ use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
 use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
 use Evirma\Bundle\CoreBundle\Traits\TranslatorTrait;
-use Meniam\AutotextBundle\Autotext;
+use AutotextBundle\Autotext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
