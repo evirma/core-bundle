@@ -6,7 +6,7 @@ use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 
 class TabButtonExtension extends TabExtension
 {
-    public static function getExtendedTypes()
+    public static function getExtendedTypes(): iterable
     {
         return [ButtonType::class];
     }
