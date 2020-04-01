@@ -2,12 +2,12 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
-use \LogicException;
+use Evirma\Bundle\AutotextBundle\Autotext;
 use Evirma\Bundle\CoreBundle\Entity\User;
 use Evirma\Bundle\CoreBundle\Service\FileStorageService;
 use Evirma\Bundle\CoreBundle\Service\PageMeta;
-use AutotextBundle\Autotext;
 use Evirma\Bundle\CoreBundle\Service\RequestService;
+use LogicException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -21,6 +21,22 @@ use Twig\Environment;
  */
 trait ServiceSystemTrait
 {
+    /**
+     * @return FileStorageService
+     */
+    public function getFileStorageService()
+    {
+        return $this->getService(FileStorageService::class);
+    }
+
+    /**
+     * @return RequestService
+     */
+    public function getRequestService()
+    {
+        return $this->getService(RequestService::class);
+    }
+
     /**
      * @return User|object|string
      */
@@ -40,21 +56,36 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @return TokenStorage
+     */
+    protected function getTokenStorage()
+    {
+        return $this->getService('security.token_storage');
+    }
+
+    /**
+     * @param string $class
+     * @return object|mixed
+     */
+    protected function getService(string $class)
+    {
+        if (!$this->container->has($class)) {
+            $message = "The {$class} is not registered in your application.";
+            throw new LogicException($message);
+        }
+
+        return $this->container->get($class);
+    }
+
+    /**
      * @return Request
      */
     protected function getRequest()
     {
         /** @var RequestStack $requestStack */
         $requestStack = $this->getService('request_stack');
-        return $requestStack->getCurrentRequest();
-    }
 
-    /**
-     * @return TokenStorage
-     */
-    protected function getTokenStorage()
-    {
-        return $this->getService('security.token_storage');
+        return $requestStack->getCurrentRequest();
     }
 
     /**
@@ -87,36 +118,6 @@ trait ServiceSystemTrait
     protected function getPageMeta()
     {
         return $this->getService(PageMeta::class);
-    }
-
-    /**
-     * @return FileStorageService
-     */
-    public function getFileStorageService()
-    {
-        return $this->getService(FileStorageService::class);
-    }
-
-    /**
-     * @return RequestService
-     */
-    public function getRequestService()
-    {
-        return $this->getService(RequestService::class);
-    }
-
-    /**
-     * @param string $class
-     * @return object|mixed
-     */
-    protected function getService(string $class)
-    {
-        if (!$this->container->has($class)) {
-            $message = "The {$class} is not registered in your application.";
-            throw new LogicException($message);
-        }
-
-        return $this->container->get($class);
     }
 
 }

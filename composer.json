@@ -31,7 +31,7 @@
 
         "babdev/pagerfanta-bundle": "^2.1",
 
-        "meniam/autotext": "^4.0",
+        "evirma/autotext-bundle": "^1.0",
         "meniam/typograph-bundle": "^1.0",
         "league/commonmark": "^1.0.0",
         "league/commonmark-extras": "^v1.0.0",

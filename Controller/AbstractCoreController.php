@@ -2,6 +2,7 @@
 
 namespace Evirma\Bundle\CoreBundle\Controller;
 
+use Evirma\Bundle\AutotextBundle\Autotext;
 use Evirma\Bundle\CoreBundle\Service\PageCache;
 use Evirma\Bundle\CoreBundle\Service\PageMeta;
 use Evirma\Bundle\CoreBundle\Service\RequestService;
@@ -11,7 +12,6 @@ use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
 use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
 use Evirma\Bundle\CoreBundle\Traits\TranslatorTrait;
-use AutotextBundle\Autotext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,10 +44,9 @@ abstract class AbstractCoreController extends AbstractController
      * @param       $data
      * @param int   $status
      * @param array $headers
-     *
      * @return JsonResponse
      */
-    protected function jsonResponse($data, int $status = 200, array $headers = array()): JsonResponse
+    protected function jsonResponse($data, int $status = 200, array $headers = []): JsonResponse
     {
         return new JsonResponse(json_encode($data, JSON_UNESCAPED_UNICODE), $status, $headers, true);
     }
