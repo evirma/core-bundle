@@ -29,11 +29,10 @@
 
         "symfony/orm-pack": "^1.0.7",
 
+        "babdev/pagerfanta-bundle": "^2.1",
+
         "meniam/autotext": "^4.0",
         "meniam/typograph-bundle": "^1.0",
-
-
-        "white-october/pagerfanta-bundle": "^1.2",
         "league/commonmark": "^1.0.0",
         "league/commonmark-extras": "^v1.0.0",
         "league/commonmark-ext-inlines-only": "^1.0.0",
