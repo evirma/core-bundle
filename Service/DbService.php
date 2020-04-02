@@ -199,7 +199,7 @@ final class DbService
      * @param array  $params    The query parameters.
      * @param array  $types     The query parameter types.
      * @param bool   $isSlave
-     * @return array|bool False is returned if no rows are found.
+     * @return mixed|bool False is returned if no rows are found.
      */
     public function fetchObject($object, $statement, array $params = [], array $types = [], $isSlave = false)
     {
