@@ -323,6 +323,15 @@ final class DbService
     }
 
     /**
+     * @param null $seqName
+     * @return string
+     */
+    public function lastInsertId($seqName = null)
+    {
+        return $this->getConn()->lastInsertId($seqName);
+    }
+
+    /**
      * Executes an SQL UPDATE statement on a table.
      * Table expression and columns are not escaped and are not safe for user-input.
      *
