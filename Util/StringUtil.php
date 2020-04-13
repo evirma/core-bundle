@@ -387,4 +387,17 @@ class StringUtil
             return '';
         }
     }
+
+    public static function humanSize($value, $decimals = 1)
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        $sz = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb'];
+        $factor = intval(floor((strlen($value) - 1) / 3));
+
+        return sprintf("%.{$decimals}f", $value / pow(1024, $factor)).$sz[$factor];
+    }
+
 }

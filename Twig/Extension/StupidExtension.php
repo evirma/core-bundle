@@ -32,6 +32,9 @@ class StupidExtension extends AbstractExtension
             new TwigFilter('ucfirst', [StringUtil::class, 'ucfirst']),
             new TwigFilter('ucwords', [StringUtil::class, 'ucwords']),
 
+            new TwigFilter('humansize', [StringUtil::class, 'humanSize']),
+
+
             new TwigFilter('ltrim', ['ltrim']),
             new TwigFilter('rtrim', ['rtrim']),
 
