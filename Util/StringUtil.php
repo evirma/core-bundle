@@ -2,14 +2,14 @@
 
 namespace Evirma\Bundle\CoreBundle\Util;
 
-use \DOMDocument;
-use \DOMElement;
-use \DOMLettersIterator;
-use \DOMNode;
-use \DOMText;
-use \DOMWordsIterator;
-use Ramsey\Uuid\Uuid;
+use DOMDocument;
+use DOMElement;
+use DOMLettersIterator;
+use DOMNode;
+use DOMText;
+use DOMWordsIterator;
 use Exception;
+use Ramsey\Uuid\Uuid;
 
 class StringUtil
 {
@@ -17,9 +17,17 @@ class StringUtil
     {
         $secondChar = mb_substr($str, 1, 1, 'UTF-8');
         if ($secondChar && !self::isCharUpperCase($secondChar)) {
-            return mb_strtolower(mb_substr($str, 0, 1, $encoding)) . mb_substr($str, 1, mb_strlen($str, $encoding), $encoding);
+            return mb_strtolower(mb_substr($str, 0, 1, $encoding)).mb_substr($str, 1, mb_strlen($str, $encoding), $encoding);
         }
+
         return $str;
+    }
+
+    public static function isCharUpperCase($char)
+    {
+        $upper = 'ЙЦУКЕНГШЩЗХЪЁЭЖДЛОРПАВЫФЯЧСМИТЬБЮQWERTYUIOPLKJHGFDSAZXCVBNM';
+
+        return (mb_strpos($upper, $char, 0, 'UTF-8') !== false);
     }
 
     public static function lower($str, $encoding = 'UTF-8')
@@ -34,7 +42,7 @@ class StringUtil
 
     public static function ucfirst($str, $encoding = 'UTF-8')
     {
-        return mb_strtoupper(mb_substr($str, 0, 1, $encoding)) . mb_substr($str, 1, mb_strlen($str, $encoding), $encoding);
+        return mb_strtoupper(mb_substr($str, 0, 1, $encoding)).mb_substr($str, 1, mb_strlen($str, $encoding), $encoding);
     }
 
     public static function ucwords($str, $encoding = 'UTF-8')
@@ -55,22 +63,19 @@ class StringUtil
     public static function getDomain($url, $withWww = true)
     {
         $result = parse_url($url, PHP_URL_HOST);
-        if (!$withWww) $result = preg_replace('#^www\.#i', '', $result);
-        return $result;
-    }
+        if (!$withWww) {
+            $result = preg_replace('#^www\.#i', '', $result);
+        }
 
-    public static function isCharUpperCase($char)
-    {
-        $upper = 'ЙЦУКЕНГШЩЗХЪЁЭЖДЛОРПАВЫФЯЧСМИТЬБЮQWERTYUIOPLKJHGFDSAZXCVBNM';
-        return (mb_strpos($upper, $char, 0, 'UTF-8') !== false);
+        return $result;
     }
 
     /**
      * Check if the $haystack string starts with the substring $needle
      *
-     * @param  string          $haystack
-     * @param  string|string[] $needle
-     * @param bool             $caseSensitive
+     * @param string          $haystack
+     * @param string|string[] $needle
+     * @param bool            $caseSensitive
      * @return bool
      */
     public static function startsWith($haystack, $needle, $caseSensitive = true)
@@ -90,9 +95,9 @@ class StringUtil
     /**
      * Check if the $haystack string ends with the substring $needle
      *
-     * @param  string          $haystack
-     * @param  string|string[] $needle
-     * @param bool             $caseSensitive
+     * @param string          $haystack
+     * @param string|string[] $needle
+     * @param bool            $caseSensitive
      * @return bool
      */
     public static function endsWith($haystack, $needle, $caseSensitive = true)
@@ -113,9 +118,9 @@ class StringUtil
     /**
      * Check if the $haystack string contains the substring $needle
      *
-     * @param  string          $haystack
-     * @param  string|string[] $needle
-     * @param  bool            $caseSensitive
+     * @param string          $haystack
+     * @param string|string[] $needle
+     * @param bool            $caseSensitive
      * @return bool
      */
     public static function contains($haystack, $needle, $caseSensitive = true)
@@ -128,7 +133,13 @@ class StringUtil
                 break;
             }
         }
+
         return $status;
+    }
+
+    public static function safeTruncate($string, $limit = 150)
+    {
+        return static::truncate($string, $limit, true);
     }
 
     public static function truncate($value, $length = 30, $preserve = false, $separator = '...')
@@ -148,9 +159,9 @@ class StringUtil
         return rtrim(mb_substr($value, 0, $length, 'UTF-8')).$separator;
     }
 
-    public static function safeTruncate($string, $limit = 150)
+    public static function safeTruncateHtml($html, $lengthOrWordCount = 30, $isWords = false, $separator = '...')
     {
-        return static::truncate($string, $limit, true);
+        return static::truncateHtml($html, $lengthOrWordCount, $isWords, $separator);
     }
 
     public static function truncateHtml($html, $lengthOrWordCount = 30, $isWords = false, $separator = '...')
@@ -158,21 +169,19 @@ class StringUtil
         return $isWords ? self::truncateHtmlWords($html, $lengthOrWordCount) : self::truncateHtmlLetters($html, $lengthOrWordCount, $separator);
     }
 
-    public static function safeTruncateHtml($html, $lengthOrWordCount = 30, $isWords = false, $separator = '...')
-    {
-        return static::truncateHtml($html, $lengthOrWordCount, $isWords, $separator);
-    }
-
     /**
      * Safely truncates HTML by a given number of words.
-     * @param  string  $html     Input HTML.
-     * @param  integer $limit    Limit to how many words we preserve.
-     * @param  string  $ellipsis String to use as ellipsis (if any).
+     *
+     * @param string  $html     Input HTML.
+     * @param integer $limit    Limit to how many words we preserve.
+     * @param string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
     private static function truncateHtmlWords($html, $limit = 0, $ellipsis = "")
     {
-        if ($limit <= 0) return $html;
+        if ($limit <= 0) {
+            return $html;
+        }
 
         $dom = self::htmlToDomDocument($html);
 
@@ -215,15 +224,97 @@ class StringUtil
     }
 
     /**
+     * Builds a DOMDocument object from a string containing HTML.
+     *
+     * @param string HTML to load
+     * @returns DOMDocument Returns a DOMDocument object.
+     * @return DOMDocument
+     */
+    private static function htmlToDomDocument($html)
+    {
+        // Transform multibyte entities which otherwise display incorrectly.
+        $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+
+        // Internal errors enabled as HTML5 not fully supported.
+        libxml_use_internal_errors(true);
+
+        // Instantiate new DOMDocument object, and then load in UTF-8 HTML.
+        $dom = new DOMDocument();
+        $dom->encoding = 'UTF-8';
+        $dom->loadHTML($html);
+
+        return $dom;
+    }
+
+    /**
+     * Removes all nodes after the current node.
+     *
+     * @param DOMNode|DOMElement $domNode
+     * @param DOMNode|DOMElement $topNode
+     * @return void
+     */
+    private static function removeProceedingNodes($domNode, $topNode)
+    {
+        $nextNode = $domNode->nextSibling;
+
+        if ($nextNode !== null) {
+            self::removeProceedingNodes($nextNode, $topNode);
+            $domNode->parentNode->removeChild($nextNode);
+        } else {
+            //scan upwards till we find a sibling
+            $curNode = $domNode->parentNode;
+            while ($curNode !== $topNode) {
+                if ($curNode->nextSibling !== null) {
+                    $curNode = $curNode->nextSibling;
+                    self::removeProceedingNodes($curNode, $topNode);
+                    $curNode->parentNode->removeChild($curNode);
+                    break;
+                }
+                $curNode = $curNode->parentNode;
+            }
+        }
+    }
+
+    /**
+     * Inserts an ellipsis
+     *
+     * @param DOMNode|DOMElement $domNode  Element to insert after.
+     * @param string             $ellipsis Text used to suffix our document.
+     * @return void
+     */
+    private static function insertEllipsis($domNode, $ellipsis)
+    {
+        $avoid = ['a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5']; //html tags to avoid appending the ellipsis to
+
+        if (in_array($domNode->parentNode->nodeName, $avoid) && $domNode->parentNode->parentNode !== null) {
+            // Append as text node to parent instead
+            $textNode = new DOMText($ellipsis);
+
+            if ($domNode->parentNode->parentNode->nextSibling) {
+                $domNode->parentNode->parentNode->insertBefore($textNode, $domNode->parentNode->parentNode->nextSibling);
+            } else {
+                $domNode->parentNode->parentNode->appendChild($textNode);
+            }
+
+        } else {
+            // Append to current node
+            $domNode->nodeValue = rtrim($domNode->nodeValue).$ellipsis;
+        }
+    }
+
+    /**
      * Safely truncates HTML by a given number of letters.
-     * @param  string  $html     Input HTML.
-     * @param  integer $limit    Limit to how many letters we preserve.
-     * @param  string  $ellipsis String to use as ellipsis (if any).
+     *
+     * @param string  $html     Input HTML.
+     * @param integer $limit    Limit to how many letters we preserve.
+     * @param string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
     private static function truncateHtmlLetters($html, $limit = 0, $ellipsis = "")
     {
-        if ($limit <= 0) return $html;
+        if ($limit <= 0) {
+            return $html;
+        }
 
         $dom = self::htmlToDomDocument($html);
 
@@ -254,83 +345,6 @@ class StringUtil
     }
 
     /**
-     * Builds a DOMDocument object from a string containing HTML.
-     *
-     * @param string HTML to load
-     * @returns DOMDocument Returns a DOMDocument object.
-     * @return DOMDocument
-     */
-    private static function htmlToDomDocument($html)
-    {
-        // Transform multibyte entities which otherwise display incorrectly.
-        $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
-
-        // Internal errors enabled as HTML5 not fully supported.
-        libxml_use_internal_errors(true);
-
-        // Instantiate new DOMDocument object, and then load in UTF-8 HTML.
-        $dom = new DOMDocument();
-        $dom->encoding = 'UTF-8';
-        $dom->loadHTML($html);
-
-        return $dom;
-    }
-
-    /**
-     * Removes all nodes after the current node.
-     * @param  DOMNode|DOMElement $domNode
-     * @param  DOMNode|DOMElement $topNode
-     * @return void
-     */
-    private static function removeProceedingNodes($domNode, $topNode)
-    {
-        $nextNode = $domNode->nextSibling;
-
-        if ($nextNode !== null) {
-            self::removeProceedingNodes($nextNode, $topNode);
-            $domNode->parentNode->removeChild($nextNode);
-        } else {
-            //scan upwards till we find a sibling
-            $curNode = $domNode->parentNode;
-            while ($curNode !== $topNode) {
-                if ($curNode->nextSibling !== null) {
-                    $curNode = $curNode->nextSibling;
-                    self::removeProceedingNodes($curNode, $topNode);
-                    $curNode->parentNode->removeChild($curNode);
-                    break;
-                }
-                $curNode = $curNode->parentNode;
-            }
-        }
-    }
-
-    /**
-     * Inserts an ellipsis
-     * @param  DOMNode|DOMElement $domNode  Element to insert after.
-     * @param  string             $ellipsis Text used to suffix our document.
-     * @return void
-     */
-    private static function insertEllipsis($domNode, $ellipsis)
-    {
-        $avoid = array('a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5'); //html tags to avoid appending the ellipsis to
-
-        if (in_array($domNode->parentNode->nodeName, $avoid) && $domNode->parentNode->parentNode !== null) {
-            // Append as text node to parent instead
-            $textNode = new DOMText($ellipsis);
-
-            if ($domNode->parentNode->parentNode->nextSibling) {
-                $domNode->parentNode->parentNode->insertBefore($textNode, $domNode->parentNode->parentNode->nextSibling);
-            } else {
-                $domNode->parentNode->parentNode->appendChild($textNode);
-            }
-
-        } else {
-            // Append to current node
-            $domNode->nodeValue = rtrim($domNode->nodeValue) . $ellipsis;
-        }
-    }
-
-    /**
      * @param $path
      * @param $sect
      * @return mixed|null
@@ -338,7 +352,7 @@ class StringUtil
     public static function getPathSect($path, $sect)
     {
         $trimmedPath = trim($path, '/');
-        $pathArray =  explode('/', $trimmedPath);
+        $pathArray = explode('/', $trimmedPath);
 
         if (!$cnt = count($pathArray)) {
             return null;
@@ -359,7 +373,7 @@ class StringUtil
     public static function removePathSect($path, $sect)
     {
         $trimmedPath = trim($path, '/');
-        $pathArray =  explode('/', $trimmedPath);
+        $pathArray = explode('/', $trimmedPath);
 
         if (!$cnt = count($pathArray)) {
             return '';
@@ -373,7 +387,7 @@ class StringUtil
 
         $result = '';
         foreach ($pathArray as $slug) {
-            $result .= '/' . $slug;
+            $result .= '/'.$slug;
         }
 
         return $result;
@@ -397,7 +411,43 @@ class StringUtil
         $sz = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb'];
         $factor = intval(floor((strlen($value) - 1) / 3));
 
+        $size = $value / pow(1024, $factor);
+        if ($size == ceil($size)) {
+            $decimals = 0;
+        }
+
         return sprintf("%.{$decimals}f", $value / pow(1024, $factor)).$sz[$factor];
+    }
+
+    /**
+     * @param      $expression
+     * @param bool $return
+     * @return string
+     */
+    public static function varExportWithTag($expression, $return = false)
+    {
+        return "<?php\n\n\$array = " . self::varExport($expression, $return) . ";\n";
+    }
+
+    /**
+     * @param      $expression
+     * @param bool $return
+     * @return string
+     */
+    public static function varExport($expression, $return = false)
+    {
+        $export = var_export($expression, true);
+        $export = preg_replace("/^([ ]*)(.*)/m", '$1$1$2', $export);
+        $array = preg_split("/\r\n|\n|\r/", $export);
+        $array = preg_replace(["/\s*array\s\($/", "/\)(,)?$/", "/\s=>\s$/"], [null, ']$1', ' => ['], $array);
+        $export = join(PHP_EOL, array_filter(["["] + $array));
+        $export = preg_replace("/=>\s*\[\s*],/usi", '=> [],', $export);
+
+        if (!(bool)$return) {
+            echo $export;
+        }
+
+        return (string)$export;
     }
 
 }
