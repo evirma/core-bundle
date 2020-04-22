@@ -169,8 +169,9 @@ final class DbService
      */
     public function fetchObjectAll($object, $sql, array $params = [], $types = [], $isSlave = false)
     {
-        $query = $this->executeQuery($sql, $params, $types, $isSlave);
-        $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
+        if ($query = $this->executeQuery($sql, $params, $types, $isSlave)) {
+            $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
+        }
         return $query ? $query->fetchAll() : false;
     }
 
@@ -203,8 +204,9 @@ final class DbService
      */
     public function fetchObject($object, $statement, array $params = [], array $types = [], $isSlave = false)
     {
-        $query = $this->executeQuery($statement, $params, $types, $isSlave);
-        $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
+        if ($query = $this->executeQuery($statement, $params, $types, $isSlave)) {
+            $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
+        }
         return $query ? $query->fetch(FetchMode::CUSTOM_OBJECT) : false;
     }
 
@@ -241,7 +243,7 @@ final class DbService
         $query = $this->executeQuery($query, $params, $types, $isSlave);
         if ($query && ($data = $query->fetchAll(FetchMode::NUMERIC))) {
             $result = [];
-            foreach ($data as &$item) {
+            foreach ($data as $item) {
                 $result[$item[0]] = $item[1];
             }
             return $result;
@@ -264,7 +266,7 @@ final class DbService
         $query = $this->executeQuery($query, $params, $types, $isSlave);
         if ($query && ($data = $query->fetchAll(FetchMode::NUMERIC))) {
             $result = [];
-            foreach ($data as &$item) {
+            foreach ($data as $item) {
                 $result[$item[0]] = $item[0];
             }
             return $result;
@@ -351,6 +353,27 @@ final class DbService
         }
 
         return $result;
+    }
+
+    /**
+     * @param       $tableExpression
+     * @param array $data
+     * @return bool|Statement|false
+     */
+    public function upsert($tableExpression, array $data)
+    {
+        $includeFields = array_keys($data[0]);
+        $includeFieldsStr = implode(', ', $includeFields);
+
+        [$values, $params] = $this->prepareMultipleValues($data, $includeFields);
+
+        if ($values) {
+            /** @noinspection SqlNoDataSourceInspection */
+            $sql = "INSERT INTO {$tableExpression} ({$includeFieldsStr}) VALUES {$values} ON CONFLICT DO NOTHING";
+            return $this->executeQuery($sql, $params);
+        }
+
+        return true;
     }
 
     /**
