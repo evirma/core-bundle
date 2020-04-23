@@ -41,7 +41,7 @@ class DateExtension extends AbstractExtension
         }
     }
 
-    public function dateHtmlPrettyFilter($date, $withTimeTag = false)
+    public function dateHtmlPrettyFilter($date, $withTimeTag = false, $withTitleFormat = null)
     {
         $oldLocal = setlocale(LC_TIME, 'en', 'en_EN', 'en_EN.UTF-8');
 
@@ -67,9 +67,24 @@ class DateExtension extends AbstractExtension
         $result = DateUtil::dateReplace($result);
         setlocale(LC_TIME, $oldLocal);
 
+        if ($withTitleFormat === true) {
+            $withTitleFormat = 'Y-m-d H:i:s';
+        }
+
+        $title = false;
+        if ($withTitleFormat) {
+            $title = date($withTitleFormat, $date);
+        }
+
         if ($withTimeTag) {
+            if ($title) {
+                return sprintf('<time datetime="%s" title="%s">%s</time>', date('c', $date), $title, $result);
+            }
             return sprintf('<time datetime="%s">%s</time>', date('c', $date), $result);
         } else {
+            if ($title) {
+                return sprintf('<span title="%s">%s</span>', $title, $result);
+            }
             return $result;
         }
     }
