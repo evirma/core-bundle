@@ -11,14 +11,14 @@ class MetaRobots extends FilterRule
         $entityLower = str_replace(' ', '', strtolower(trim($value)));
 
         switch ($entityLower) {
-            case 'follow,noindex':
-                return 'FOLLOW,NOINDEX';
-            case 'nofollow,index':
-                return 'NOFOLLOW,INDEX';
-            case 'nofollow,noindex':
-                return 'NOFOLLOW,NOINDEX';
+            case 'noindex,follow':
+                return 'NOINDEX,FOLLOW';
+            case 'index,nofollow':
+                return 'INDEX,NOFOLLOW';
+            case 'noindex,nofollow':
+                return 'NOINDEX,NOFOLLOW';
             default:
-                return 'FOLLOW,INDEX';
+                return 'INDEX,FOLLOW';
         }
     }
 }
