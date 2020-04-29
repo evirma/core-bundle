@@ -10,6 +10,7 @@ class HtmlToText extends FilterRule
     public function filter($value)
     {
         $html = new Html2Text($value);
+
         return trim($html->getText());
     }
 }

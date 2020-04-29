@@ -17,14 +17,14 @@ class Filter
     }
 
     /**
-     * @param mixed $value
+     * @param mixed              $value
      * @param array|FilterRule[] $filters
      * @return mixed
      */
     protected function walkRuleChain($value, $filters)
     {
         /** @var array|FilterRule[] $filters */
-        foreach($filters as $filter) {
+        foreach ($filters as $filter) {
             $value = $filter->filter($value);
         }
 

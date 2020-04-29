@@ -4,8 +4,10 @@ namespace Evirma\Bundle\CoreBundle\Service;
 
 use Evirma\Bundle\AutotextBundle\Autotext;
 use Evirma\Bundle\CoreBundle\Entity\User;
-use Evirma\Bundle\CoreBundle\Filter\Rule\MetaTrim;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
+use Evirma\Bundle\CoreBundle\Filter\Rule\MetaKeywords;
+use Evirma\Bundle\CoreBundle\Filter\Rule\MetaTrim;
+use Evirma\Bundle\CoreBundle\Util\StringUtil;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
@@ -438,8 +440,8 @@ class PageMeta implements HelperInterface
     {
         $metaKeywords = $this->metaKeywords ? $this->metaKeywords : $default;
         if ($this->autotextSeed) {
-            $metaKeywords = $this->autotext->autotext(' ' . $metaKeywords);
-            $metaKeywords = FilterStatic::filterValue($metaKeywords, MetaTrim::class);
+            $metaKeywords = $this->autotext->autotext(' '.$metaKeywords);
+            $metaKeywords = FilterStatic::filterValue($metaKeywords, MetaKeywords::class);
         }
         return $metaKeywords;
     }
@@ -450,15 +452,7 @@ class PageMeta implements HelperInterface
      */
     public function setMetaKeywords($metaKeywords)
     {
-        if (!is_array($metaKeywords)) {
-            $metaKeywords = explode(',', $metaKeywords);
-        }
-
-        foreach ($metaKeywords as &$metaKeyword) {
-            $metaKeyword = FilterStatic::filterValuesArray($metaKeyword, MetaTrim::class);
-        }
-
-        $this->metaKeywords = implode(', ', array_unique($metaKeywords));
+        $this->metaKeywords = FilterStatic::filterValue($metaKeywords, MetaKeywords::class);
         return $this;
     }
 
@@ -471,17 +465,21 @@ class PageMeta implements HelperInterface
     public function setMetaKeywordsTrans($metaKeywords, $parameters = [], $domain = 'messages')
     {
         $this->metaKeywords = $this->translator->trans($metaKeywords, $parameters, $domain);
+
         return $this;
     }
 
+    /**
+     * @param $metaKeywords
+     * @return $this
+     */
     public function appendMetaKeywords($metaKeywords)
     {
-        $_metaKeywords = array_map('trim', explode(',', $this->metaKeywords));
-
         $metaKeywordsRegistry = [];
-        foreach ($_metaKeywords as $_metaKeyword) {
-            $mtHash = mb_strtolower($_metaKeyword, 'UTF-8');
-            $metaKeywordsRegistry[$mtHash] = $_metaKeyword;
+
+        $_metaKeywords = array_map('trim', explode(',', $this->metaKeywords));
+        foreach ($_metaKeywords as $mk) {
+            $metaKeywordsRegistry[StringUtil::lower($mk)] = $mk;
         }
 
         if (!is_array($metaKeywords)) {
@@ -489,9 +487,8 @@ class PageMeta implements HelperInterface
         }
 
         $metaKeywords = array_map('trim', $metaKeywords);
-        foreach ($metaKeywords as $metaKeyword) {
-            $mtHash = mb_strtolower($metaKeyword, 'UTF-8');
-            $metaKeywordsRegistry[$mtHash] = $metaKeyword;
+        foreach ($metaKeywords as $mk) {
+            $metaKeywordsRegistry[StringUtil::lower($mk)] = $mk;
         }
 
         $this->metaKeywords = implode(', ', $metaKeywordsRegistry);

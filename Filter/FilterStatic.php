@@ -2,35 +2,15 @@
 
 namespace Evirma\Bundle\CoreBundle\Filter;
 
-use \Exception;
+use Exception;
 
 class FilterStatic
 {
     private static $filters = [];
 
     /**
-     * @param $value
-     * @param $filter
-     * @return mixed
-     */
-    public static function filterValue($value, $filter)
-    {
-        if ($filter instanceof FilterRule) {
-            return $filter->filter($value);
-        } elseif (is_string($filter)) {
-            try {
-                return self::getFilter($filter)->filter($value);
-            } catch (Exception $e) {
-                return $value;
-            }
-        }
-
-        return self::walkRuleChain($value, $filter);
-    }
-
-    /**
      * @param array $valuesArray
-     * @param $filter
+     * @param       $filter
      * @return array
      */
     public static function filterValuesArray($valuesArray, $filter)
@@ -48,23 +28,27 @@ class FilterStatic
     }
 
     /**
-     * @param mixed $value
-     * @param array|FilterRule[] $filters
+     * @param $value
+     * @param $filter
      * @return mixed
      */
-    protected static function walkRuleChain($value, $filters)
+    public static function filterValue($value, $filter)
     {
-        /** @var array|FilterRule[] $filters */
-        foreach($filters as $filter) {
-            $value = $filter->filter($value);
+        if ($filter instanceof FilterRule) {
+            return $filter->transform($value);
+        } elseif (is_string($filter)) {
+            try {
+                return self::getFilter($filter)->transform($value);
+            } catch (Exception $e) {
+                return $value;
+            }
         }
 
-        return $value;
+        return self::walkRuleChain($value, $filter);
     }
 
     /**
      * @param $filter
-     *
      * @return FilterRule
      * @throws Exception
      */
@@ -75,10 +59,26 @@ class FilterStatic
         }
 
         if (!class_exists($filter)) {
-            throw new Exception('Filter not found: ' . $filter);
+            throw new Exception('Filter not found: '.$filter);
         }
 
         self::$filters[$filter] = new $filter;
+
         return self::$filters[$filter];
+    }
+
+    /**
+     * @param mixed              $value
+     * @param array|FilterRule[] $filters
+     * @return mixed
+     */
+    protected static function walkRuleChain($value, $filters)
+    {
+        /** @var array|FilterRule[] $filters */
+        foreach ($filters as $filter) {
+            $value = $filter->transform($value);
+        }
+
+        return $value;
     }
 }

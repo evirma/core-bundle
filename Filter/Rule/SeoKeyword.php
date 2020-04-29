@@ -25,6 +25,7 @@ class SeoKeyword extends FilterRule
     private function filterWord($word)
     {
         $word = FilterStatic::filterValue($word, HtmlAndUnicode::class);
+
         return trim($word, '"\'()[]{}|-+=');
     }
 }
