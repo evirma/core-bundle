@@ -5,8 +5,11 @@ namespace Evirma\Bundle\CoreBundle\Service;
 use Evirma\Bundle\AutotextBundle\Autotext;
 use Evirma\Bundle\CoreBundle\Entity\User;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
+use Evirma\Bundle\CoreBundle\Filter\Rule\MetaDescription;
 use Evirma\Bundle\CoreBundle\Filter\Rule\MetaKeywords;
+use Evirma\Bundle\CoreBundle\Filter\Rule\MetaRobots;
 use Evirma\Bundle\CoreBundle\Filter\Rule\MetaTrim;
+use Evirma\Bundle\CoreBundle\Filter\Rule\Name;
 use Evirma\Bundle\CoreBundle\Util\StringUtil;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\Request;
@@ -233,7 +236,7 @@ class PageMeta implements HelperInterface
      */
     public function setPageArray($pageArray)
     {
-        $metaTitle = isset($pageArray['meta_title']) ? FilterStatic::filterValue($pageArray['meta_title'], MetaTrim::class) : null;
+        $metaTitle = isset($pageArray['meta_title']) ? FilterStatic::filterValue($pageArray['meta_title'], Name::class) : null;
         if ($metaTitle) {
             $this->setMetaTitle($metaTitle);
         }
@@ -245,13 +248,13 @@ class PageMeta implements HelperInterface
             }
         }
 
-        $metaDescription = isset($pageArray['meta_description']) ? FilterStatic::filterValue($pageArray['meta_description'], MetaTrim::class) : null;
+        $metaDescription = isset($pageArray['meta_description']) ? FilterStatic::filterValue($pageArray['meta_description'], MetaDescription::class) : null;
         if ($metaDescription) {
             $this->setMetaDescription($metaDescription);
         }
 
         if (!$this->getMetaDescription()) {
-            $metaDescriptionGenerated = isset($pageArray['meta_description_generated']) ? FilterStatic::filterValue($pageArray['meta_description_generated'], MetaTrim::class) : null;
+            $metaDescriptionGenerated = isset($pageArray['meta_description_generated']) ? FilterStatic::filterValue($pageArray['meta_description_generated'], MetaDescription::class) : null;
             if ($metaDescriptionGenerated) {
                 $this->setMetaDescription($metaDescriptionGenerated);
             }
@@ -269,7 +272,7 @@ class PageMeta implements HelperInterface
             }
         }
 
-        $metaRobots = isset($pageArray['meta_robots']) ? FilterStatic::filterValue($pageArray['meta_robots'], MetaTrim::class) : null;
+        $metaRobots = isset($pageArray['meta_robots']) ? FilterStatic::filterValue($pageArray['meta_robots'], MetaRobots::class) : null;
         if ($metaRobots) {
             $this->setMetaRobots($metaRobots);
         }
@@ -343,8 +346,8 @@ class PageMeta implements HelperInterface
     {
         $h1 = $this->h1 ? $this->h1 : $default;
         if ($this->autotextSeed) {
-            $h1 = $this->autotext->autotext(' ' . $h1);
-            $h1 = FilterStatic::filterValue($h1, MetaTrim::class);
+            $h1 = $this->autotext->autotext(' '.$h1);
+            $h1 = FilterStatic::filterValue($h1, Name::class);
         }
 
         return $h1;
@@ -356,7 +359,7 @@ class PageMeta implements HelperInterface
      */
     public function setH1($h1)
     {
-        $this->h1 = FilterStatic::filterValue($h1, MetaTrim::class);
+        $this->h1 = FilterStatic::filterValue($h1, Name::class);
         return $this;
     }
 
@@ -403,8 +406,8 @@ class PageMeta implements HelperInterface
     {
         $metaDescription = $this->metaDescription ? $this->metaDescription : $default;
         if ($this->autotextSeed) {
-            $metaDescription = $this->autotext->autotext(' ' . $metaDescription);
-            $metaDescription = FilterStatic::filterValue($metaDescription, MetaTrim::class);
+            $metaDescription = $this->autotext->autotext(' '.$metaDescription);
+            $metaDescription = FilterStatic::filterValue($metaDescription, MetaDescription::class);
         }
 
         return $metaDescription;
@@ -416,7 +419,7 @@ class PageMeta implements HelperInterface
      */
     public function setMetaDescription($metaDescription = '')
     {
-        $this->metaDescription = FilterStatic::filterValue($metaDescription, MetaTrim::class);
+        $this->metaDescription = FilterStatic::filterValue($metaDescription, MetaDescription::class);
         return $this;
     }
 
@@ -512,7 +515,7 @@ class PageMeta implements HelperInterface
      */
     public function setMetaRobots($metaRobots)
     {
-        $this->metaRobots = $metaRobots;
+        $this->metaRobots = FilterStatic::filterValue($metaRobots, MetaRobots::class);
         return $this;
     }
 
@@ -524,8 +527,7 @@ class PageMeta implements HelperInterface
      */
     public function setMetaRobotsTrans($metaRobots = '', $parameters = [], $domain = 'messages')
     {
-        $this->metaRobots = $this->translator->trans($metaRobots, $parameters, $domain);
-        return $this;
+        return $this->setMetaRobots($this->translator->trans($metaRobots, $parameters, $domain));
     }
 
     /**
@@ -586,7 +588,7 @@ class PageMeta implements HelperInterface
     {
         $this->breadcrumbs[] = [
             'url' => $this->router->generate($route, $parameters, $referenceType),
-            'text' => FilterStatic::filterValue($text, MetaTrim::class),
+            'text' => FilterStatic::filterValue($text, Name::class),
         ];
 
         return $this;
@@ -636,8 +638,8 @@ class PageMeta implements HelperInterface
     {
         $this->breadcrumbs[] = [
             'url' => $this->router->generate($route, $parameters, $referenceType),
-            'text' => FilterStatic::filterValue($text, MetaTrim::class),
-            'title' => FilterStatic::filterValue($title, MetaTrim::class),
+            'text' => FilterStatic::filterValue($text, Name::class),
+            'title' => FilterStatic::filterValue($title, Name::class),
         ];
         return $this;
     }
