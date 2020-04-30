@@ -11,6 +11,10 @@ trait TransformerMappingTrait
      */
     public function getGroups(): array
     {
+        if (empty($this->groups)) {
+            $this->groups = ['Default'];
+        }
+
         return $this->groups;
     }
 
