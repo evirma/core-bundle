@@ -1,8 +1,6 @@
 {% block form_widget_compound %}
     <div {{ block('widget_container_attributes') }}>
-        {% if form.parent is empty %}
-            {{ form_errors(form) }}
-        {% endif %}
+        {% if form.parent is empty %}{{ block('global_form_errors') }}{% endif %}
         {% if form.vars.groups is defined %}
             {% for group,items in form.vars.groups %}
                 <fieldset>
