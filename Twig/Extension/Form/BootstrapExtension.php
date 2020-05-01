@@ -70,6 +70,9 @@ class BootstrapExtension extends AbstractExtension
     {
         $html = '<div class="alert alert-danger">';
         $html .= implode('<br/>', $this->collectFormViewErrors($formView));
+        $html .= '<button type="button" class="close" data-dismiss="alert" aria-label="Close">';
+        $html .= '<span aria-hidden="true">&times;</span>';
+        $html .= '</button>';
         $html .= '</div>';
 
         return $html;
