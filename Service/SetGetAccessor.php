@@ -4,6 +4,7 @@ namespace Evirma\Bundle\CoreBundle\Service;
 
 use ReflectionException;
 use ReflectionMethod;
+use Symfony\Bundle\MakerBundle\Str;
 use function is_callable;
 use function strlen;
 
@@ -12,11 +13,11 @@ class SetGetAccessor
     public const ATTRIBUTES = 'attributes';
     public const IGNORED_ATTRIBUTES = 'ignored_attributes';
 
-    private static $cache = [];
+    private static array $cache = [];
 
     public static function getAttributeValue(object $object, string $attribute)
     {
-        $ucfirsted = ucfirst($attribute);
+        $ucfirsted = Str::asCamelCase($attribute);
 
         $key = get_class($object).':getter'.$ucfirsted;
 
@@ -63,7 +64,7 @@ class SetGetAccessor
 
     public static function setAttributeValue(object $object, string $attribute, $value)
     {
-        $setter = 'set'.ucfirst($attribute);
+        $setter = 'set'.Str::asCamelCase($attribute);
         $key = get_class($object).':'.$setter;
 
         if (!isset(self::$cache[$key])) {
