@@ -2,19 +2,11 @@
 
 namespace Evirma\Bundle\CoreBundle\Twig\Extension\Form;
 
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormView;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-/**
- * BootstrapFormExtension
- *
- * @package    BraincraftedBootstrapBundle
- * @subpackage Twig
- * @author     Florian Eckerstorfer <florian@eckerstorfer.co>
- * @copyright  2012-2013 Florian Eckerstorfer
- * @license    http://opensource.org/licenses/MIT The MIT License
- * @link       http://bootstrap.braincrafted.com Bootstrap for Symfony2
- */
 class BootstrapExtension extends AbstractExtension
 {
     /** @var string */
@@ -41,6 +33,7 @@ class BootstrapExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
+            new TwigFunction('bootstrap_show_global_errors', array($this, 'showGlobalErrors')),
             new TwigFunction('bootstrap_set_style', array($this, 'setStyle')),
             new TwigFunction('bootstrap_get_style', array($this, 'getStyle')),
             new TwigFunction('bootstrap_set_col_size', array($this, 'setColSize')),
@@ -64,17 +57,67 @@ class BootstrapExtension extends AbstractExtension
                 'form_control_static',
                 array($this, 'formControlStaticFunction'),
                 array('is_safe' => array('html'))
-            )
+            ),
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
     {
         return 'bootstrap_form';
     }
+
+    public function showGlobalErrors(FormView $formView)
+    {
+        $html = '<div class="alert alert-danger">';
+        $html .= implode('<br/>', $this->collectFormViewErrors($formView));
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    private function collectFormViewErrors(FormView $formView)
+    {
+        $result = [];
+        if (!$formView->vars['valid']) {
+            /** @var FormError $error */
+            foreach ($formView->vars['errors'] as $error) {
+                $result[] = $error->getMessage();
+            }
+
+            $result = array_merge($result, $this->collectFormViewChildrenErrors($formView));
+        }
+
+        return $result;
+    }
+
+    private function collectFormViewChildrenErrors(FormView $formView)
+    {
+        $result = [];
+        if (!empty($formView->children)) {
+            foreach ($formView->children as $child) {
+                if (!$child->vars['valid']) {
+                    /** @var FormError $error */
+                    foreach ($child->vars['errors'] as $error) {
+                        $id = $child->vars['id'];
+                        $message = '';
+                        if ($child->vars['label']) {
+                            $message .= '<b>'.$child->vars['label'].'</b>: ';
+                        }
+                        $message .= $error->getMessage();
+                        $result[] = sprintf('<label style="cursor: pointer" for="%s">%s</label>', $id, $message);
+                    }
+                }
+                if (!empty($child->children)) {
+                    foreach ($child->children as $ch) {
+                        $result = array_merge($result, $this->collectFormViewChildrenErrors($ch));
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
 
     /**
      * Sets the style.
