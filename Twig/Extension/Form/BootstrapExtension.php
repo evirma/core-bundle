@@ -68,8 +68,12 @@ class BootstrapExtension extends AbstractExtension
 
     public function showGlobalErrors(FormView $formView)
     {
+        if (!$errors = $this->collectFormViewErrors($formView)) {
+            return '';
+        }
+
         $html = '<div class="alert alert-danger">';
-        $html .= implode('<br/>', $this->collectFormViewErrors($formView));
+        $html .= implode('<br/>', $errors);
         $html .= '<button type="button" class="close" data-dismiss="alert" aria-label="Close">';
         $html .= '<span aria-hidden="true">&times;</span>';
         $html .= '</button>';
