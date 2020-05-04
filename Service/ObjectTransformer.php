@@ -87,7 +87,7 @@ class ObjectTransformer
                     continue;
                 }
 
-                $data = $class->{$meta['getter']}();
+                $oldData = $data = $class->{$meta['getter']}();
 
                 if (isset($meta['transformers'])) {
                     foreach ($meta['transformers'] as $transformerClass) {
@@ -96,7 +96,9 @@ class ObjectTransformer
                     }
                 }
 
-                $class->{$meta['setter']}($data);
+                if ($oldData != $data) {
+                    $class->{$meta['setter']}($data);
+                }
             }
         }
 
