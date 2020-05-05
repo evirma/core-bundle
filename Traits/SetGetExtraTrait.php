@@ -11,19 +11,41 @@ trait SetGetExtraTrait
     /**
      * @var array
      */
-    protected $extra = [];
+    protected array $extra = [];
 
+    /**
+     * @param $name
+     * @param $value
+     */
     public function __set($name, $value)
     {
-        if (!SetGetAccessor::setAttributeValue($this, Str::asCamelCase($name), $value)) {
-            $this->extra[$name] = $value;
+        if (!SetGetAccessor::setAttributeValue($this, $name, $value)) {
+            $snakeCase = Str::asSnakeCase($name);
+            $this->extra[$snakeCase] = $value;
         }
     }
 
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        $snakeCase = Str::asSnakeCase($name);
+
+        return isset($this->extra[$snakeCase]);
+    }
+
+    /**
+     * @param $name
+     * @return mixed
+     * @throws ErrorException
+     */
     public function __get($name)
     {
-        if (isset($this->extra[$name])) {
-            return $this->extra[$name];
+        $snakeCase = Str::asSnakeCase($name);
+        if (isset($this->extra[$snakeCase])) {
+            return $this->extra[$snakeCase];
         }
 
         throw new ErrorException("Параметр «{$name}» не найдет", 0, E_NOTICE);
