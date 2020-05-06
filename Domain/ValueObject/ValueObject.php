@@ -4,10 +4,7 @@ namespace Evirma\Bundle\CoreBundle\Domain\ValueObject;
 
 use Evirma\Bundle\CoreBundle\Traits\SetGetExtraTrait;
 
-/**
- * @deprecated
- */
-abstract class AbstractValueObject
+abstract class ValueObject
 {
     use SetGetExtraTrait;
 }

@@ -2,8 +2,6 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
-use InvalidArgumentException;
-use \PDO;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
@@ -11,6 +9,8 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\ORM\EntityManager;
+use InvalidArgumentException;
+use PDO;
 use Psr\Log\LoggerInterface;
 
 final class DbService
@@ -169,10 +169,28 @@ final class DbService
      */
     public function fetchObjectAll($object, $sql, array $params = [], $types = [], $isSlave = false)
     {
-        if ($query = $this->executeQuery($sql, $params, $types, $isSlave)) {
-            $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
+        if ($data = $this->fetchAll($sql, $params, $types, $isSlave)) {
+            foreach ($data as &$item) {
+                $item = $this->createObject($object, $item);
+            }
         }
-        return $query ? $query->fetchAll() : false;
+
+        return $data;
+    }
+
+    /**
+     * @param               $object
+     * @param iterable|null $data
+     * @return mixed
+     */
+    private function createObject($object, iterable $data = null)
+    {
+        $result = new $object;
+        foreach ($data as $k => $v) {
+            $result->$k = $v;
+        }
+
+        return $result;
     }
 
     /**
@@ -204,10 +222,11 @@ final class DbService
      */
     public function fetchObject($object, $statement, array $params = [], array $types = [], $isSlave = false)
     {
-        if ($query = $this->executeQuery($statement, $params, $types, $isSlave)) {
-            $query->setFetchMode(FetchMode::CUSTOM_OBJECT, $object);
+        if ($item = $this->fetchAssoc($statement, $params, $types, $isSlave)) {
+            $item = $this->createObject($object, $item);
         }
-        return $query ? $query->fetch(FetchMode::CUSTOM_OBJECT) : false;
+
+        return $item;
     }
 
     /**
