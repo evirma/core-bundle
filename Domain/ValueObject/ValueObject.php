@@ -5,10 +5,6 @@ namespace Evirma\Bundle\CoreBundle\Domain\ValueObject;
 use Evirma\Bundle\CoreBundle\Serializer\SerializerHandler;
 use Evirma\Bundle\CoreBundle\Traits\SetGetExtraTrait;
 use JsonSerializable;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 abstract class ValueObject implements JsonSerializable
 {
@@ -37,10 +33,7 @@ abstract class ValueObject implements JsonSerializable
 
     public function toJson()
     {
-        $normalizer = new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter());
-        $serializer = new Serializer([$normalizer], [new JsonEncoder()]);
-
-        return $serializer->serialize($this, 'json', ['json_encode_options' => JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT]);
+        return SerializerHandler::objectToJson($this);
     }
 
     public function fromJson(string $json)

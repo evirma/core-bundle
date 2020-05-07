@@ -2,14 +2,16 @@
 
 namespace Evirma\Bundle\CoreBundle\Serializer;
 
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class SerializerHandler
 {
     private static $arrayToObjectSerializer;
-    private static $objectToArraySerializer;
+    private static $objectSerializer;
 
     public static function denormalizeArrayToObject(array $data, $objectName)
     {
@@ -23,7 +25,16 @@ class SerializerHandler
     public static function objectToArray($object)
     {
         try {
-            return self::getObjectToArraySerializer()->normalize($object);
+            return self::getObjectSerializer()->normalize($object);
+        } catch (ExceptionInterface $e) {
+            return false;
+        }
+    }
+
+    public static function objectToJson($object)
+    {
+        try {
+            return self::getObjectSerializer()->serialize($object);
         } catch (ExceptionInterface $e) {
             return false;
         }
@@ -38,12 +49,13 @@ class SerializerHandler
         return self::$arrayToObjectSerializer;
     }
 
-    public static function getObjectToArraySerializer()
+    public static function getObjectSerializer()
     {
-        if (!self::$objectToArraySerializer) {
-            self::$objectToArraySerializer = new Serializer([new ObjectNormalizer()]);
+        if (!self::$objectSerializer) {
+            $normalizer = new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter());
+            self::$objectSerializer = new Serializer([$normalizer], [new JsonEncoder()]);
         }
 
-        return self::$objectToArraySerializer;
+        return self::$objectSerializer;
     }
 }
