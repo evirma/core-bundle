@@ -31,10 +31,10 @@ class SerializerHandler
         }
     }
 
-    public static function objectToJson($object)
+    public static function objectToJson($object, $encodeOptions = JSON_UNESCAPED_UNICODE)
     {
         try {
-            return self::getObjectSerializer()->serialize($object);
+            return self::getObjectSerializer()->serialize($object, 'json', ['json_encode_options' => $encodeOptions]);
         } catch (ExceptionInterface $e) {
             return false;
         }
