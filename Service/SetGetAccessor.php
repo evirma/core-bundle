@@ -69,7 +69,8 @@ class SetGetAccessor
 
         if (!isset(self::$cache[$key])) {
             try {
-                self::$cache[$key] = is_callable([$object, $setter]) && !(new ReflectionMethod($object, $setter))->isStatic();
+                $method = new ReflectionMethod($object, $setter);
+                self::$cache[$key] = is_callable([$object, $setter]) && !$method->isStatic();
             } catch (ReflectionException $e) {
                 self::$cache[$key] = false;
             }

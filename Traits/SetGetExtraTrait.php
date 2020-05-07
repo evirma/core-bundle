@@ -50,4 +50,12 @@ trait SetGetExtraTrait
 
         throw new ErrorException("Параметр «{$name}» не найдет", 0, E_NOTICE);
     }
+
+    /**
+     * @return array
+     */
+    public function getExtra()
+    {
+        return $this->extra;
+    }
 }

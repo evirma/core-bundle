@@ -51,7 +51,8 @@
         "tgalopin/html-sanitizer": "^1.2",
         "tijsverkoyen/css-to-inline-styles": "^2.2.0",
         "antoligy/dom-string-iterators": "^1.0",
-        "html2text/html2text": "^4.2"
+        "html2text/html2text": "^4.2",
+        "symfony/serializer": "^5.0"
     },
     "require-dev": {
         "symfony/profiler-pack": "^1.0",
