@@ -33,8 +33,8 @@ class SimpleTemplate extends \Pagerfanta\View\Template\Template
     public function page($page, $isHidden = false)
     {
         $hiddenClass = $isHidden ? ' hidden-xs' : '';
-        $text = '<span class="sr-only">Страница №</span>' . $page;
-        $href = $this->generateRoute($page==1?null:$page);
+        $text = '<span class="sr-only">Страница №</span>'.$page;
+        $href = $this->generateRoute($page < 1 ? 1 : $page);
 
         $maxIndexPages = $this->option('max_index_pages');
 
@@ -48,7 +48,7 @@ class SimpleTemplate extends \Pagerfanta\View\Template\Template
         $showNextPageButton = $this->option('hide_next_page_button');
         if ($showNextPageButton) return '';
 
-        $href = $this->generateRoute($page == 1?null:$page);
+        $href = $this->generateRoute($page < 1 ? 1 : $page);
         $maxIndexPages = $this->option('max_index_pages');
         $rel = ($page > $maxIndexPages) ? ' rel="noindex,nofollow"' : '';
 
