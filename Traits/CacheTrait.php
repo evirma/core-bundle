@@ -32,6 +32,26 @@ trait CacheTrait
     }
 
     /**
+     * @param      $object
+     * @param      $cacheId
+     * @param null $default
+     * @param bool $cached
+     * @return mixed|null
+     */
+    protected function getObjectCacheDecodedItem($object, $cacheId, $default = null, $cached = true)
+    {
+        if ($result = $this->getCacheDecodedItem($cacheId, $default, $cached)) {
+            if (is_array($result)) {
+                return $object::factory($object);
+            } else {
+                return $default;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * @param      $keys
      * @param null $default
      * @param bool $cached

@@ -146,11 +146,15 @@ class ObjectTransformer
                                 }
 
                                 if (!isset($data[$prop->getName()])) {
+                                    $groups = $ann->getGroups();
+                                    if (empty($groups)) {
+                                        $groups = ['Default'];
+                                    }
                                     $data[$ucfirsted] = [
                                         'transformers' => [],
                                         'getter' => $getters[$ucfirsted],
                                         'setter' => $setters[$ucfirsted],
-                                        'groups' => $ann->getGroups(),
+                                        'groups' => $groups,
                                     ];
                                 }
 
@@ -175,4 +179,3 @@ class ObjectTransformer
         $this->metadata[$class] = $data;
     }
 }
-
