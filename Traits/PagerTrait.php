@@ -22,6 +22,18 @@ trait PagerTrait
             ->setCurrentPage($page);
     }
 
+    public function createNoLimitArrayPager($page, $perPage, $items, $itemsCount)
+    {
+        $page = $page > 0 ? (int)$page : 1;
+        $perPage = $perPage > 0 ? (int)$perPage : 100;
+
+        return (new Pagerfanta(new FixedAdapter($itemsCount, $items)))
+            ->setAllowOutOfRangePages(true)
+            ->setNormalizeOutOfRangePages(true)
+            ->setMaxPerPage($perPage)
+            ->setCurrentPage($page);
+    }
+
     public function createQueryPager($query, $page, $perPage = 30)
     {
         $page = $page > 0 ? (int)$page : 1;
