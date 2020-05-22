@@ -23,6 +23,13 @@ class StringUtil
         return $str;
     }
 
+    public static function isRussian($word)
+    {
+        $upper = '#[ЙЦУКЕНГШЩЗХЪЁЭЖДЛОРПАВЫФЯЧСМИТЬБЮ]#usi';
+
+        return preg_match($upper, $word);
+    }
+
     public static function isCharUpperCase($char)
     {
         $upper = 'ЙЦУКЕНГШЩЗХЪЁЭЖДЛОРПАВЫФЯЧСМИТЬБЮQWERTYUIOPLKJHGFDSAZXCVBNM';
