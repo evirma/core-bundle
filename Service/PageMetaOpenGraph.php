@@ -4,39 +4,12 @@ namespace Evirma\Bundle\CoreBundle\Service;
 
 class PageMetaOpenGraph
 {
-    /**
-     * @var string|null
-     */
     private $type = 'website';
-
-    /**
-     * @var string|null
-     */
     private $title = '';
-
-    /**
-     * @var string|null
-     */
     private $description = '';
-
-    /**
-     * @var string|null
-     */
     private $locale = 'ru_RU';
-
-    /**
-     * @var string|null
-     */
     private $siteName = '';
-
-    /**
-     * @var string|null
-     */
     private $url;
-
-    /**
-     * @var array|null
-     */
     private $images = [];
 
     public function __toString()
@@ -237,6 +210,10 @@ class PageMetaOpenGraph
      */
     public function addImage($url, $alt = null, $type = null, $width = null, $height = null)
     {
+        if (!$url) {
+            return $this;
+        }
+
         $hash = sha1($url);
         $this->images[$hash] = [
             'url' => $url,
