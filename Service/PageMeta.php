@@ -407,7 +407,6 @@ class PageMeta implements HelperInterface
         if ($this->autotextSeed) {
             $metaDescription = $this->autotext->autotext(' '.$metaDescription);
         }
-
         return FilterStatic::filterValue($metaDescription, MetaDescription::class);
     }
 
@@ -430,7 +429,6 @@ class PageMeta implements HelperInterface
     public function setMetaDescriptionTrans($metaDescription = '', $parameters = [], $domain = 'messages')
     {
         $metaDescription = $this->translator->trans($metaDescription, $parameters, $domain);
-
         return $this->setMetaDescription($metaDescription);
     }
 
@@ -442,6 +440,7 @@ class PageMeta implements HelperInterface
     {
         $metaKeywords = $this->metaKeywords ? $this->metaKeywords : $default;
         if ($this->autotextSeed) {
+            $metaKeywords = FilterStatic::filterValue($metaKeywords, MetaKeywords::class);
             $metaKeywords = $this->autotext->autotext(' '.$metaKeywords);
         }
 
