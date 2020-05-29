@@ -3,10 +3,11 @@
 namespace Evirma\Bundle\CoreBundle\Twig\Extension;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Evirma\Bundle\CoreBundle\Twig\TokenParser\MarkdownTokenParser;
 use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
 use Evirma\Bundle\CoreBundle\Filter\Rule\MarkdownWithHtml;
 use Evirma\Bundle\CoreBundle\Filter\Rule\Typographics;
+use Evirma\Bundle\CoreBundle\Twig\TokenParser\HeadtagTokenParser;
+use Evirma\Bundle\CoreBundle\Twig\TokenParser\MarkdownTokenParser;
 use Evirma\Bundle\CoreBundle\Twig\TokenParser\NoindexTokenParser;
 use Evirma\Bundle\CoreBundle\Twig\TokenParser\SwitchTokenParser;
 use Evirma\Bundle\CoreBundle\Twig\TokenParser\TypoTokenParser;
@@ -140,8 +141,9 @@ class StupidExtension extends AbstractExtension
         return [
             new NoindexTokenParser(),
             new MarkdownTokenParser(),
+            new HeadtagTokenParser(),
             new TypoTokenParser(),
-            new SwitchTokenParser()
+            new SwitchTokenParser(),
         ];
     }
 
@@ -292,6 +294,11 @@ class StupidExtension extends AbstractExtension
     public function jsonEncode($str)
     {
         return json_encode($str, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    }
+
+    public function headtag($content)
+    {
+        return $content;
     }
 
     /**
