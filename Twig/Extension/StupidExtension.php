@@ -142,6 +142,7 @@ class StupidExtension extends AbstractExtension
             new NoindexTokenParser(),
             new MarkdownTokenParser(),
             new HeadtagTokenParser(),
+            new HeadtagTokenParser(),
             new TypoTokenParser(),
             new SwitchTokenParser(),
         ];
@@ -298,7 +299,15 @@ class StupidExtension extends AbstractExtension
 
     public function headtag($content)
     {
-        return $content;
+        $lines = array_map('trim', explode("\n", $content));
+        $lines = array_filter($lines);
+
+        $result = '';
+        foreach ($lines as $line) {
+            $result .= '    '.$line."\n";
+        }
+
+        return $result;
     }
 
     /**
