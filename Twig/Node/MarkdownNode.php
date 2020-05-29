@@ -35,6 +35,5 @@ class MarkdownNode extends Node implements NodeOutputInterface
             ->write('$content = preg_replace(\'/^\' . $matches[0]. \'/\', "", $lines);' . PHP_EOL)
             ->write('$content = join("\n", $content);' . PHP_EOL)
             ->write('echo $this->env->getExtension(\'Evirma\\Bundle\\CoreBundle\\Twig\Extension\\StupidExtension\')->markdown($content);' . PHP_EOL);
-
     }
 }
