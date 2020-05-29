@@ -15,8 +15,8 @@ class MetaKeywords extends FilterRule
         }
 
         $result = [];
-        foreach ($value as &$keyword) {
-            $keyword = FilterStatic::filterValuesArray($keyword, MetaTrim::class);
+        foreach ($value as $keyword) {
+            $keyword = FilterStatic::filterValue($keyword, MetaTrim::class);
             $result[StringUtil::lower($keyword)] = $keyword;
         }
 
