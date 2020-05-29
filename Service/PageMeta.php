@@ -236,54 +236,54 @@ class PageMeta implements HelperInterface
      */
     public function setPageArray($pageArray)
     {
-        $metaTitle = isset($pageArray['meta_title']) ? FilterStatic::filterValue($pageArray['meta_title'], Name::class) : null;
+        $metaTitle = $pageArray['meta_title'] ?? null;
         if ($metaTitle) {
             $this->setMetaTitle($metaTitle);
         }
 
         if (!$this->getMetaTitle()) {
-            $metaTitleGenerated = isset($pageArray['meta_title_generated']) ? FilterStatic::filterValue($pageArray['meta_title_generated'], MetaTrim::class) : null;
+            $metaTitleGenerated = $pageArray['meta_title_generated'] ?? null;
             if ($metaTitleGenerated) {
                 $this->setMetaTitle($metaTitleGenerated);
             }
         }
 
-        $metaDescription = isset($pageArray['meta_description']) ? FilterStatic::filterValue($pageArray['meta_description'], MetaDescription::class) : null;
+        $metaDescription = $pageArray['meta_description'] ?? null;
         if ($metaDescription) {
             $this->setMetaDescription($metaDescription);
         }
 
         if (!$this->getMetaDescription()) {
-            $metaDescriptionGenerated = isset($pageArray['meta_description_generated']) ? FilterStatic::filterValue($pageArray['meta_description_generated'], MetaDescription::class) : null;
+            $metaDescriptionGenerated = $pageArray['meta_description_generated'] ?? null;
             if ($metaDescriptionGenerated) {
                 $this->setMetaDescription($metaDescriptionGenerated);
             }
         }
 
-        $metaKeywords = isset($pageArray['meta_keywords']) ? $pageArray['meta_keywords'] : null;
+        $metaKeywords = $pageArray['meta_keywords'] ?? null;
         if ($metaKeywords) {
             $this->setMetaKeywords($metaKeywords);
         }
 
         if (!$this->getMetaKeywords()) {
-            $metaKeywordsGenerated = isset($pageArray['meta_keywords_generated']) ? $pageArray['meta_keywords_generated'] : null;
+            $metaKeywordsGenerated = $pageArray['meta_keywords_generated'] ?? null;
             if ($metaKeywordsGenerated) {
                 $this->setMetaKeywords($metaKeywordsGenerated);
             }
         }
 
-        $metaRobots = isset($pageArray['meta_robots']) ? FilterStatic::filterValue($pageArray['meta_robots'], MetaRobots::class) : null;
+        $metaRobots = $pageArray['meta_robots'] ?? null;
         if ($metaRobots) {
             $this->setMetaRobots($metaRobots);
         }
 
-        $h1 = isset($pageArray['h1']) ? FilterStatic::filterValue($pageArray['h1'], MetaTrim::class) : null;
+        $h1 = $pageArray['h1'] ?? null;
         if ($h1) {
             $this->setH1($h1);
         }
 
         if (!$this->getH1()) {
-            $h1Generated = isset($pageArray['h1_generated']) ? FilterStatic::filterValue($pageArray['h1_generated'], MetaTrim::class) : null;
+            $h1Generated = $pageArray['h1_generated'] ?? null;
             if ($h1Generated) {
                 $this->setH1($h1Generated);
             }
@@ -301,9 +301,9 @@ class PageMeta implements HelperInterface
         $metaTitle = $this->metaTitle ? $this->metaTitle : $default;
         if ($this->autotextSeed) {
             $metaTitle = $this->autotext->autotext(' ' . $metaTitle);
-            $metaTitle = FilterStatic::filterValue($metaTitle, MetaTrim::class);
         }
-        return $metaTitle;
+
+        return FilterStatic::filterValue($metaTitle, MetaTrim::class);
     }
 
     /**
@@ -322,7 +322,7 @@ class PageMeta implements HelperInterface
      */
     public function setMetaTitle($metaTitle)
     {
-        $this->metaTitle = FilterStatic::filterValue($metaTitle, MetaTrim::class);
+        $this->metaTitle = $metaTitle;
         return $this;
     }
 
@@ -347,10 +347,9 @@ class PageMeta implements HelperInterface
         $h1 = $this->h1 ? $this->h1 : $default;
         if ($this->autotextSeed) {
             $h1 = $this->autotext->autotext(' '.$h1);
-            $h1 = FilterStatic::filterValue($h1, Name::class);
         }
 
-        return $h1;
+        return FilterStatic::filterValue($h1, Name::class);
     }
 
     /**
@@ -407,10 +406,9 @@ class PageMeta implements HelperInterface
         $metaDescription = $this->metaDescription ? $this->metaDescription : $default;
         if ($this->autotextSeed) {
             $metaDescription = $this->autotext->autotext(' '.$metaDescription);
-            $metaDescription = FilterStatic::filterValue($metaDescription, MetaDescription::class);
         }
 
-        return $metaDescription;
+        return FilterStatic::filterValue($metaDescription, MetaDescription::class);
     }
 
     /**
@@ -419,7 +417,7 @@ class PageMeta implements HelperInterface
      */
     public function setMetaDescription($metaDescription = '')
     {
-        $this->metaDescription = FilterStatic::filterValue($metaDescription, MetaDescription::class);
+        $this->metaDescription = $metaDescription;
         return $this;
     }
 
@@ -431,8 +429,9 @@ class PageMeta implements HelperInterface
      */
     public function setMetaDescriptionTrans($metaDescription = '', $parameters = [], $domain = 'messages')
     {
-        $this->metaDescription = $this->translator->trans($metaDescription, $parameters, $domain);
-        return $this;
+        $metaDescription = $this->translator->trans($metaDescription, $parameters, $domain);
+
+        return $this->setMetaDescription($metaDescription);
     }
 
     /**
@@ -444,9 +443,9 @@ class PageMeta implements HelperInterface
         $metaKeywords = $this->metaKeywords ? $this->metaKeywords : $default;
         if ($this->autotextSeed) {
             $metaKeywords = $this->autotext->autotext(' '.$metaKeywords);
-            $metaKeywords = FilterStatic::filterValue($metaKeywords, MetaKeywords::class);
         }
-        return $metaKeywords;
+
+        return FilterStatic::filterValue($metaKeywords, MetaKeywords::class);
     }
 
     /**
@@ -455,7 +454,7 @@ class PageMeta implements HelperInterface
      */
     public function setMetaKeywords($metaKeywords)
     {
-        $this->metaKeywords = FilterStatic::filterValue($metaKeywords, MetaKeywords::class);
+        $this->metaKeywords = $metaKeywords;
         return $this;
     }
 
@@ -467,9 +466,9 @@ class PageMeta implements HelperInterface
      */
     public function setMetaKeywordsTrans($metaKeywords, $parameters = [], $domain = 'messages')
     {
-        $this->metaKeywords = $this->translator->trans($metaKeywords, $parameters, $domain);
+        $metaKeywords = $this->translator->trans($metaKeywords, $parameters, $domain);
 
-        return $this;
+        return $this->setMetaKeywords($metaKeywords);
     }
 
     /**
@@ -480,7 +479,7 @@ class PageMeta implements HelperInterface
     {
         $metaKeywordsRegistry = [];
 
-        $_metaKeywords = array_map('trim', explode(',', $this->metaKeywords));
+        $_metaKeywords = array_map('trim', explode(',', $this->getMetaKeywords()));
         foreach ($_metaKeywords as $mk) {
             $metaKeywordsRegistry[StringUtil::lower($mk)] = $mk;
         }
@@ -494,11 +493,8 @@ class PageMeta implements HelperInterface
             $metaKeywordsRegistry[StringUtil::lower($mk)] = $mk;
         }
 
-        $this->metaKeywords = implode(', ', $metaKeywordsRegistry);
-
-        return $this;
+        return $this->setMetaKeywords($metaKeywordsRegistry);
     }
-
 
     /**
      * @param null $default
@@ -506,7 +502,9 @@ class PageMeta implements HelperInterface
      */
     public function getMetaRobots($default = null)
     {
-        return $this->metaRobots ? $this->metaRobots : $default;
+        $metaRobots = $this->metaRobots ? $this->metaRobots : $default;
+
+        return FilterStatic::filterValue($metaRobots, MetaRobots::class);
     }
 
     /**
@@ -515,7 +513,7 @@ class PageMeta implements HelperInterface
      */
     public function setMetaRobots($metaRobots)
     {
-        $this->metaRobots = FilterStatic::filterValue($metaRobots, MetaRobots::class);
+        $this->metaRobots = $metaRobots;
         return $this;
     }
 
