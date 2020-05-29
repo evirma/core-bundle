@@ -42,7 +42,31 @@ trait CacheTrait
     {
         if ($result = $this->getCacheDecodedItem($cacheId, $default, $cached)) {
             if (is_array($result)) {
-                return $object::factory($object);
+                return $object::factory($result);
+            } else {
+                return $default;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param      $object
+     * @param      $cacheId
+     * @param null $default
+     * @param bool $cached
+     * @return mixed|null
+     */
+    protected function getObjectCacheDecodedList($object, $cacheId, $default = null, $cached = true)
+    {
+        if ($result = $this->getCacheDecodedItem($cacheId, $default, $cached)) {
+            if (is_array($result)) {
+                foreach ($result as &$item) {
+                    $item = $object::factory($item);
+                }
+
+                return $result;
             } else {
                 return $default;
             }
