@@ -21,7 +21,13 @@ trait SetGetExtraTrait
     {
         if (!SetGetAccessor::setAttributeValue($this, $name, $value)) {
             $snakeCase = Str::asSnakeCase($name);
-            $this->extra[$snakeCase] = $value;
+            if ($snakeCase == 'extra' && is_array($value)) {
+                foreach ($value as $k => $v) {
+                    $this->extra[$k] = $v;
+                }
+            } else {
+                $this->extra[$snakeCase] = $value;
+            }
         }
     }
 
