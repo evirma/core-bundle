@@ -118,7 +118,11 @@ trait CacheTrait
      */
     protected function getCacheItem($cacheId, $default = null, $cached = true)
     {
-        if ($this->isCacheAllowed($cached) && isset(MemcacheService::$prefetchCacheData[$cacheId]) && MemcacheService::$prefetchCacheData[$cacheId]) {
+        if (!$this->isCacheAllowed($cached)) {
+            return $default;
+        }
+
+        if (isset(MemcacheService::$prefetchCacheData[$cacheId]) && MemcacheService::$prefetchCacheData[$cacheId]) {
             $result = MemcacheService::$prefetchCacheData[$cacheId];
         } elseif ($result = $this->getMemcache()->get($cacheId, $default)) {
             return $result;
@@ -159,11 +163,13 @@ trait CacheTrait
      */
     protected function getCacheDecodedItem($cacheId, $default = null, $cached = true)
     {
-        $mc = $this->getMemcache();
+        if (!$this->isCacheAllowed($cached)) {
+            return $default;
+        }
 
-        if ($this->isCacheAllowed($cached) && isset(MemcacheService::$prefetchCacheData[$cacheId]) && MemcacheService::$prefetchCacheData[$cacheId]) {
+        if (isset(MemcacheService::$prefetchCacheData[$cacheId]) && MemcacheService::$prefetchCacheData[$cacheId]) {
             $result = MemcacheService::$prefetchCacheData[$cacheId];
-        } elseif (($result = $mc->get($cacheId, $default, $cached)) && ($result != $default)) {
+        } elseif (($result = $this->getMemcache()->get($cacheId, $default, $cached)) && ($result != $default)) {
             $result = @json_decode($result, true);
         }
 

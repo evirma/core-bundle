@@ -9,12 +9,15 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\ORM\EntityManager;
+use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
 use InvalidArgumentException;
 use PDO;
 use Psr\Log\LoggerInterface;
 
 final class DbService
 {
+    use CacheTrait;
+
     /**
      * @var ManagerRegistry
      */
@@ -227,6 +230,19 @@ final class DbService
         }
 
         return $item;
+    }
+
+    /**
+     * Использовать кеширование для запросов
+     *
+     * @param bool $cached
+     * @param null $cacheId
+     * @param null $ttl
+     * @return DbCachedService
+     */
+    public function useCache($cached = true, $cacheId = null, $ttl = null)
+    {
+        return new DbCachedService($this->getMemcache(), $this, $cached, $cacheId, $ttl);
     }
 
     /**
