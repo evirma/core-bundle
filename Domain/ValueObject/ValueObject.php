@@ -13,17 +13,19 @@ abstract class ValueObject implements JsonSerializable
     public static function factory($data)
     {
         if (is_null($data)) {
-            return false;
+            return null;
         }
 
         $class = static::class;
         if ($data instanceof $class) {
             return $data;
         } elseif (is_array($data)) {
-            return SerializerHandler::denormalizeArrayToObject($data, static::class);
+            $result = SerializerHandler::denormalizeArrayToObject($data, static::class);
+
+            return ($result instanceof $class) ? $result : null;
         }
 
-        return false;
+        return null;
     }
 
     public function toArray()
