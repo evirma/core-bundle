@@ -240,9 +240,9 @@ final class DbService
      * @param null $ttl
      * @return DbCachedService
      */
-    public function useCache($cached = true, $cacheId = null, $ttl = null)
+    public function useCache($cached = true, $ttl = null, $cacheId = null)
     {
-        return new DbCachedService($this->getMemcache(), $this, $cached, $cacheId, $ttl);
+        return new DbCachedService($this->getMemcache(), $this, $cached, $ttl, $cacheId);
     }
 
     /**

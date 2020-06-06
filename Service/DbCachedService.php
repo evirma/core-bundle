@@ -14,7 +14,7 @@ final class DbCachedService
     private $cacheId;
     private $cached;
 
-    public function __construct(MemcacheService $memcache, DbService $db, $cached = true, $cacheId = null, $ttl = null)
+    public function __construct(MemcacheService $memcache, DbService $db, $cached = true, $ttl = null, $cacheId = null)
     {
         $this->setMemcache($memcache);
         $this->db = $db;
