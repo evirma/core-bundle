@@ -170,10 +170,19 @@ final class DbCachedService
     private function buildCacheId($sql, $params, $salt, $object = null)
     {
         if (!$this->cacheId) {
-            $parts = $object ? explode('\\', $object) : $salt;
-            $prefix = end($parts);
+            $parts = $object ? explode('\\', $object) : [];
+            if ($parts) {
+                $prefix = end($parts);
+            } else {
+                $prefix = $salt;
+            }
 
-            return $prefix.'_'.md5($sql.'_'.(string)$salt.'_'.serialize($params));
+            $paramsHash = '';
+            if (is_array($params)) {
+                $paramsHash = serialize($params);
+            }
+
+            return $prefix.'_'.md5($sql.'_'.(string)$salt.'_'.$paramsHash);
         }
 
         return $this->cacheId;
