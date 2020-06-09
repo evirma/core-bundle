@@ -67,7 +67,7 @@ final class DbCachedService
             return $result;
         }
 
-        if ($result = $this->db->fetchAll($statement, $params, $types, $isSlave)) {
+        if ($result = $this->db->fetchAssoc($statement, $params, $types, $isSlave)) {
             $this->setCacheEncodedItem($cacheId, $result, $this->ttl);
         }
 
