@@ -20,8 +20,10 @@ final class DbCachedService
         $this->db = $db;
         $this->cached = (bool)$cached;
         $this->cacheId = $cacheId;
-        if (is_null($ttl)) {
+        if (is_null($ttl) || !$ttl) {
             $this->ttl = $this->getCacheTtlShort();
+        } else {
+            $this->ttl = $ttl;
         }
     }
 
