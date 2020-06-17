@@ -40,12 +40,27 @@ trait CacheTrait
      */
     protected function getObjectCacheDecodedItem($object, $cacheId, $default = null, $cached = true)
     {
+        if (MemcacheService::$profillerEnable) {
+            $start = microtime(true);
+        }
+
         if ($result = $this->getCacheDecodedItem($cacheId, $default, $cached)) {
             if (is_array($result)) {
-                return $object::factory($result);
+                $result = $object::factory($result);
             } else {
-                return $default;
+                $result = $default;
             }
+        }
+
+        if (MemcacheService::$profillerEnable) {
+            @MemcacheService::$profiller['getObjectCacheDecodedItem']['count']++;
+            @MemcacheService::$profiller['getObjectCacheDecodedItem']['keys'][$cacheId]++;
+
+            if (!isset(MemcacheService::$profiller['getObjectCacheDecodedItem']['runtime'])) {
+                MemcacheService::$profiller['getObjectCacheDecodedItem']['runtime'] = 0;
+            }
+            $runtime = microtime(true) - $start;
+            MemcacheService::$profiller['getObjectCacheDecodedItem']['runtime'] += $runtime;
         }
 
         return $result;
@@ -122,6 +137,11 @@ trait CacheTrait
             return $default;
         }
 
+        if (MemcacheService::$profillerEnable) {
+            @MemcacheService::$profiller['getCacheItem']['count']++;
+            @MemcacheService::$profiller['getCacheItem']['keys'][$cacheId]++;
+        }
+
         if (isset(MemcacheService::$prefetchCacheData[$cacheId]) && MemcacheService::$prefetchCacheData[$cacheId]) {
             $result = MemcacheService::$prefetchCacheData[$cacheId];
         } elseif ($result = $this->getMemcache()->get($cacheId, $default)) {
@@ -167,6 +187,10 @@ trait CacheTrait
             return $default;
         }
 
+        if (MemcacheService::$profillerEnable) {
+            $start = microtime(true);
+        }
+
         if (isset(MemcacheService::$prefetchCacheData[$cacheId]) && MemcacheService::$prefetchCacheData[$cacheId]) {
             $result = MemcacheService::$prefetchCacheData[$cacheId];
         } elseif (($result = $this->getMemcache()->get($cacheId, $default, $cached)) && ($result != $default)) {
@@ -175,6 +199,17 @@ trait CacheTrait
 
         if (is_null($result)) {
             $result = $default;
+        }
+
+        if (MemcacheService::$profillerEnable) {
+            @MemcacheService::$profiller['getCacheDecodedItem']['count']++;
+            @MemcacheService::$profiller['getCacheDecodedItem']['keys'][$cacheId]++;
+
+            if (!isset(MemcacheService::$profiller['getCacheDecodedItem']['runtime'])) {
+                MemcacheService::$profiller['getCacheDecodedItem']['runtime'] = 0;
+            }
+            $runtime = microtime(true) - $start;
+            MemcacheService::$profiller['getCacheDecodedItem']['runtime'] += $runtime;
         }
 
         return $result;
@@ -277,5 +312,10 @@ trait CacheTrait
     protected function getCacheTtlLong()
     {
         return mt_rand(7 * 86400, 21 * 86400);
+    }
+
+    protected function setCacheProfillerEnable(bool $status)
+    {
+        MemcacheService::$profillerEnable = $status;
     }
 }

@@ -14,6 +14,8 @@ class MemcacheService
 
     public static $prefetchCacheData = [];
     public static $addToPrefetchOnSet = false;
+    public static $profillerEnable = false;
+
     /**
      * @var bool
      */
@@ -40,6 +42,11 @@ class MemcacheService
      * @var LoggerInterface
      */
     private $logger;
+
+    /**
+     * @var array
+     */
+    public static $profiller;
 
     /**
      * @param bool $state

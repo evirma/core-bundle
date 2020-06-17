@@ -9,7 +9,9 @@ class ArrayUtil
         $result = [];
 
         foreach ($array as $item) {
-            if (isset($item[$keyToIndex])) {
+            if (is_scalar($item)) {
+                $result[(int)$item] = (int)$item;
+            } elseif (isset($item[$keyToIndex])) {
                 $result[$item[$keyToIndex]] = $item;
             }
         }
