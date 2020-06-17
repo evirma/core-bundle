@@ -40,6 +40,7 @@ trait CacheTrait
      */
     protected function getObjectCacheDecodedItem($object, $cacheId, $default = null, $cached = true)
     {
+        $start = 0;
         if (MemcacheService::$profillerEnable) {
             $start = microtime(true);
         }
@@ -183,6 +184,7 @@ trait CacheTrait
      */
     protected function getCacheDecodedItem($cacheId, $default = null, $cached = true)
     {
+        $start = 0;
         if (!$this->isCacheAllowed($cached)) {
             return $default;
         }
