@@ -15,7 +15,8 @@ class HtmlAndUnicode extends FilterRule
         $value = str_replace("&nbsp;", ' ', $value);
         $value = str_replace("&amp;", '&', $value);
         $value = html_entity_decode($value);
+        $value = preg_replace('/\\\u[A-F\d]{2,5}/si', '', $value);
 
-        return preg_replace('/\\\u[A-F\d]{2,5}/si', '', $value);
+        return trim(preg_replace('#\s+#usi', ' ', $value));
     }
 }
