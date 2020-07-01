@@ -20,7 +20,9 @@ class PageCache
 
     public function saveNginxPageCache(Request $request, $content)
     {
-        if (($this->env != 'prod') && !$this->isUser()) return true;
+        if (($this->env != 'prod') || $this->isUser()) {
+            return true;
+        }
 
         if (!$filename = $this->getNginxFilename($request)) return false;
 
