@@ -2,6 +2,7 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Router;
 
 class RequestService extends AbstractCoreService
@@ -35,7 +36,11 @@ class RequestService extends AbstractCoreService
         if (!$route) {
             $link = $this->getRequest()->getRequestUri();
         } else {
-            $link = $this->getRouter()->generate($route, $parameters, $referenceType);
+            try {
+                $link = $this->getRouter()->generate($route, $parameters, $referenceType);
+            } catch (RouteNotFoundException $e) {
+                $link = $route;
+            }
         }
 
         $isLinkDecoded = ($link == urldecode($link));
@@ -82,8 +87,8 @@ class RequestService extends AbstractCoreService
         $link = rtrim($link, "?");
 
         if (strpos($link, '?') !== false && (strpos($link, '%2f') !== false || strpos($link, '%2F') !== false)) {
-            list($_link, $_query) = explode('?', $link);
-            $link = str_replace(array('%2f', '%2F'), '/', $_link).'?'.$_query;
+            [$_link, $_query] = explode('?', $link);
+            $link = str_replace(['%2f', '%2F'], '/', $_link).'?'.$_query;
         } elseif (strpos($link, '%2f') !== false || strpos($link, '%2F') !== false) {
             $link = str_replace(array('%2f', '%2F'), '/', $link);
         }
