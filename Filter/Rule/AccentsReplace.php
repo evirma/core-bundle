@@ -2,7 +2,7 @@
 
 namespace Evirma\Bundle\CoreBundle\Filter\Rule;
 
-namespace Evirma\Bundle\CoreBundle\Filter;
+use Evirma\Bundle\CoreBundle\Filter\FilterRule;
 
 class AccentsReplace extends FilterRule
 {
