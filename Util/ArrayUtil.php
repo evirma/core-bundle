@@ -48,4 +48,11 @@ class ArrayUtil
 
         return $merged;
     }
+
+    public static function hash(array $array)
+    {
+        array_multisort($array);
+
+        return md5(serialize($array));
+    }
 }
