@@ -10,6 +10,8 @@ abstract class ValueObject implements JsonSerializable
 {
     use SetGetExtraTrait;
 
+    protected $exportContext = [];
+
     public static function factory($data)
     {
         if (is_null($data)) {
@@ -30,12 +32,12 @@ abstract class ValueObject implements JsonSerializable
 
     public function toArray()
     {
-        return SerializerHandler::objectToArray($this);
+        return SerializerHandler::objectToArray($this, $this->exportContext);
     }
 
     public function toJson()
     {
-        return SerializerHandler::objectToJson($this);
+        return SerializerHandler::objectToJson($this, $this->exportContext);
     }
 
     public function fromJson(string $json)
