@@ -26,7 +26,7 @@
         "ext-iconv": "*",
         "cocur/slugify": "^4.0",
         "ramsey/uuid-doctrine": "^1.5",
-        "symfony/orm-pack": "^1.0.7",
+        "symfony/orm-pack": "^2.0",
         "babdev/pagerfanta-bundle": "^2.1",
         "evirma/autotext-bundle": "^1.0",
         "meniam/typograph-bundle": "^1.0",
