@@ -2,12 +2,12 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManager;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
 use InvalidArgumentException;
@@ -38,7 +38,7 @@ final class DbService
      */
     private $conn;
 
-    public function __construct(ManagerRegistry $manager, LoggerInterface $logger)
+    public function __construct(Registry $manager, LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->logger = $logger;
@@ -157,7 +157,7 @@ final class DbService
     public function fetchAll($sql, array $params = [], $types = [], $isSlave = false)
     {
         $query = $this->executeQuery($sql, $params, $types, $isSlave);
-        return $query ? $query->fetchAll() : false;
+        return $query ? $query->fetchAllAssociative() : false;
     }
 
     /**
@@ -209,7 +209,7 @@ final class DbService
     public function fetchAssoc($statement, array $params = [], array $types = [], $isSlave = false)
     {
         $query = $this->executeQuery($statement, $params, $types, $isSlave);
-        return $query ? $query->fetch(FetchMode::ASSOCIATIVE) : false;
+        return $query ? $query->fetchAssociative() : false;
     }
 
     /**
@@ -249,6 +249,7 @@ final class DbService
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
+     * @deprecated use fetchOne
      * @param string $statement The SQL query to be executed.
      * @param array  $params    The prepared statement params.
      * @param int    $column    The 0-indexed column number to retrieve.
@@ -259,7 +260,23 @@ final class DbService
     public function fetchColumn($statement, array $params = [], $column = 0, array $types = [], $isSlave = false)
     {
         $query = $this->executeQuery($statement, $params, $types, $isSlave);
-        return $query ? $query->fetchColumn($column) : false;
+        return $query ? $query->fetchOne($column) : false;
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the value of a single column
+     * of the first row of the result.
+     *
+     * @param string $statement The SQL query to be executed.
+     * @param array  $params    The prepared statement params.
+     * @param array  $types     The query parameter types.
+     * @param bool   $isSlave
+     * @return mixed|bool False is returned if no rows are found.
+     */
+    public function fetchOne($statement, array $params = [], array $types = [], $isSlave = false)
+    {
+        $query = $this->executeQuery($statement, $params, $types, $isSlave);
+        return $query ? $query->fetchOne() : false;
     }
 
     /**
@@ -276,7 +293,7 @@ final class DbService
     public function fetchPairs($query, array $params = [], $types = [], $isSlave = false)
     {
         $query = $this->executeQuery($query, $params, $types, $isSlave);
-        if ($query && ($data = $query->fetchAll(FetchMode::NUMERIC))) {
+        if ($query && ($data = $query->fetchAllNumeric())) {
             $result = [];
             foreach ($data as $item) {
                 $result[$item[0]] = $item[1];
@@ -299,7 +316,7 @@ final class DbService
     public function fetchUniqIds($query, array $params = [], $types = [], $isSlave = false)
     {
         $query = $this->executeQuery($query, $params, $types, $isSlave);
-        if ($query && ($data = $query->fetchAll(FetchMode::NUMERIC))) {
+        if ($query && ($data = $query->fetchAllNumeric())) {
             $result = [];
             foreach ($data as $item) {
                 $result[$item[0]] = $item[0];
@@ -315,10 +332,10 @@ final class DbService
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
-     * @param string                 $query  The SQL query to execute.
-     * @param array                  $params The parameters to bind to the query, if any.
-     * @param array                  $types  The types the previous parameters are in.
-     * @param bool                   $isSlave    The query cache profile, optional.
+     * @param string $query   The SQL query to execute.
+     * @param array  $params  The parameters to bind to the query, if any.
+     * @param array  $types   The types the previous parameters are in.
+     * @param bool   $isSlave The query cache profile, optional.
      * @return Statement|false The executed statement.
      */
     public function executeQuery($query, array $params = [], $types = [], $isSlave = false)
@@ -327,7 +344,7 @@ final class DbService
         try {
             $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
             $result = $conn->executeQuery($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             $message = $e->getMessage();
             $message = preg_replace('#VALUES(.*?)ON\s+CONFLICT#usi', 'VALUES ({{VALUES}}) ON CONFLICT', $message);
             $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
@@ -352,7 +369,7 @@ final class DbService
         $result = false;
         try {
             $result = $this->getConn()->insert($tableExpression, $data, $types);
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
         }
 
@@ -383,7 +400,7 @@ final class DbService
         $result = false;
         try {
             $result = $this->getConn()->update($tableExpression, $data, $identifier, $types);
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'identifier' => $identifier, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
         }
 
@@ -466,11 +483,13 @@ final class DbService
 
     public function checkConnection($isSlave = false)
     {
-        $connection= $isSlave ? $this->getConnSlave() : $this->getConn();
+        $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
 
-        if ($connection->ping() === false) {
-            $connection->close();
-            $connection->connect();
+        try {
+            $conn->executeQuery("SELECT 1");
+            return true;
+        } catch (Exception $e) {
+            return false;
         }
     }
 }

@@ -45,7 +45,7 @@ final class DbCachedService
             return $result;
         }
 
-        if ($result = $this->db->fetchColumn($statement, $params, $column, $types, $isSlave)) {
+        if ($result = $this->db->fetchOne($statement, $params, $types, $isSlave)) {
             $this->setCacheItem($cacheId, $result, $this->ttl);
         }
 
