@@ -2,7 +2,6 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
@@ -38,7 +37,13 @@ final class DbService
      */
     private $conn;
 
-    public function __construct(Registry $manager, LoggerInterface $logger)
+    /**
+     * DbService constructor.
+     *
+     * @param ManagerRegistry $manager
+     * @param LoggerInterface $logger
+     */
+    public function __construct(ManagerRegistry $manager, LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->logger = $logger;
