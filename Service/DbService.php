@@ -2,7 +2,7 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Statement;
@@ -18,7 +18,7 @@ final class DbService
     use CacheTrait;
 
     /**
-     * @var ManagerRegistry
+     * @var Registry
      */
     private $manager;
 
@@ -40,10 +40,10 @@ final class DbService
     /**
      * DbService constructor.
      *
-     * @param ManagerRegistry $manager
+     * @param Registry $manager
      * @param LoggerInterface $logger
      */
-    public function __construct(ManagerRegistry $manager, LoggerInterface $logger)
+    public function __construct(Registry $manager, LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->logger = $logger;
@@ -62,9 +62,9 @@ final class DbService
     }
 
     /**
-     * @return ManagerRegistry
+     * @return Registry
      */
-    public function getDoctrineManager()
+    public function getDoctrineManager(): Registry
     {
         return $this->manager;
     }
