@@ -45,7 +45,11 @@ class PagerTemplateDefault extends AbstractPagerTemplate
         $this->setRouteGenerator($routeGenerator);
 
         $result = '<div class="pager">';
-        $result .= $this->next($this->page);
+
+        $nextPage = $this->page + 1;
+        if ($nextPage < $this->pages) {
+            $result .= $this->next($nextPage);
+        }
 
         if ($this->option('show_digit_pages')) {
             $result .= '<ul class="pages">';
