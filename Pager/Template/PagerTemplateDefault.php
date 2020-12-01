@@ -30,6 +30,10 @@ class PagerTemplateDefault extends AbstractPagerTemplate
 
     public function render(Pager $pager, $routeGenerator, array $options = [])
     {
+        if ($pager->getPages() <= 1) {
+            return '';
+        }
+
         $this->pager = $pager;
         $this->options = array_merge($this->options, $options);
 
