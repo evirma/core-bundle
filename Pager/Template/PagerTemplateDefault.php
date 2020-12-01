@@ -47,7 +47,7 @@ class PagerTemplateDefault extends AbstractPagerTemplate
         $result = '<div class="pager">';
 
         $nextPage = $this->page + 1;
-        if ($nextPage < $this->pages) {
+        if ($nextPage <= $this->pages) {
             $result .= $this->next($nextPage);
         }
 
