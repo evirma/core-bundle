@@ -2,9 +2,10 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
-use Pagerfanta\Adapter\DoctrineORMAdapter;
-use Pagerfanta\Adapter\FixedAdapter;
-use Pagerfanta\Pagerfanta;
+
+use Evirma\Bundle\CoreBundle\Pager\Adapter\PagerDoctrineORMAdapter;
+use Evirma\Bundle\CoreBundle\Pager\Adapter\PagerFixedAdapter;
+use Evirma\Bundle\CoreBundle\Pager\Pager;
 
 trait PagerTrait
 {
@@ -15,11 +16,9 @@ trait PagerTrait
 
         $itemsCount = min($itemsCount, $perPage * 100);
 
-        return (new Pagerfanta(new FixedAdapter($itemsCount, $items)))
-            ->setAllowOutOfRangePages(true)
-            ->setNormalizeOutOfRangePages(true)
-            ->setMaxPerPage($perPage)
-            ->setCurrentPage($page);
+        return (new Pager(new PagerFixedAdapter($itemsCount, $items)))
+            ->setPerPage($perPage)
+            ->setPage($page);
     }
 
     public function createNoLimitArrayPager($page, $perPage, $items, $itemsCount)
@@ -27,11 +26,9 @@ trait PagerTrait
         $page = $page > 0 ? (int)$page : 1;
         $perPage = $perPage > 0 ? (int)$perPage : 100;
 
-        return (new Pagerfanta(new FixedAdapter($itemsCount, $items)))
-            ->setAllowOutOfRangePages(true)
-            ->setNormalizeOutOfRangePages(true)
-            ->setMaxPerPage($perPage)
-            ->setCurrentPage($page);
+        return (new Pager(new PagerFixedAdapter($itemsCount, $items)))
+            ->setPerPage($perPage)
+            ->setPage($page);
     }
 
     public function createQueryPager($query, $page, $perPage = 30)
@@ -39,10 +36,8 @@ trait PagerTrait
         $page = $page > 0 ? (int)$page : 1;
         $perPage = $perPage > 0 ? (int)$perPage : 100;
 
-        return (new Pagerfanta(new DoctrineORMAdapter($query)))
-            ->setAllowOutOfRangePages(true)
-            ->setNormalizeOutOfRangePages(true)
-            ->setMaxPerPage($perPage)
-            ->setCurrentPage($page);
+        return (new Pager(new PagerDoctrineORMAdapter($query)))
+            ->setPerPage($perPage)
+            ->setPage($page);
     }
 }

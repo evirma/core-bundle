@@ -18,10 +18,6 @@ services:
       - '../../Service/{Abstract}Service.php'
     public: true
 
-  pagerfanta.route_generator_factory:
-    class: Evirma\Bundle\CoreBundle\Pagerfanta\RequestAwareRouteGeneratorFactory
-    arguments: ['@router', '@request_stack']
-
   Evirma\Bundle\CoreBundle\Twig\Extension\DateExtension:
     class: Evirma\Bundle\CoreBundle\Twig\Extension\DateExtension
     tags:
@@ -51,6 +47,13 @@ services:
   Evirma\Bundle\CoreBundle\Twig\Extension\PageMetaExtension:
     class:     Evirma\Bundle\CoreBundle\Twig\Extension\PageMetaExtension
     arguments: [ '@Evirma\Bundle\CoreBundle\Service\PageMeta']
+    tags:
+      - { name: twig.extension }
+    public: true
+
+  Evirma\Bundle\CoreBundle\Pager\Twig\PagerExtension:
+    class:     Evirma\Bundle\CoreBundle\Pager\Twig\PagerExtension
+    arguments: [ '@router', '@request_stack']
     tags:
       - { name: twig.extension }
     public: true
