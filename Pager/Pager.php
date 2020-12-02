@@ -96,6 +96,9 @@ class Pager implements Countable, IteratorAggregate, JsonSerializable
         return $this->count;
     }
 
+    /**
+     * @return iterable|mixed|null
+     */
     public function getItems()
     {
         if (null === $this->items) {
@@ -105,6 +108,9 @@ class Pager implements Countable, IteratorAggregate, JsonSerializable
         return $this->items;
     }
 
+    /**
+     * @return iterable|mixed|null
+     */
     private function getItemsFromAdapter(): iterable
     {
         $offset = ($this->getPage() - 1) * $this->getPerPage();
