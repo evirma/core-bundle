@@ -87,9 +87,9 @@ class PagerTemplateDefault extends AbstractPagerTemplate
         $maxIndexPages = $this->option('max_index_pages');
         $rel = ($page > $maxIndexPages) ? ' rel="noindex,nofollow"' : '';
 
-        //$nextPageButtonPrepend = $this->option('next_page_button_prepend');
+        $nextPageButtonPrepend = $this->option('next_page_button_prepend');
 
-        return "<div class=\"next-page\"><a$rel href=\"{$href}\" class=\"pager-next-link btn btn-lg btn-main\">Следующая страница &rarr;</a></div>";
+        return "<div class=\"next-page\">{$nextPageButtonPrepend}<a$rel href=\"{$href}\" class=\"pager-next-link btn btn-lg btn-main\">Следующая страница &rarr;</a></div>";
     }
 
     public function separator()
