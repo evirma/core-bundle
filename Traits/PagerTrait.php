@@ -2,13 +2,9 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
-
-use Countable;
 use Evirma\Bundle\CoreBundle\Pager\Adapter\PagerDoctrineORMAdapter;
 use Evirma\Bundle\CoreBundle\Pager\Adapter\PagerFixedAdapter;
 use Evirma\Bundle\CoreBundle\Pager\Pager;
-use IteratorAggregate;
-use JsonSerializable;
 
 trait PagerTrait
 {
@@ -17,9 +13,9 @@ trait PagerTrait
      * @param $perPage
      * @param $items
      * @param $itemsCount
-     * @return Pager|Countable|IteratorAggregate|JsonSerializable
+     * @return Pager
      */
-    public function createArrayPager($page, $perPage, $items, $itemsCount)
+    public function createArrayPager($page, $perPage, $items, $itemsCount): Pager
     {
         $page = $page > 0 ? (int)$page : 1;
         $perPage = $perPage > 0 ? (int)$perPage : 100;
@@ -36,9 +32,9 @@ trait PagerTrait
      * @param $perPage
      * @param $items
      * @param $itemsCount
-     * @return Pager|Countable|IteratorAggregate|JsonSerializable
+     * @return Pager
      */
-    public function createNoLimitArrayPager($page, $perPage, $items, $itemsCount)
+    public function createNoLimitArrayPager($page, $perPage, $items, $itemsCount): Pager
     {
         $page = $page > 0 ? (int)$page : 1;
         $perPage = $perPage > 0 ? (int)$perPage : 100;
@@ -52,9 +48,9 @@ trait PagerTrait
      * @param     $query
      * @param     $page
      * @param int $perPage
-     * @return Pager|Countable|IteratorAggregate|JsonSerializable
+     * @return Pager
      */
-    public function createQueryPager($query, $page, $perPage = 30)
+    public function createQueryPager($query, $page, $perPage = 30): Pager
     {
         $page = $page > 0 ? (int)$page : 1;
         $perPage = $perPage > 0 ? (int)$perPage : 100;
