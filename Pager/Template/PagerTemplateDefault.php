@@ -16,6 +16,7 @@ class PagerTemplateDefault extends AbstractPagerTemplate
         'proximity_on_mobile' => 3,
         'max_index_pages' => 100,
         'show_digit_pages' => true,
+        'next_page_button_prepend' => false,
         'show_next_page_button' => false,
     ];
 
