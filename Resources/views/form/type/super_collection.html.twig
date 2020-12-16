@@ -4,6 +4,12 @@
     {% endif %}
 {% endblock super_collection_label %}
 
+{% block super_collection_entry_label %}
+    {% if label %}
+        <div class="super-collection-label"><span><span>{{ label|raw }}</span></span></div>
+    {% endif %}
+{% endblock super_collection_label %}
+
 {% block super_collection_row %}
     <div class="super-collection-row-wrap">
         {{ form_label(form) }}

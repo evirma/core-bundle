@@ -44,6 +44,12 @@ class SuperCollectionType extends CollectionType
     /**
      * {@inheritdoc}
      */
+    public function finishView(FormView $view, FormInterface $form, array $options)
+    {}
+
+    /**
+     * {@inheritdoc}
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $optionsNormalizer = function (Options $options, $value) {
