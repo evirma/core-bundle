@@ -5,6 +5,7 @@ namespace Evirma\Bundle\CoreBundle\Service;
 use DateTime;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Evirma\Bundle\CoreBundle\Form\Transformer\Mapping\MappingInterface;
+use LogicException;
 use Psr\Cache\InvalidArgumentException;
 use ReflectionClass;
 use ReflectionMethod;
@@ -57,9 +58,9 @@ class ObjectTransformer
     }
 
     /**
-     * @param object $class
-     * @param string $field
-     * @param array  $groups
+     * @param object      $class
+     * @param string|null $field
+     * @param array       $groups
      * @return object
      */
     public function transform(object $class, string $field = null, array $groups = [])
@@ -78,8 +79,8 @@ class ObjectTransformer
         }
 
         if (isset($this->metadata[$className])) {
-            foreach ($this->metadata[$className] as $property => $meta) {
-                if ($field && ($field != $property)) {
+            foreach ($this->metadata[$className] as $metaField => $meta) {
+                if ($field && ($field != $metaField)) {
                     continue;
                 }
 
@@ -87,7 +88,13 @@ class ObjectTransformer
                     continue;
                 }
 
-                $oldData = $data = $class->{$meta['getter']}();
+                if (isset($meta['getter'])) {
+                    $oldData = $data = $class->{$meta['getter']}();
+                } elseif (isset($meta['property'])) {
+                    $oldData = $data = $class->{$meta['property']};
+                } else {
+                    throw new LogicException("Transform Meta data in class {$className} is corrupted");
+                }
 
                 if (isset($meta['transformers'])) {
                     foreach ($meta['transformers'] as $transformerClass) {
@@ -97,7 +104,11 @@ class ObjectTransformer
                 }
 
                 if ($oldData != $data) {
-                    $class->{$meta['setter']}($data);
+                    if (isset($meta['setter'])) {
+                        $class->{$meta['setter']}($data);
+                    } else {
+                        $class->{$meta['property']} = $data;
+                    }
                 }
             }
         }
@@ -138,22 +149,21 @@ class ObjectTransformer
                                     continue;
                                 }
                                 $ucfirsted = Str::asCamelCase($prop->getName());
-                                if (!isset($setters[$ucfirsted])) {
-                                    continue;
-                                }
-                                if (!isset($getters[$ucfirsted])) {
-                                    continue;
-                                }
+
+                                $setter = isset($setters[$ucfirsted]) ? $setters[$ucfirsted] : null;
+                                $getter = isset($getters[$ucfirsted]) ? $getters[$ucfirsted] : null;
 
                                 if (!isset($data[$prop->getName()])) {
                                     $groups = $ann->getGroups();
                                     if (empty($groups)) {
                                         $groups = ['Default'];
                                     }
+
                                     $data[$ucfirsted] = [
                                         'transformers' => [],
-                                        'getter' => $getters[$ucfirsted],
-                                        'setter' => $setters[$ucfirsted],
+                                        'setter' => $setter,
+                                        'getter' => $getter,
+                                        'property' => $prop->isPublic() ? $prop->getName() : null,
                                         'groups' => $groups,
                                     ];
                                 }

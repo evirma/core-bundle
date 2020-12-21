@@ -3,6 +3,9 @@
 namespace Evirma\Bundle\CoreBundle\Traits;
 
 use Evirma\Bundle\CoreBundle\Service\ObjectTransformer;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 trait ObjectTransformerTrait
 {
@@ -14,7 +17,7 @@ trait ObjectTransformerTrait
     /**
      * @return ObjectTransformer
      */
-    public function getObjectTransformer(): ObjectTransformer
+    protected function getObjectTransformer(): ObjectTransformer
     {
         return $this->objectTransformer;
     }
@@ -31,4 +34,14 @@ trait ObjectTransformerTrait
         return $this;
     }
 
+    protected function registerFormTransformListener(FormBuilderInterface $builder)
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT,
+            function (FormEvent $event) {
+                return $this->getObjectTransformer()->transform($event->getData());
+            }
+        );
+
+        return $builder;
+    }
 }
