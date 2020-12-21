@@ -36,7 +36,7 @@ trait ObjectTransformerTrait
 
     protected function registerFormTransformListener(FormBuilderInterface $builder)
     {
-        $builder->addEventListener(FormEvents::POST_SUBMIT,
+        $builder->addEventListener(FormEvents::SUBMIT,
             function (FormEvent $event) {
                 return $this->getObjectTransformer()->transform($event->getData());
             }
