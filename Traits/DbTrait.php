@@ -2,12 +2,15 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\ORM\EntityManager;
+use Doctrine\Persistence\ManagerRegistry;
 use Evirma\Bundle\CoreBundle\Service\DbService;
 
+/**
+ * @deprecated
+ */
 trait DbTrait
 {
     /**
@@ -25,6 +28,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * @return EntityManager|object
      */
     protected function getEm()
@@ -33,6 +37,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * @return ManagerRegistry
      */
     public function getDoctrineManager()
@@ -42,6 +47,7 @@ trait DbTrait
 
 
     /**
+     * @deprecated
      * @param $name
      * @return Connection|object
      */
@@ -52,6 +58,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * @return Connection|object
      */
     public function getConn()
@@ -60,6 +67,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * @return Connection|object
      */
     public function getConnSlave()
@@ -68,6 +76,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * @return void
      */
     public function beginTransaction()
@@ -76,6 +85,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * @return void
      */
     public function commit()
@@ -84,6 +94,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Cancels any database changes done during the current transaction.
      */
     public function rollBack()
@@ -92,6 +103,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Prepares and executes an SQL query and returns the result as an associative array.
      *
      * @param string $sql    The SQL query.
@@ -106,6 +118,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
@@ -121,6 +134,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
@@ -137,6 +151,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Executes an, optionally parametrized, SQL query.
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
@@ -153,6 +168,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Альтернативный метод выбора уникальныйх ID, уникальность соблюдается за счет ключа массива
      *
      * @param string $query  The SQL query to execute.
@@ -167,6 +183,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Executes an, optionally parametrized, SQL query.
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
@@ -183,6 +200,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Inserts a table row with specified data.
      * Table expression and columns are not escaped and are not safe for user-input.
      *
@@ -197,6 +215,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * Executes an SQL UPDATE statement on a table.
      * Table expression and columns are not escaped and are not safe for user-input.
      *
@@ -212,6 +231,7 @@ trait DbTrait
     }
 
     /**
+     * @deprecated
      * @param       $data
      * @param array $includeFields
      * @param array $excludeFields
@@ -223,6 +243,10 @@ trait DbTrait
         return $this->dbTraitDb->prepareMultipleValues($data, $includeFields, $excludeFields, $cast);
     }
 
+    /**
+     * @deprecated
+     * @param false $isSlave
+     */
     public function checkConnection($isSlave = false)
     {
         $this->dbTraitDb->checkConnection($isSlave);
