@@ -512,7 +512,7 @@ final class DbService
 
             if (!$isConnected) {
                 sleep((6-$tries)*2);
-                return $this->reconnect($isSlave);
+                return $this->reconnect($isSlave, $tries);
             }
         }
 
