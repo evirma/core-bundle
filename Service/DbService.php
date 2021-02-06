@@ -497,4 +497,25 @@ final class DbService
             return false;
         }
     }
+
+    public function reconnect($isSlave = false, $tries = 5)
+    {
+        $isConnected = false;
+        if (!$this->checkConnection($isSlave)) {
+            $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
+            $conn->connect();
+
+            $isConnected = $this->checkConnection($isSlave);
+            if (--$tries <= 0) {
+                return $isConnected;
+            }
+
+            if (!$isConnected) {
+                sleep((6-$tries)*2);
+                return $this->reconnect($isSlave);
+            }
+        }
+
+        return $isConnected;
+    }
 }

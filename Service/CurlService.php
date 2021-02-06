@@ -50,7 +50,7 @@ class CurlService
 
     public function rotateIps()
     {
-        if (!self::$_rotateIps || count(self::$_ips) < 2) {
+        if (!self::$_rotateIps || (count(self::$_ips) < 2)) {
             return;
         }
 
@@ -350,7 +350,7 @@ class CurlService
     {
         $code = $this->getCode();
 
-        return ((300 <= $code) && (307 >= $code)) ? true : false;
+        return (300 <= $code) && (307 >= $code);
     }
 
     public function getHeader($key = null)
