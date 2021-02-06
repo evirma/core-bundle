@@ -500,8 +500,7 @@ final class DbService
 
     public function reconnect($isSlave = false, $tries = 5)
     {
-        $isConnected = false;
-        if (!$this->checkConnection($isSlave)) {
+        if (!$isConnected = $this->checkConnection($isSlave)) {
             $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
             $conn->connect();
 
