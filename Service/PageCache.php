@@ -2,6 +2,8 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
+use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
+use Evirma\Bundle\CoreBundle\Filter\Rule\RemoveUtm;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -38,8 +40,8 @@ class PageCache
     private function getNginxFilename(Request $request)
     {
         $dir = $this->storageDir.'/nginx_page_cache/'.$request->getHost();
-
-        $parts = explode('?', $request->getRequestUri());
+        $url = FilterStatic::filterValue($request->getRequestUri(), RemoveUtm::class);
+        $parts = explode('?', $url);
         $path = $parts[0];
         $params = '';
         if (count($parts) == 2) {
@@ -85,6 +87,5 @@ class PageCache
         }
 
         return true;
-
     }
 }
