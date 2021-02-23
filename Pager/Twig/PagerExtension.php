@@ -48,7 +48,8 @@ class PagerExtension extends AbstractExtension
 
     public function renderPager(Pager $pager, $viewName = null, array $options = []): string
     {
-        return $this->getPagerTemplateByName($viewName)->render($pager, $this->createRouteGenerator($options), $options);
+        $locale = $options['locale'] ?? null;
+        return $this->getPagerTemplateByName($viewName, $locale)->render($pager, $this->createRouteGenerator($options), $options);
     }
 
     /**
@@ -97,15 +98,19 @@ class PagerExtension extends AbstractExtension
         return new RouterRouteGenerator($this->router, $options);
     }
 
-    private function getPagerTemplateByName($name)
+    private function getPagerTemplateByName($name, $locale = null)
     {
         if ($name != 'default') {
             $name = 'default';
         }
 
+        if (!$locale) {
+            $locale = $this->locale;
+        }
+
         switch ($name) {
             default:
-                return new PagerTemplateDefault($this->locale);
+                return new PagerTemplateDefault($locale);
         }
     }
 }
