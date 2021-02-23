@@ -9,7 +9,7 @@ class PagerTemplateDefault extends AbstractPagerTemplate
     /**
      * @var Pager
      */
-    private Pager $pager;
+    protected Pager $pager;
 
     protected array $options = [
         'proximity' => 6,
@@ -67,7 +67,7 @@ class PagerTemplateDefault extends AbstractPagerTemplate
 
             if ($this->endPage < $this->pages) {
                 $result .= $this->separator();
-                $result .= $this->page($this->pages, false);
+                $result .= $this->page($this->pages);
             }
 
             $result .= '</ul>';
@@ -90,7 +90,9 @@ class PagerTemplateDefault extends AbstractPagerTemplate
 
         $nextPageButtonPrepend = $this->option('next_page_button_prepend');
 
-        return "<div class=\"next-page\">{$nextPageButtonPrepend}<a$rel href=\"{$href}\" class=\"pager-next-link btn btn-lg btn-main\">Следующая страница &rarr;</a></div>";
+        $nextPageText = ($this->locale == 'ru') ? 'Следующая страница' : 'Show More';
+
+        return "<div class=\"next-page\">{$nextPageButtonPrepend}<a$rel href=\"{$href}\" class=\"pager-next-link btn btn-lg btn-main\">{$nextPageText} &rarr;</a></div>";
     }
 
     public function separator()
@@ -106,7 +108,7 @@ class PagerTemplateDefault extends AbstractPagerTemplate
     private function first()
     {
         if ($this->startPage > 1) {
-            return $this->page(1, false);
+            return $this->page(1);
         }
 
         return '';
@@ -115,7 +117,12 @@ class PagerTemplateDefault extends AbstractPagerTemplate
     private function page($page, $isHidden = false)
     {
         $hiddenClass = $isHidden ? ' hidden-xs' : '';
-        $text = '<span class="sr-only">Страница №</span>'.$page;
+
+        if ($this->locale == 'ru') {
+            $text = '<span class="sr-only">Страница №</span>'.$page;
+        } else {
+            $text = '<span class="sr-only">Page </span>'.$page;
+        }
         $href = $this->generateRoute($page < 1 ? 1 : $page);
 
         $maxIndexPages = $this->option('max_index_pages');
@@ -133,7 +140,8 @@ class PagerTemplateDefault extends AbstractPagerTemplate
 
     public function current($page)
     {
-        $text = '<span class="sr-only">Страница №</span>' . trim($page.' '.$this->option('active_suffix'));
+        $pageText = $this->locale == 'ru' ? 'Страница №' : 'Page ';
+        $text = "<span class=\"sr-only\">{$pageText}</span>" . trim($page.' '.$this->option('active_suffix'));
         return '<li class="page page-active"><span>'.$text.'</span></li>';
     }
 

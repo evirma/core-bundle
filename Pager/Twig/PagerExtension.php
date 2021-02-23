@@ -22,11 +22,16 @@ class PagerExtension extends AbstractExtension
      * @var UrlGeneratorInterface
      */
     private UrlGeneratorInterface $router;
+    /**
+     * @var string
+     */
+    private $locale;
 
     public function __construct(UrlGeneratorInterface $router, RequestStack $requestStack)
     {
         $this->requestStack = $requestStack;
         $this->router = $router;
+        $this->locale = $requestStack->getCurrentRequest()->getLocale();
     }
 
     public function getFunctions()
@@ -96,7 +101,7 @@ class PagerExtension extends AbstractExtension
 
         switch ($name) {
             default:
-                return new PagerTemplateDefault();
+                return new PagerTemplateDefault($this->locale);
         }
     }
 }

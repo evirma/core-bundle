@@ -2,28 +2,34 @@
 
 namespace Evirma\Bundle\CoreBundle\Pager\Template;
 
-use \InvalidArgumentException;
-use \RuntimeException;
+use InvalidArgumentException;
+use RuntimeException;
 use function gettype;
 use function is_callable;
 
 abstract class AbstractPagerTemplate implements PagerTemplateInterface
 {
     /**
+     * @var array
+     */
+    protected array $options = [];
+    /**
+     * @var string
+     */
+    protected $locale;
+    /**
      * @var callable|null
      */
     private $routeGenerator;
 
-    /**
-     * @var array
-     */
-    protected array $options = [];
+    public function __construct($locale)
+    {
+        $this->locale = $locale;
+    }
 
     /**
      * @param string $name The name of the option to look up
-     *
      * @return mixed The option value if it exists
-     *
      * @throws InvalidArgumentException if the option does not exist
      */
     protected function option($name)
@@ -36,16 +42,16 @@ abstract class AbstractPagerTemplate implements PagerTemplateInterface
     }
 
     /**
-     * @param callable $routeGenerator
-     * @throws InvalidArgumentException if the route generator is not a callable
+     * Generate the route (URL) for the given page.
+     *
+     * @param int $page
+     * @return string
      */
-    public function setRouteGenerator($routeGenerator): void
+    protected function generateRoute($page)
     {
-        if (!is_callable($routeGenerator)) {
-            throw new InvalidArgumentException(sprintf('The $routeGenerator argument of %s() must be a callable, a %s was given.', __METHOD__, gettype($routeGenerator)));
-        }
+        $generator = $this->getRouteGenerator();
 
-        $this->routeGenerator = $routeGenerator;
+        return $generator($page);
     }
 
     /**
@@ -61,16 +67,15 @@ abstract class AbstractPagerTemplate implements PagerTemplateInterface
     }
 
     /**
-     * Generate the route (URL) for the given page.
-     *
-     * @param int $page
-     *
-     * @return string
+     * @param callable $routeGenerator
+     * @throws InvalidArgumentException if the route generator is not a callable
      */
-    protected function generateRoute($page)
+    public function setRouteGenerator($routeGenerator): void
     {
-        $generator = $this->getRouteGenerator();
+        if (!is_callable($routeGenerator)) {
+            throw new InvalidArgumentException(sprintf('The $routeGenerator argument of %s() must be a callable, a %s was given.', __METHOD__, gettype($routeGenerator)));
+        }
 
-        return $generator($page);
+        $this->routeGenerator = $routeGenerator;
     }
 }
