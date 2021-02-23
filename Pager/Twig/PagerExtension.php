@@ -31,7 +31,11 @@ class PagerExtension extends AbstractExtension
     {
         $this->requestStack = $requestStack;
         $this->router = $router;
-        $this->locale = $requestStack->getCurrentRequest()->getLocale();
+        if ($requestStack->getCurrentRequest()) {
+            $this->locale = $requestStack->getCurrentRequest()->getLocale();
+        } else {
+            $this->locale = 'en';
+        }
     }
 
     public function getFunctions()
