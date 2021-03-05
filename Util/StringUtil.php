@@ -37,6 +37,11 @@ class StringUtil
         return (mb_strpos($upper, $char, 0, 'UTF-8') !== false);
     }
 
+    public static function isLoweCase($str)
+    {
+        return ($str === self::lower($str));
+    }
+
     public static function lower($str, $encoding = 'UTF-8')
     {
         return mb_strtolower($str, $encoding);
