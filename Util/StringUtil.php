@@ -62,6 +62,16 @@ class StringUtil
         return mb_convert_case($str, MB_CASE_TITLE, $encoding);
     }
 
+    public static function ucwordsSoft($str, $encoding = 'UTF-8')
+    {
+        $str = trim(preg_replace('#\s+#usi', ' ', $str));
+        $parts = explode(' ', $str);
+        foreach ($parts as &$part) {
+            $part = self::ucfirst($part, $encoding);
+        }
+        return implode(' ', $parts);
+    }
+
     public static function strlen($str, $encoding = 'UTF-8')
     {
         return mb_strlen($str, $encoding);
