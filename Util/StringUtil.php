@@ -47,6 +47,7 @@ class StringUtil
         return mb_strtolower($str, $encoding);
     }
 
+
     public static function upper($str, $encoding = 'UTF-8')
     {
         return mb_strtoupper($str, $encoding);
