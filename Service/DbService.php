@@ -37,6 +37,8 @@ final class DbService
      */
     private $conn;
 
+    private $throwException = false;
+
     /**
      * DbService constructor.
      *
@@ -135,6 +137,9 @@ final class DbService
             $this->getConn()->commit();
         } catch (ConnectionException $e) {
             $this->getLogger()->error('SQL Commit Failed', ['message' => $e->getMessage(), 'exception' => $e]);
+            if ($this->throwException) {
+                throw $e;
+            }
         }
     }
 
@@ -147,6 +152,9 @@ final class DbService
             $this->getConn()->rollBack();
         } catch (ConnectionException $e) {
             $this->getLogger()->error('SQL RollBack Failed', ['message' => $e->getMessage(), 'exception' => $e]);
+            if ($this->throwException) {
+                throw $e;
+            }
         }
     }
 
@@ -355,6 +363,10 @@ final class DbService
             $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
 
             $this->getLogger()->error('SQL Execute Error', ['message' => $message, 'sql' => $query, 'params' => $params, 'types' => $types, 'exception' => $e]);
+
+            if ($this->throwException) {
+                throw $e;
+            }
         }
 
         return $result;
@@ -376,6 +388,9 @@ final class DbService
             $result = $this->getConn()->insert($tableExpression, $data, $types);
         } catch (Exception $e) {
             $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
+            if ($this->throwException) {
+                throw $e;
+            }
         }
 
         return $result;
@@ -407,6 +422,9 @@ final class DbService
             $result = $this->getConn()->update($tableExpression, $data, $identifier, $types);
         } catch (Exception $e) {
             $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'identifier' => $identifier, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
+            if ($this->throwException) {
+                throw $e;
+            }
         }
 
         return $result;
@@ -516,5 +534,25 @@ final class DbService
         }
 
         return $isConnected;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isThrowException(): bool
+    {
+        return $this->throwException;
+    }
+
+    /**
+     * @param mixed $throwException
+     * @return bool
+     */
+    public function setThrowException($throwException): bool
+    {
+        $oldStatus = $this->throwException;
+        $this->throwException = (bool)$throwException;
+
+        return $oldStatus;
     }
 }
