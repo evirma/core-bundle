@@ -2,6 +2,9 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
+use Evirma\Bundle\AutotextBundle\Autotext;
+use Symfony\Component\HttpFoundation\Request;
+
 class PageMetaOpenGraph
 {
     private $type = 'website';
@@ -11,6 +14,7 @@ class PageMetaOpenGraph
     private $siteName = '';
     private $url;
     private $images = [];
+    private $autotextSeed;
 
     public function __toString()
     {
@@ -110,6 +114,10 @@ class PageMetaOpenGraph
      */
     public function getTitle(): ?string
     {
+        if ($this->autotextSeed) {
+            return Autotext::autotext(' '.$this->title, $this->autotextSeed);
+        }
+
         return $this->title;
     }
 
@@ -129,6 +137,10 @@ class PageMetaOpenGraph
      */
     public function getDescription(): ?string
     {
+        if ($this->autotextSeed) {
+            return Autotext::autotext(' '.$this->description, $this->autotextSeed);
+        }
+
         return $this->description;
     }
 
@@ -234,4 +246,24 @@ class PageMetaOpenGraph
         return $this->images;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getAutotextSeed()
+    {
+        return $this->autotextSeed;
+    }
+
+    /**
+     * @param mixed $autotextSeed
+     * @return $this
+     */
+    public function setAutotextSeed($autotextSeed)
+    {
+        if ($autotextSeed instanceof Request) {
+            $autotextSeed = $autotextSeed->getSchemeAndHttpHost().$autotextSeed->getRequestUri();
+        }
+        $this->autotextSeed = $autotextSeed;
+        return $this;
+    }
 }

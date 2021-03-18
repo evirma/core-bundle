@@ -14,7 +14,6 @@ use Evirma\Bundle\CoreBundle\Util\StringUtil;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Templating\Helper\HelperInterface;
 use Symfony\Component\Translation\LoggingTranslator;
@@ -52,25 +51,9 @@ class PageMeta implements HelperInterface
     private $links = [];
     private $headerMetas = [];
 
-    /**
-     * @var AuthorizationChecker
-     */
-    protected $authorizationChecker;
-
-    /**
-     * @var array
-     */
     private $data = [];
-
-    /**
-     * @var Packages
-     */
-    private $packages;
-
-    /**
-     * @var Autotext
-     */
-    private $autotext;
+    protected AuthorizationCheckerInterface $authorizationChecker;
+    private Packages $packages;
     private $autotextSeed;
 
     /**
@@ -78,9 +61,8 @@ class PageMeta implements HelperInterface
      */
     private $og;
 
-    public function __construct(RouterInterface $router, TranslatorInterface $translator, Autotext $autotext, AuthorizationCheckerInterface $authorizationChecker, Packages $packages)
+    public function __construct(RouterInterface $router, TranslatorInterface $translator, AuthorizationCheckerInterface $authorizationChecker, Packages $packages)
     {
-        $this->autotext = $autotext;
         $this->router = $router;
         $this->translator = $translator;
         $this->authorizationChecker = $authorizationChecker;
@@ -300,7 +282,7 @@ class PageMeta implements HelperInterface
     {
         $metaTitle = $this->metaTitle ? $this->metaTitle : $default;
         if ($this->autotextSeed) {
-            $metaTitle = $this->autotext->autotext(' ' . $metaTitle);
+            $metaTitle = Autotext::autotext(' ' . $metaTitle, $this->autotextSeed);
         }
 
         return FilterStatic::filterValue($metaTitle, MetaTrim::class);
@@ -346,7 +328,7 @@ class PageMeta implements HelperInterface
     {
         $h1 = $this->h1 ? $this->h1 : $default;
         if ($this->autotextSeed) {
-            $h1 = $this->autotext->autotext(' '.$h1);
+            $h1 = Autotext::autotext(' ' . $h1, $this->autotextSeed);
         }
 
         return FilterStatic::filterValue($h1, Name::class);
@@ -373,6 +355,7 @@ class PageMeta implements HelperInterface
     }
 
     /**
+     * @deprecated
      * @param null $default
      * @return string
      */
@@ -380,7 +363,7 @@ class PageMeta implements HelperInterface
     {
         $h1 = $this->h1 ? $this->h1 : $default;
         if ($this->autotextSeed) {
-            $h1 = $this->autotext->autotext(' ' . $h1);
+            $h1 = Autotext::autotext(' ' . $h1, $this->autotextSeed);
         }
         return $h1;
     }
@@ -405,7 +388,7 @@ class PageMeta implements HelperInterface
     {
         $metaDescription = $this->metaDescription ? $this->metaDescription : $default;
         if ($this->autotextSeed) {
-            $metaDescription = $this->autotext->autotext(' '.$metaDescription);
+            $metaDescription = Autotext::autotext(' '.$metaDescription, $this->autotextSeed);
         }
         return FilterStatic::filterValue($metaDescription, MetaDescription::class);
     }
@@ -441,7 +424,7 @@ class PageMeta implements HelperInterface
         $metaKeywords = $this->metaKeywords ? $this->metaKeywords : $default;
         if ($this->autotextSeed) {
             $metaKeywords = FilterStatic::filterValue($metaKeywords, MetaKeywords::class);
-            $metaKeywords = $this->autotext->autotext(' '.$metaKeywords);
+            $metaKeywords = Autotext::autotext(' '.$metaKeywords, $this->autotextSeed);
         }
 
         return FilterStatic::filterValue($metaKeywords, MetaKeywords::class);
@@ -988,6 +971,10 @@ class PageMeta implements HelperInterface
     {
         if (!$this->og) {
             $this->og = new PageMetaOpenGraph();
+
+            if ($this->autotextSeed) {
+                $this->og->setAutotextSeed($this->getAutotextSeed());
+            }
         }
 
         return $this->og;
