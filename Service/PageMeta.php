@@ -678,6 +678,7 @@ class PageMeta implements HelperInterface
             $autotextSeed = $autotextSeed->getSchemeAndHttpHost().$autotextSeed->getRequestUri();
         }
         $this->autotextSeed = $autotextSeed;
+        $this->getOg()->setAutotextSeed($autotextSeed);
         return $this;
     }
 
