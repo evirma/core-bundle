@@ -31,6 +31,7 @@ final class DbCachedService
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
+     * @deprecated
      * @param string $statement The SQL query to be executed.
      * @param array  $params    The prepared statement params.
      * @param int    $column    The 0-indexed column number to retrieve.
@@ -93,7 +94,7 @@ final class DbCachedService
             return $result;
         }
 
-        if ($result = $this->db->fetchAll($sql, $params, $types, $isSlave)) {
+        if ($result = $this->db->fetchAllAssociative($sql, $params, $types, $isSlave)) {
             $this->setCacheEncodedItem($cacheId, $result, $this->ttl);
         }
 

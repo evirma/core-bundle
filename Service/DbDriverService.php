@@ -3,58 +3,51 @@
 namespace Evirma\Bundle\CoreBundle\Service;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ManagerRegistry;
-use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
+use InvalidArgumentException;
+use PDO;
 use Psr\Log\LoggerInterface;
 
-final class DbService
+final class DbDriverService
 {
-    use CacheTrait;
+    /**
+     * @var ManagerRegistry
+     */
+    private $manager;
 
-    private LoggerInterface $logger;
-    private DbDriverService $driver;
+    /**
+     * @var EntityManager
+     */
+    private $em;
 
-    private bool $throwException = false;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @var Connection
+     */
+    private $conn;
 
     /**
      * DbService constructor.
      *
+     * @param ManagerRegistry $manager
      * @param LoggerInterface $logger
-     * @param DbDriverService $driver
      */
-    public function __construct(LoggerInterface $logger, DbDriverService $driver)
+    public function __construct(ManagerRegistry $manager, LoggerInterface $logger)
     {
+        $this->manager = $manager;
         $this->logger = $logger;
-        $this->driver = $driver;
-    }
-
-//    /**
-//     * @param false $isSlave
-//     * @return DbDriverService|object
-//     */
-//    private function db($isSlave = false)
-//    {
-//        if (!$this->throwException) {
-//            return $this->driver;
-//        } else {
-//            return $isSlave ? $this->driver->getConnSlave() : $this->driver->getConn();
-//        }
-//    }
-
-    /**
-     * @param false $isSlave
-     * @return Connection|object
-     */
-    private function db($isSlave = false)
-    {
-        return $isSlave ? $this->driver->getConnSlave() : $this->driver->getConn();
     }
 
     /**
-     * @deprecated
      * @return LoggerInterface
      */
     public function getLogger()
@@ -71,7 +64,7 @@ final class DbService
      */
     public function getDoctrineManager(): ManagerRegistry
     {
-        return $this->driver->getDoctrineManager();
+        return $this->manager;
     }
 
     /**
@@ -79,7 +72,11 @@ final class DbService
      */
     public function getEm()
     {
-        return $this->driver->getEm();
+        if (!$this->em) {
+            $this->em = $this->manager->getManager();
+        }
+
+        return $this->em;
     }
 
     /**
@@ -88,15 +85,19 @@ final class DbService
      */
     public function getConnection($name)
     {
-        return $this->driver->getConnection($name);
+        return $this->manager->getConnection($name);
     }
+
 
     /**
      * @return Connection|object
      */
     public function getConn()
     {
-        return $this->driver->getConn();
+        if (!$this->conn) {
+            $this->conn = $this->manager->getConnection();
+        }
+        return $this->conn;
     }
 
     /**
@@ -104,7 +105,11 @@ final class DbService
      */
     public function getConnSlave()
     {
-        return $this->driver->getConnSlave();
+        try {
+            return $this->manager->getConnection('slave');
+        } catch (InvalidArgumentException $e) {
+            return $this->getConn();
+        }
     }
 
     /**
@@ -114,7 +119,7 @@ final class DbService
      */
     public function beginTransaction()
     {
-        $this->db()->beginTransaction();
+        $this->getConn()->beginTransaction();
     }
 
     /**
@@ -124,7 +129,11 @@ final class DbService
      */
     public function commit()
     {
-        $this->db()->commit();
+        try {
+            $this->getConn()->commit();
+        } catch (ConnectionException $e) {
+            $this->getLogger()->error('SQL Commit Failed', ['message' => $e->getMessage(), 'exception' => $e]);
+        }
     }
 
     /**
@@ -132,7 +141,11 @@ final class DbService
      */
     public function rollBack()
     {
-        $this->db()->rollBack();
+        try {
+            $this->getConn()->rollBack();
+        } catch (ConnectionException $e) {
+            $this->getLogger()->error('SQL RollBack Failed', ['message' => $e->getMessage(), 'exception' => $e]);
+        }
     }
 
     /**
@@ -146,7 +159,8 @@ final class DbService
      */
     public function fetchAll($sql, array $params = [], $types = [], $isSlave = false)
     {
-        return $this->db($isSlave)->fetchAllAssociative($sql, $params, $types);
+        $query = $this->executeQuery($sql, $params, $types, $isSlave);
+        return $query ? $query->fetchAllAssociative() : false;
     }
 
     /**
@@ -161,51 +175,14 @@ final class DbService
      */
     public function fetchAllAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
     {
-        return $this->db($isSlave)->fetchAllAssociative($query, $params, $types);
-
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an associative array.
-     *
-     * @param string $object The Object Class
-     * @param string $sql    The SQL query.
-     * @param array  $params The query parameters.
-     * @param array  $types  The query parameter types.
-     * @param bool   $isSlave
-     * @return array|false
-     */
-    public function fetchObjectAll($object, $sql, array $params = [], $types = [], $isSlave = false)
-    {
-        if ($data = $this->db($isSlave)->fetchAllAssociative($sql, $params, $types)) {
-            foreach ($data as &$item) {
-                $item = $this->createObject($object, $item);
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param               $object
-     * @param iterable|null $data
-     * @return mixed
-     */
-    private function createObject($object, iterable $data = null)
-    {
-        $result = new $object;
-        foreach ($data as $k => $v) {
-            $result->$k = $v;
-        }
-
-        return $result;
+        $query = $this->executeQuery($query, $params, $types, $isSlave);
+        return $query ? $query->fetchAllAssociative() : false;
     }
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
-     * @deprecated
      * @param string $statement The SQL query.
      * @param array  $params    The query parameters.
      * @param array  $types     The query parameter types.
@@ -214,55 +191,8 @@ final class DbService
      */
     public function fetchAssoc($statement, array $params = [], array $types = [], $isSlave = false)
     {
-        return $this->fetchAssociative($statement, $params, $types, $isSlave);
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as an associative array.
-     *
-     * @param string $query The SQL query.
-     * @param array  $params    The query parameters.
-     * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
-     * @return array|bool False is returned if no rows are found.
-     */
-    public function fetchAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
-    {
-        return $this->db($isSlave)->fetchAssociative($query, $params, $types);
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as an associative array.
-     *
-     * @param string $object The Object Class
-     * @param string $statement The SQL query.
-     * @param array  $params    The query parameters.
-     * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
-     * @return mixed|bool False is returned if no rows are found.
-     */
-    public function fetchObject($object, $statement, array $params = [], array $types = [], $isSlave = false)
-    {
-        if ($item = $this->db($isSlave)->fetchAssociative($statement, $params, $types)) {
-            $item = $this->createObject($object, $item);
-        }
-
-        return $item;
-    }
-
-    /**
-     * Использовать кеширование для запросов
-     *
-     * @param bool $cached
-     * @param null $cacheId
-     * @param null $ttl
-     * @return DbCachedService
-     */
-    public function useCache($cached = true, $ttl = null, $cacheId = null)
-    {
-        return new DbCachedService($this->getMemcache(), $this, $cached, $ttl, $cacheId);
+        $query = $this->executeQuery($statement, $params, $types, $isSlave);
+        return $query ? $query->fetchAssociative() : false;
     }
 
     /**
@@ -279,22 +209,24 @@ final class DbService
      */
     public function fetchColumn($statement, array $params = [], $column = 0, array $types = [], $isSlave = false)
     {
-        return $this->db($isSlave)->fetchOne($statement, $params, $types);
+        $query = $this->executeQuery($statement, $params, $types, $isSlave);
+        return $query ? $query->fetchOne($column) : false;
     }
 
     /**
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
-     * @param string $query The SQL query to be executed.
+     * @param string $statement The SQL query to be executed.
      * @param array  $params    The prepared statement params.
      * @param array  $types     The query parameter types.
      * @param bool   $isSlave
      * @return mixed|bool False is returned if no rows are found.
      */
-    public function fetchOne(string $query, array $params = [], array $types = [], $isSlave = false)
+    public function fetchOne($statement, array $params = [], array $types = [], $isSlave = false)
     {
-        return $this->db($isSlave)->fetchOne($query, $params, $types);
+        $query = $this->executeQuery($statement, $params, $types, $isSlave);
+        return $query ? $query->fetchOne() : false;
     }
 
     /**
@@ -310,7 +242,16 @@ final class DbService
      */
     public function fetchPairs($query, array $params = [], $types = [], $isSlave = false)
     {
-        return $this->driver->fetchPairs($query, $params, $types, $isSlave);
+        $query = $this->executeQuery($query, $params, $types, $isSlave);
+        if ($query && ($data = $query->fetchAllNumeric())) {
+            $result = [];
+            foreach ($data as $item) {
+                $result[$item[0]] = $item[1];
+            }
+            return $result;
+        }
+
+        return null;
     }
 
     /**
@@ -324,7 +265,16 @@ final class DbService
      */
     public function fetchUniqIds($query, array $params = [], $types = [], $isSlave = false)
     {
-        return $this->driver->fetchUniqIds($query, $params, $types, $isSlave);
+        $query = $this->executeQuery($query, $params, $types, $isSlave);
+        if ($query && ($data = $query->fetchAllNumeric())) {
+            $result = [];
+            foreach ($data as $item) {
+                $result[$item[0]] = $item[0];
+            }
+            return $result;
+        }
+
+        return null;
     }
 
     /**
@@ -340,7 +290,19 @@ final class DbService
      */
     public function executeQuery($query, array $params = [], $types = [], $isSlave = false)
     {
-        return $this->db($isSlave)->executeQuery($query, $params, $types);
+        $result = false;
+        try {
+            $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
+            $result = $conn->executeQuery($query, $params, $types);
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            $message = preg_replace('#VALUES(.*?)ON\s+CONFLICT#usi', 'VALUES ({{VALUES}}) ON CONFLICT', $message);
+            $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
+
+            $this->getLogger()->error('SQL Execute Error', ['message' => $message, 'sql' => $query, 'params' => $params, 'types' => $types, 'exception' => $e]);
+        }
+
+        return $result;
     }
 
     /**
@@ -354,7 +316,14 @@ final class DbService
      */
     public function insert($tableExpression, array $data, array $types = [])
     {
-        return $this->db()->insert($tableExpression, $data, $types);
+        $result = false;
+        try {
+            $result = $this->getConn()->insert($tableExpression, $data, $types);
+        } catch (Exception $e) {
+            $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
+        }
+
+        return $result;
     }
 
     /**
@@ -363,7 +332,7 @@ final class DbService
      */
     public function lastInsertId($seqName = null)
     {
-        return $this->db()->lastInsertId($seqName);
+        return $this->getConn()->lastInsertId($seqName);
     }
 
     /**
@@ -378,7 +347,14 @@ final class DbService
      */
     public function update($tableExpression, array $data, array $identifier, array $types = [])
     {
-        return $this->db()->update($tableExpression, $data, $identifier, $types);
+        $result = false;
+        try {
+            $result = $this->getConn()->update($tableExpression, $data, $identifier, $types);
+        } catch (Exception $e) {
+            $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'identifier' => $identifier, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
+        }
+
+        return $result;
     }
 
     /**
@@ -388,7 +364,18 @@ final class DbService
      */
     public function upsert($tableExpression, array $data)
     {
-        return $this->driver->upsert($tableExpression, $data);
+        $includeFields = array_keys($data[0]);
+        $includeFieldsStr = implode(', ', $includeFields);
+
+        [$values, $params] = $this->prepareMultipleValues($data, $includeFields);
+
+        if ($values) {
+            /** @noinspection SqlNoDataSourceInspection */
+            $sql = "INSERT INTO {$tableExpression} ({$includeFieldsStr}) VALUES {$values} ON CONFLICT DO NOTHING";
+            return $this->executeQuery($sql, $params);
+        }
+
+        return true;
     }
 
     /**
@@ -400,36 +387,79 @@ final class DbService
      */
     public function prepareMultipleValues($data, $includeFields = [], $excludeFields = [], $cast = [])
     {
-        return $this->driver->prepareMultipleValues($data, $includeFields, $excludeFields, $cast);
+        $sql = '';
+        $params = [];
+        $i = 0;
+        $conn = $this->getConn();
+        foreach ($data as $item) {
+            $sqlValue = '';
+            if (!empty($includeFields)) {
+                uksort(
+                    $item,
+                    function ($a, $b) use ($includeFields) {
+                        return array_search($a, $includeFields) <=> array_search($b, $includeFields);
+                    }
+                );
+            }
+
+            foreach ($item as $key => $value) {
+                $isFieldIncluded = (!empty($includeFields) && in_array($key, $includeFields)) || empty($includeFields);
+                $isFieldExcluded = (!empty($excludeFields) && in_array($key, $excludeFields));
+
+                if ($isFieldIncluded && !$isFieldExcluded) {
+                    $castType = isset($cast[$key]) ? $cast[$key] : '';
+                    if (is_bool($value)) {
+                        $value = $value ? 'TRUE' : 'FALSE';
+                    }
+                    $castTypeStr = $i ? '' : $castType;
+                    if ($castType) {
+                        $sqlValue .= ",{$castTypeStr} ".$conn->quote($value, PDO::PARAM_STR);
+                    } else {
+                        $sqlValue .= ", :{$key}__{$i}";
+                        $params["{$key}__{$i}"] = $value;
+                    }
+                }
+            }
+
+            $sqlValue = ltrim($sqlValue, ', ');
+            $sql .= ",\n({$sqlValue})";
+            $i++;
+        }
+
+        $sql = ltrim($sql, ', ');
+
+        return [$sql, $params];
     }
 
     public function checkConnection($isSlave = false)
     {
-        return $this->driver->checkConnection($isSlave);
+        $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
+
+        try {
+            $conn->executeQuery("SELECT 1");
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     public function reconnect($isSlave = false, $tries = 5)
     {
-        return $this->driver->reconnect($isSlave, $tries);
-    }
+        if (!$isConnected = $this->checkConnection($isSlave)) {
+            $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
+            $conn->connect();
 
-    /**
-     * @return bool
-     */
-    public function isThrowException(): bool
-    {
-        return $this->throwException;
-    }
+            $isConnected = $this->checkConnection($isSlave);
+            if (--$tries <= 0) {
+                return $isConnected;
+            }
 
-    /**
-     * @param mixed $throwException
-     * @return bool
-     */
-    public function setThrowException($throwException): bool
-    {
-        $oldStatus = $this->throwException;
-        $this->throwException = (bool)$throwException;
+            if (!$isConnected) {
+                sleep((6-$tries)*2);
+                return $this->reconnect($isSlave, $tries);
+            }
+        }
 
-        return $oldStatus;
+        return $isConnected;
     }
 }
