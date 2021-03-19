@@ -57,7 +57,10 @@ class PageMeta implements HelperInterface
     protected ?AuthorizationCheckerInterface $authorizationChecker;
     private ?TokenStorageInterface $tokenStorage;
     private Packages $packages;
-    private ?PageMetaOpenGraph $og;
+    /**
+     * @var PageMetaOpenGraph
+     */
+    private $og;
 
     public function __construct(RouterInterface $router, TranslatorInterface $translator, Packages $packages, ?AuthorizationCheckerInterface $authorizationChecker = null, TokenStorageInterface $tokenStorage = null)
     {
