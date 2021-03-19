@@ -14,6 +14,7 @@ use Evirma\Bundle\CoreBundle\Util\StringUtil;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Templating\Helper\HelperInterface;
 use Symfony\Component\Translation\LoggingTranslator;
@@ -52,36 +53,43 @@ class PageMeta implements HelperInterface
     private $headerMetas = [];
 
     private $data = [];
-    protected ?AuthorizationCheckerInterface $authorizationChecker;
-    private Packages $packages;
     private $autotextSeed;
+    protected ?AuthorizationCheckerInterface $authorizationChecker;
+    private ?TokenStorageInterface $tokenStorage;
+    private Packages $packages;
+    private ?PageMetaOpenGraph $og;
 
-    /**
-     * @var PageMetaOpenGraph
-     */
-    private $og;
-
-    public function __construct(RouterInterface $router, TranslatorInterface $translator, Packages $packages, ?AuthorizationCheckerInterface $authorizationChecker = null)
+    public function __construct(RouterInterface $router, TranslatorInterface $translator, Packages $packages, ?AuthorizationCheckerInterface $authorizationChecker = null, TokenStorageInterface $tokenStorage = null)
     {
         $this->router = $router;
         $this->translator = $translator;
         $this->authorizationChecker = $authorizationChecker;
         $this->packages = $packages;
+        $this->tokenStorage = $tokenStorage;
+    }
+
+    private function isGranted($role)
+    {
+        if ($this->tokenStorage && (null === ($token = $this->tokenStorage->getToken()))) {
+            return true == $this->authorizationChecker->isGranted($role);
+        }
+
+        return false;
     }
 
     public function isRoot()
     {
-        return $this->authorizationChecker && (true == $this->authorizationChecker->isGranted(User::ROLE_ROOT));
+        return $this->isGranted(User::ROLE_ROOT);
     }
 
     public function isAdmin()
     {
-        return $this->authorizationChecker && (true == $this->authorizationChecker->isGranted(User::ROLE_ADMIN));
+        return $this->isGranted(User::ROLE_ADMIN);
     }
 
     public function isRubricEditor()
     {
-        return $this->authorizationChecker && (true == $this->authorizationChecker->isGranted(User::ROLE_ADMIN));
+        return $this->isGranted(User::ROLE_ADMIN);
     }
 
     public function get($key, $default = null)
