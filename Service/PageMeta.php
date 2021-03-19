@@ -52,7 +52,7 @@ class PageMeta implements HelperInterface
     private $headerMetas = [];
 
     private $data = [];
-    protected AuthorizationCheckerInterface $authorizationChecker;
+    protected ?AuthorizationCheckerInterface $authorizationChecker;
     private Packages $packages;
     private $autotextSeed;
 
@@ -61,7 +61,7 @@ class PageMeta implements HelperInterface
      */
     private $og;
 
-    public function __construct(RouterInterface $router, TranslatorInterface $translator, AuthorizationCheckerInterface $authorizationChecker, Packages $packages)
+    public function __construct(RouterInterface $router, TranslatorInterface $translator, Packages $packages, ?AuthorizationCheckerInterface $authorizationChecker = null)
     {
         $this->router = $router;
         $this->translator = $translator;
@@ -71,17 +71,17 @@ class PageMeta implements HelperInterface
 
     public function isRoot()
     {
-        return (true == $this->authorizationChecker->isGranted(User::ROLE_ROOT));
+        return $this->authorizationChecker && (true == $this->authorizationChecker->isGranted(User::ROLE_ROOT));
     }
 
     public function isAdmin()
     {
-        return (true == $this->authorizationChecker->isGranted(User::ROLE_ADMIN));
+        return $this->authorizationChecker && (true == $this->authorizationChecker->isGranted(User::ROLE_ADMIN));
     }
 
     public function isRubricEditor()
     {
-        return (true == $this->authorizationChecker->isGranted(User::ROLE_ADMIN));
+        return $this->authorizationChecker && (true == $this->authorizationChecker->isGranted(User::ROLE_ADMIN));
     }
 
     public function get($key, $default = null)
