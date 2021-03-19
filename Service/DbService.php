@@ -31,27 +31,27 @@ final class DbService
         $this->driver = $driver;
     }
 
-//    /**
-//     * @param false $isSlave
-//     * @return DbDriverService|object
-//     */
-//    private function db($isSlave = false)
-//    {
-//        if (!$this->throwException) {
-//            return $this->driver;
-//        } else {
-//            return $isSlave ? $this->driver->getConnSlave() : $this->driver->getConn();
-//        }
-//    }
-
     /**
      * @param false $isSlave
-     * @return Connection|object
+     * @return DbDriverService|object
      */
     private function db($isSlave = false)
     {
-        return $isSlave ? $this->driver->getConnSlave() : $this->driver->getConn();
+        if (!$this->throwException) {
+            return $this->driver;
+        } else {
+            return $isSlave ? $this->driver->getConnSlave() : $this->driver->getConn();
+        }
     }
+
+//    /**
+//     * @param false $isSlave
+//     * @return Connection|object
+//     */
+//    private function db($isSlave = false)
+//    {
+//        return $isSlave ? $this->driver->getConnSlave() : $this->driver->getConn();
+//    }
 
     /**
      * @deprecated

@@ -2,10 +2,6 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
-use Doctrine\ORM\EntityManager;
 use Evirma\Bundle\CoreBundle\Service\DbService;
 
 trait DbAwareTrait
@@ -25,6 +21,7 @@ trait DbAwareTrait
     }
 
     /**
+     * @deprecated
      * @return DbService
      */
     protected function getDb()
