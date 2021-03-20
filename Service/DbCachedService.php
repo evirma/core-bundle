@@ -103,6 +103,16 @@ final class DbCachedService
         return $result;
     }
 
+    /**
+     * Prepares and executes an SQL query and returns the first row of the result
+     * as an associative array.
+     *
+     * @param string $query The SQL query.
+     * @param array  $params    The query parameters.
+     * @param array  $types     The query parameter types.
+     * @param bool   $isSlave
+     * @return array|bool False is returned if no rows are found.
+     */
     public function fetchAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
     {
         $cacheId = $this->buildCacheId($query, $params, 'fetchAssoc');
@@ -120,7 +130,7 @@ final class DbCachedService
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array.
-     * @deprecated
+     * @deprecated use fetchAllAssociative()
      * @param string $sql    The SQL query.
      * @param array  $params The query parameters.
      * @param array  $types  The query parameter types.
