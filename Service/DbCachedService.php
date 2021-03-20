@@ -28,39 +28,34 @@ final class DbCachedService
         }
     }
 
-    /**
-     * Prepares and executes an SQL query and returns the value of a single column
-     * of the first row of the result.
-     *
-     * @deprecated
-     * @param string $statement The SQL query to be executed.
-     * @param array  $params    The prepared statement params.
-     * @param int    $column    The 0-indexed column number to retrieve.
-     * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
-     * @return mixed|bool False is returned if no rows are found.
-     */
-    public function fetchColumn($statement, array $params = [], $column = 0, array $types = [], $isSlave = false)
+    private function buildCacheId($sql, $params, $salt, $object = null)
     {
-        $cacheId = $this->buildCacheId($statement, $params, 'fetchColumn');
-        if ($result = $this->getCacheItem($cacheId, null, $this->cached)) {
-            return $result;
+        if (!$this->cacheId) {
+            $parts = $object ? explode('\\', $object) : [];
+            if ($parts) {
+                $prefix = end($parts);
+            } else {
+                $prefix = $salt;
+            }
+
+            $paramsHash = '';
+            if (is_array($params)) {
+                $paramsHash = serialize($params);
+            }
+
+            return $prefix.'_'.md5($sql.'_'.(string)$salt.'_'.$paramsHash);
         }
 
-        if ($result = $this->db->fetchOne($statement, $params, $types, $isSlave)) {
-            $this->setCacheItem($cacheId, $result, $this->ttl);
-        }
-
-        return $result;
+        return $this->cacheId;
     }
 
     /**
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
-     * @param string $query The SQL query to be executed.
-     * @param array  $params    The prepared statement params.
-     * @param array  $types     The query parameter types.
+     * @param string $query  The SQL query to be executed.
+     * @param array  $params The prepared statement params.
+     * @param array  $types  The query parameter types.
      * @param bool   $isSlave
      * @return mixed|bool False is returned if no rows are found.
      */
@@ -82,34 +77,9 @@ final class DbCachedService
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
-     * @deprecated
-     * @param string $statement The SQL query.
-     * @param array  $params    The query parameters.
-     * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
-     * @return array|bool False is returned if no rows are found.
-     */
-    public function fetchAssoc($statement, array $params = [], array $types = [], $isSlave = false)
-    {
-        $cacheId = $this->buildCacheId($statement, $params, 'fetchAssoc');
-        if ($result = $this->getCacheDecodedItem($cacheId, null, $this->cached)) {
-            return $result;
-        }
-
-        if ($result = $this->db->fetchAssociative($statement, $params, $types, $isSlave)) {
-            $this->setCacheEncodedItem($cacheId, $result, $this->ttl);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as an associative array.
-     *
-     * @param string $query The SQL query.
-     * @param array  $params    The query parameters.
-     * @param array  $types     The query parameter types.
+     * @param string $query  The SQL query.
+     * @param array  $params The query parameters.
+     * @param array  $types  The query parameter types.
      * @param bool   $isSlave
      * @return array|bool False is returned if no rows are found.
      */
@@ -125,30 +95,6 @@ final class DbCachedService
         }
 
         return $result;
-
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an associative array.
-     * @deprecated use fetchAllAssociative()
-     * @param string $sql    The SQL query.
-     * @param array  $params The query parameters.
-     * @param array  $types  The query parameter types.
-     * @param bool   $isSlave
-     * @return array|false
-     */
-    public function fetchAll($sql, array $params = [], $types = [], $isSlave = false)
-    {
-        $cacheId = $this->buildCacheId($sql, $params, 'fetchAll');
-        if ($result = $this->getCacheDecodedItem($cacheId, null, $this->cached)) {
-            return $result;
-        }
-
-        if ($result = $this->db->fetchAllAssociative($sql, $params, $types, $isSlave)) {
-            $this->setCacheEncodedItem($cacheId, $result, $this->ttl);
-        }
-
-        return $result;
     }
 
     /**
@@ -157,8 +103,7 @@ final class DbCachedService
      * @param string                                                               $query  SQL query
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
-     * @param bool $isSlave
-     *
+     * @param bool                                                                 $isSlave
      * @return mixed
      */
     public function fetchAllAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
@@ -174,7 +119,6 @@ final class DbCachedService
 
         return $result;
     }
-
 
     /**
      * Executes an, optionally parametrized, SQL query.
@@ -243,26 +187,5 @@ final class DbCachedService
         }
 
         return $result;
-    }
-
-    private function buildCacheId($sql, $params, $salt, $object = null)
-    {
-        if (!$this->cacheId) {
-            $parts = $object ? explode('\\', $object) : [];
-            if ($parts) {
-                $prefix = end($parts);
-            } else {
-                $prefix = $salt;
-            }
-
-            $paramsHash = '';
-            if (is_array($params)) {
-                $paramsHash = serialize($params);
-            }
-
-            return $prefix.'_'.md5($sql.'_'.(string)$salt.'_'.$paramsHash);
-        }
-
-        return $this->cacheId;
     }
 }

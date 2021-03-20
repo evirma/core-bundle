@@ -54,19 +54,6 @@ final class DbService
 //    }
 
     /**
-     * @deprecated
-     * @return LoggerInterface
-     */
-    public function getLogger()
-    {
-        if ($this->logger) {
-            return $this->logger;
-        }
-
-        return $this->logger;
-    }
-
-    /**
      * @return ManagerRegistry
      */
     public function getDoctrineManager(): ManagerRegistry
@@ -136,20 +123,6 @@ final class DbService
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an associative array.
-     * @deprecated  Use fetchAllAssociative()
-     * @param string $sql    The SQL query.
-     * @param array  $params The query parameters.
-     * @param array  $types  The query parameter types.
-     * @param bool   $isSlave
-     * @return array|false
-     */
-    public function fetchAll($sql, array $params = [], $types = [], $isSlave = false)
-    {
-        return $this->db($isSlave)->fetchAllAssociative($sql, $params, $types);
-    }
-
-    /**
      * Prepares and executes an SQL query and returns the result as an array of associative arrays.
      *
      * @param string                                                               $query  SQL query
@@ -204,22 +177,6 @@ final class DbService
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
-     * @deprecated
-     * @param string $statement The SQL query.
-     * @param array  $params    The query parameters.
-     * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
-     * @return array|bool False is returned if no rows are found.
-     */
-    public function fetchAssoc($statement, array $params = [], array $types = [], $isSlave = false)
-    {
-        return $this->fetchAssociative($statement, $params, $types, $isSlave);
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as an associative array.
-     *
      * @param string $query The SQL query.
      * @param array  $params    The query parameters.
      * @param array  $types     The query parameter types.
@@ -262,23 +219,6 @@ final class DbService
     public function useCache($cached = true, $ttl = null, $cacheId = null)
     {
         return new DbCachedService($this->getMemcache(), $this, $cached, $ttl, $cacheId);
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the value of a single column
-     * of the first row of the result.
-     *
-     * @deprecated use fetchOne
-     * @param string $statement The SQL query to be executed.
-     * @param array  $params    The prepared statement params.
-     * @param int    $column    The 0-indexed column number to retrieve.
-     * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
-     * @return mixed|bool False is returned if no rows are found.
-     */
-    public function fetchColumn($statement, array $params = [], $column = 0, array $types = [], $isSlave = false)
-    {
-        return $this->db($isSlave)->fetchOne($statement, $params, $types);
     }
 
     /**

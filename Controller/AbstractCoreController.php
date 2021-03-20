@@ -7,7 +7,7 @@ use Evirma\Bundle\CoreBundle\Service\PageCache;
 use Evirma\Bundle\CoreBundle\Service\PageMeta;
 use Evirma\Bundle\CoreBundle\Service\RequestService;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
-use Evirma\Bundle\CoreBundle\Traits\DbTrait;
+use Evirma\Bundle\CoreBundle\Traits\DbAwareTrait;
 use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
 use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
@@ -22,7 +22,7 @@ abstract class AbstractCoreController extends AbstractController
     use ServiceSystemTrait;
     use CacheTrait;
     use LoggerTrait;
-    use DbTrait;
+    use DbAwareTrait;
     use PagerTrait;
 
     public static function getSubscribedServices()

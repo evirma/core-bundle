@@ -7,7 +7,7 @@ use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
 use Evirma\Bundle\CoreBundle\Filter\Rule\SuggestionSearch;
 use Evirma\Bundle\CoreBundle\Filter\Rule\SuggestionSearchId;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
-use Evirma\Bundle\CoreBundle\Traits\DbTrait;
+use Evirma\Bundle\CoreBundle\Traits\DbAwareTrait;
 use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
 use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
@@ -30,7 +30,7 @@ abstract class AbstractCoreService implements ServiceSubscriberInterface
     use CacheTrait;
     use ServiceSystemTrait;
     use LoggerTrait;
-    use DbTrait;
+    use DbAwareTrait;
     use PagerTrait;
 
     protected $container;

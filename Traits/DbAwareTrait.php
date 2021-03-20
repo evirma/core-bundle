@@ -19,13 +19,4 @@ trait DbAwareTrait
     {
         $this->db = $dbService;
     }
-
-    /**
-     * @deprecated
-     * @return DbService
-     */
-    protected function getDb()
-    {
-        return $this->db;
-    }
 }

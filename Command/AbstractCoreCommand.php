@@ -7,7 +7,7 @@ use Evirma\Bundle\CoreBundle\Filter\FilterStatic;
 use Evirma\Bundle\CoreBundle\Filter\Rule\Slug;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
 use Evirma\Bundle\CoreBundle\Traits\CommandTrait;
-use Evirma\Bundle\CoreBundle\Traits\DbTrait;
+use Evirma\Bundle\CoreBundle\Traits\DbAwareTrait;
 use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Exception;
 use Psr\Container\ContainerInterface;
@@ -33,7 +33,7 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
 {
     use CommandTrait;
     use CacheTrait;
-    use DbTrait;
+    use DbAwareTrait;
     use LoggerTrait;
 
     /**
