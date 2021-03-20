@@ -50,7 +50,7 @@ final class DbDriverService
     /**
      * @return LoggerInterface
      */
-    public function getLogger()
+    private function getLogger()
     {
         if ($this->logger) {
             return $this->logger;
@@ -149,18 +149,19 @@ final class DbDriverService
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an associative array.
-     * @deprecated  Use fetchAllAssociative()
-     * @param string $sql    The SQL query.
+     * Prepares and executes an SQL query and returns the first row of the result
+     * as an associative array.
+     *
+     * @param string $query  The SQL query.
      * @param array  $params The query parameters.
      * @param array  $types  The query parameter types.
      * @param bool   $isSlave
-     * @return array|false
+     * @return array|bool False is returned if no rows are found.
      */
-    public function fetchAll($sql, array $params = [], $types = [], $isSlave = false)
+    public function fetchAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
     {
-        $query = $this->executeQuery($sql, $params, $types, $isSlave);
-        return $query ? $query->fetchAllAssociative() : false;
+        $query = $this->executeQuery($query, $params, $types, $isSlave);
+        return $query ? $query->fetchAssociative() : false;
     }
 
     /**
@@ -177,41 +178,6 @@ final class DbDriverService
     {
         $query = $this->executeQuery($query, $params, $types, $isSlave);
         return $query ? $query->fetchAllAssociative() : false;
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as an associative array.
-     *
-     * @deprecated use fetchAssociative()
-     * @param string $statement The SQL query.
-     * @param array  $params    The query parameters.
-     * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
-     * @return array|bool False is returned if no rows are found.
-     */
-    public function fetchAssoc($statement, array $params = [], array $types = [], $isSlave = false)
-    {
-        $query = $this->executeQuery($statement, $params, $types, $isSlave);
-        return $query ? $query->fetchAssociative() : false;
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the value of a single column
-     * of the first row of the result.
-     *
-     * @deprecated use fetchOne()
-     * @param string $statement The SQL query to be executed.
-     * @param array  $params    The prepared statement params.
-     * @param int    $column    The 0-indexed column number to retrieve.
-     * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
-     * @return mixed|bool False is returned if no rows are found.
-     */
-    public function fetchColumn($statement, array $params = [], $column = 0, array $types = [], $isSlave = false)
-    {
-        $query = $this->executeQuery($statement, $params, $types, $isSlave);
-        return $query ? $query->fetchOne($column) : false;
     }
 
     /**
