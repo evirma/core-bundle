@@ -162,7 +162,6 @@ final class DbService
     public function fetchAllAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
     {
         return $this->db($isSlave)->fetchAllAssociative($query, $params, $types);
-
     }
 
     /**

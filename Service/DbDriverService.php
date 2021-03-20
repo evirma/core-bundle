@@ -183,6 +183,7 @@ final class DbDriverService
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
+     * @deprecated use fetchAssociative()
      * @param string $statement The SQL query.
      * @param array  $params    The query parameters.
      * @param array  $types     The query parameter types.
@@ -199,7 +200,7 @@ final class DbDriverService
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
-     * @deprecated use fetchOne
+     * @deprecated use fetchOne()
      * @param string $statement The SQL query to be executed.
      * @param array  $params    The prepared statement params.
      * @param int    $column    The 0-indexed column number to retrieve.

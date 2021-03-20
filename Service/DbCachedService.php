@@ -3,6 +3,7 @@
 namespace Evirma\Bundle\CoreBundle\Service;
 
 use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Types\Type;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
 
 final class DbCachedService
@@ -54,9 +55,34 @@ final class DbCachedService
     }
 
     /**
+     * Prepares and executes an SQL query and returns the value of a single column
+     * of the first row of the result.
+     *
+     * @param string $query The SQL query to be executed.
+     * @param array  $params    The prepared statement params.
+     * @param array  $types     The query parameter types.
+     * @param bool   $isSlave
+     * @return mixed|bool False is returned if no rows are found.
+     */
+    public function fetchOne(string $query, array $params = [], array $types = [], $isSlave = false)
+    {
+        $cacheId = $this->buildCacheId($query, $params, 'fetchOne');
+        if ($result = $this->getCacheItem($cacheId, null, $this->cached)) {
+            return $result;
+        }
+
+        if ($result = $this->db->fetchOne($query, $params, $types, $isSlave)) {
+            $this->setCacheItem($cacheId, $result, $this->ttl);
+        }
+
+        return $result;
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
+     * @deprecated
      * @param string $statement The SQL query.
      * @param array  $params    The query parameters.
      * @param array  $types     The query parameter types.
@@ -70,17 +96,31 @@ final class DbCachedService
             return $result;
         }
 
-        if ($result = $this->db->fetchAssoc($statement, $params, $types, $isSlave)) {
+        if ($result = $this->db->fetchAssociative($statement, $params, $types, $isSlave)) {
             $this->setCacheEncodedItem($cacheId, $result, $this->ttl);
         }
 
         return $result;
     }
 
+    public function fetchAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
+    {
+        $cacheId = $this->buildCacheId($query, $params, 'fetchAssoc');
+        if ($result = $this->getCacheDecodedItem($cacheId, null, $this->cached)) {
+            return $result;
+        }
+
+        if ($result = $this->db->fetchAssociative($query, $params, $types, $isSlave)) {
+            $this->setCacheEncodedItem($cacheId, $result, $this->ttl);
+        }
+
+        return $result;
+
+    }
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array.
-     *
+     * @deprecated
      * @param string $sql    The SQL query.
      * @param array  $params The query parameters.
      * @param array  $types  The query parameter types.
@@ -100,6 +140,31 @@ final class DbCachedService
 
         return $result;
     }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of associative arrays.
+     *
+     * @param string                                                               $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param bool $isSlave
+     *
+     * @return mixed
+     */
+    public function fetchAllAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
+    {
+        $cacheId = $this->buildCacheId($query, $params, 'fetchAllAssociative');
+        if ($result = $this->getCacheDecodedItem($cacheId, null, $this->cached)) {
+            return $result;
+        }
+
+        if ($result = $this->db->fetchAllAssociative($query, $params, $types, $isSlave)) {
+            $this->setCacheEncodedItem($cacheId, $result, $this->ttl);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Executes an, optionally parametrized, SQL query.
