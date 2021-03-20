@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Backend\Transformer;
+namespace Evirma\Bundle\CoreBundle\Form\Transformer;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\DataTransformerInterface;

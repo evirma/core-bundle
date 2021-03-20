@@ -8,6 +8,6 @@ class HumanSize extends Slug
 {
     public function filter($value)
     {
-        return StringUtil::humanSize($value, 1);
+        return StringUtil::humanSize($value);
     }
 }
