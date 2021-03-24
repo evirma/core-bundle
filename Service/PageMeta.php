@@ -73,7 +73,7 @@ class PageMeta implements HelperInterface
 
     private function isGranted($role)
     {
-        if ($this->tokenStorage && (null === ($token = $this->tokenStorage->getToken()))) {
+        if ($this->tokenStorage && (null !== ($token = $this->tokenStorage->getToken()))) {
             return true == $this->authorizationChecker->isGranted($role);
         }
 
