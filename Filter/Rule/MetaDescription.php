@@ -14,8 +14,6 @@ class MetaDescription extends FilterRule
         $value = strip_tags($value);
         $value = FilterStatic::filterValue($value, HtmlAndUnicode::class);
         $value = trim(preg_replace('#\s+#', ' ', $value));
-        $value = preg_replace('#\s*([;:.,!?])#usi', '\\1', $value);
-
-        return StringUtil::truncate($value, 200, true, '');
+        return preg_replace('#\s*([;:.,!?])#usi', '\\1', $value);
     }
 }

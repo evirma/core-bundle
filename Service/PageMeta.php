@@ -393,15 +393,20 @@ class PageMeta implements HelperInterface
 
     /**
      * @param null $default
+     * @param null $truncate
      * @return string
      */
-    public function getMetaDescription($default = null)
+    public function getMetaDescription($default = null, $truncate = null)
     {
         $metaDescription = $this->metaDescription ? $this->metaDescription : $default;
         if ($this->autotextSeed) {
             $metaDescription = Autotext::autotext(' '.$metaDescription, $this->autotextSeed);
         }
-        return FilterStatic::filterValue($metaDescription, MetaDescription::class);
+        $metaDescription = FilterStatic::filterValue($metaDescription, MetaDescription::class);
+        if ($truncate) {
+            $metaDescription = StringUtil::truncate($metaDescription, (int)$truncate, true, '');
+        }
+        return $metaDescription;
     }
 
     /**
