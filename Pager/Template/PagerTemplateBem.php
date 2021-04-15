@@ -94,7 +94,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
         $nextPageText = ($this->locale == 'ru') ? 'Следующая страница' : 'Show More';
         $navNextLabel = ($this->locale == 'ru') ? 'Быстрая навигация' : 'Fast Navigation';
 
-        return "<nav class=\"pager__next\" aria-label=\"{$navNextLabel}\"><ul class=\"pager__next-list\">{$nextPageButtonPrepend}<li class=\"pager__next-item\"><a{$rel}class=\"pager__next-link\" href=\"{$href}\">{$nextPageText} &rarr;</a></li></ul></nav>";
+        return "<nav class=\"pager__next\"><ul class=\"pager__next-list\" aria-label=\"$navNextLabel\">$nextPageButtonPrepend<li class=\"pager__next-item\"><a{$rel}class=\"pager__next-link\" href=\"$href\">$nextPageText &rarr;</a></li></ul></nav>";
     }
 
     public function separator()
@@ -143,7 +143,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
     public function current($page)
     {
         $pageText = $this->locale == 'ru' ? 'Страница №' : 'Page ';
-        $text = "<span class=\"sr-only\">{$pageText}</span>" . trim($page.' '.$this->option('active_suffix'));
+        $text = "<span class=\"sr-only\">$pageText</span>" . trim($page.' '.$this->option('active_suffix'));
         return '<li class="pager__page pager__page-active"><span>'.$text.'</span></li>';
     }
 
