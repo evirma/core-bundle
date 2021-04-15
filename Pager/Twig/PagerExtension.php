@@ -4,6 +4,7 @@ namespace Evirma\Bundle\CoreBundle\Pager\Twig;
 
 use Evirma\Bundle\CoreBundle\Pager\Pager;
 use Evirma\Bundle\CoreBundle\Pager\RouteGenerator\RouterRouteGenerator;
+use Evirma\Bundle\CoreBundle\Pager\Template\PagerTemplateBem;
 use Evirma\Bundle\CoreBundle\Pager\Template\PagerTemplateDefault;
 use InvalidArgumentException;
 use RuntimeException;
@@ -61,7 +62,7 @@ class PagerExtension extends AbstractExtension
     public function getPageUrl(Pager $pager, int $page, array $options = []): string
     {
         if ($page < 0 || $page > $pager->getPages()) {
-            throw new InvalidArgumentException("Page '{$page}' is out of bounds");
+            throw new InvalidArgumentException("Page '$page' is out of bounds");
         }
 
         $routeGenerator = $this->createRouteGenerator($options);
@@ -109,6 +110,8 @@ class PagerExtension extends AbstractExtension
         }
 
         switch ($name) {
+            case 'bem':
+                return new PagerTemplateBem($locale);
             default:
                 return new PagerTemplateDefault($locale);
         }
