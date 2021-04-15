@@ -130,7 +130,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
         $rel = ($page > $maxIndexPages) ? ' rel="noindex,nofollow"' : '';
 
         if ($page == $this->page) {
-            $result = '<li class="pager__page pager__page-active'.$hiddenClass.'"><span>'.$text.'</span></li>';
+            $result = '<li class="pager__page pager__page-active'.$hiddenClass.'" aria-current="page"><span>'.$text.'</span></li>';
         } else {
             $result = '<li class="pager__page'.$hiddenClass.'"><a'.$rel.' href="'.$href.'">'.$text.'</a></li>';
 
@@ -140,7 +140,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
 
     public function current($page)
     {
-        $pageText = $this->locale == 'ru' ? 'Страница №' : 'Page ';
+        $pageText = $this->locale == 'ru' ? 'Страница ' : 'Page ';
         $text = "<span class=\"sr-only\">{$pageText}</span>" . trim($page.' '.$this->option('active_suffix'));
         return '<li class="pager__page pager__page-active"><span>'.$text.'</span></li>';
     }

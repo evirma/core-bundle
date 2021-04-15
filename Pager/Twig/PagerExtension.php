@@ -101,10 +101,6 @@ class PagerExtension extends AbstractExtension
 
     private function getPagerTemplateByName($name, $locale = null)
     {
-        if ($name != 'default') {
-            $name = 'default';
-        }
-
         if (!$locale) {
             $locale = $this->locale;
         }
