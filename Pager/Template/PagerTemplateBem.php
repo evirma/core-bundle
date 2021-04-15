@@ -94,7 +94,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
         $nextPageText = ($this->locale == 'ru') ? 'Следующая страница' : 'Show More';
         $navNextLabel = ($this->locale == 'ru') ? 'Быстрая навигация' : 'Fast Navigation';
 
-        return "<nav class=\"page__nav-next\" aria-label=\"{$navNextLabel}\">{$nextPageButtonPrepend}<a$rel href=\"{$href}\" class=\"page__next-link\">{$nextPageText} &rarr;</a></nav>";
+        return "<nav class=\"pager__next\" aria-label=\"{$navNextLabel}\"><ul class=\"pager__next-list\">{$nextPageButtonPrepend}<li class=\"pager__next-item\"><a{$rel}class=\"pager__next-link\" href=\"{$href}\">{$nextPageText} &rarr;</a></li></ul></nav>";
     }
 
     public function separator()
