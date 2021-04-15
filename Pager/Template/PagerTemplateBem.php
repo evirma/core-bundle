@@ -54,7 +54,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
 
         if ($this->option('show_digit_pages')) {
             $navLabel = ($this->locale == 'ru') ? 'Постраничная навигаци' : 'Pagination Navigation';
-            $result .= '<nav class="pager__nav" aria-label="'. $navLabel . '"><ul class="pager__pages">';
+            $result .= '<nav class="pager__nav"><ul class="pager__pages" aria-label="'. $navLabel . '">';
             $result .= $this->first();
 
             if ($this->startPage > 1) {
@@ -142,7 +142,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
 
     public function current($page)
     {
-        $pageText = $this->locale == 'ru' ? 'Страница ' : 'Page ';
+        $pageText = $this->locale == 'ru' ? 'Страница №' : 'Page ';
         $text = "<span class=\"sr-only\">{$pageText}</span>" . trim($page.' '.$this->option('active_suffix'));
         return '<li class="pager__page pager__page-active"><span>'.$text.'</span></li>';
     }
