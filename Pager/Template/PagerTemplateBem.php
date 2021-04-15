@@ -132,7 +132,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
         $rel = ($page > $maxIndexPages) ? ' rel="noindex,nofollow"' : '';
 
         if ($page == $this->page) {
-            $result = '<li class="pager__page pager__page-active'.$hiddenClass.'" aria-current="page"><span>'.$text.'</span></li>';
+            $result = '<li class="pager__page pager__page-active'.$hiddenClass.'"><a class="pager__page-current" aria-current="page">'.$text.'</a></li>';
         } else {
             $result = '<li class="pager__page'.$hiddenClass.'"><a'.$rel.' href="'.$href.'">'.$text.'</a></li>';
 
