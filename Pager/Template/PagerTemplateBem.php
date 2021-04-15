@@ -45,7 +45,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
         $this->calculateStartAndEndPage();
         $this->setRouteGenerator($routeGenerator);
 
-        $result = '<div class="pager" role="navigation">';
+        $result = '<div class="pager">';
 
         $nextPage = $this->page + 1;
         if ($nextPage <= $this->pages) {
@@ -53,7 +53,8 @@ class PagerTemplateBem extends AbstractPagerTemplate
         }
 
         if ($this->option('show_digit_pages')) {
-            $result .= '<ul class="pager__pages">';
+            $navLabel = ($this->locale == 'ru') ? 'Постраничная навигаци' : 'Pagination Navigation';
+            $result .= '<nav class="pager__nav" aria-label="'. $navLabel . '"><ul class="pager__pages">';
             $result .= $this->first();
 
             if ($this->startPage > 1) {
@@ -70,7 +71,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
                 $result .= $this->page($this->pages);
             }
 
-            $result .= '</ul>';
+            $result .= '</ul></nav>';
         }
 
         $result .= '</div>';
@@ -91,8 +92,9 @@ class PagerTemplateBem extends AbstractPagerTemplate
         $nextPageButtonPrepend = $this->option('next_page_button_prepend');
 
         $nextPageText = ($this->locale == 'ru') ? 'Следующая страница' : 'Show More';
+        $navNextLabel = ($this->locale == 'ru') ? 'Быстрая навигация' : 'Fast Navigation';
 
-        return "<div class=\"page__next-page\">{$nextPageButtonPrepend}<a$rel href=\"{$href}\" class=\"pager-next-link btn btn-lg btn-main\">{$nextPageText} &rarr;</a></div>";
+        return "<nav class=\"page__nav-next\" aria-label=\"{$navNextLabel}\">{$nextPageButtonPrepend}<a$rel href=\"{$href}\" class=\"page__next-link\">{$nextPageText} &rarr;</a></nav>";
     }
 
     public function separator()
