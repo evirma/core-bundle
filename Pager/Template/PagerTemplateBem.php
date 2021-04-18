@@ -118,7 +118,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
 
     private function page($page, $isHidden = false)
     {
-        $hiddenClass = $isHidden ? ' hidden-xs' : '';
+        $hiddenClass = $isHidden ? ' pager__page-desktop' : '';
 
         if ($this->locale == 'ru') {
             $text = '<span class="sr-only">Страница №</span>'.$page;
@@ -132,7 +132,7 @@ class PagerTemplateBem extends AbstractPagerTemplate
         $rel = ($page > $maxIndexPages) ? ' rel="noindex,nofollow"' : '';
 
         if ($page == $this->page) {
-            $result = '<li class="pager__page pager__page-active'.$hiddenClass.'"><a class="pager__page-current" aria-current="page">'.$text.'</a></li>';
+            $result = '<li class="pager__page pager__page-active'.$hiddenClass.'"><span class="pager__page-current" aria-current="page">'.$text.'</span></li>';
         } else {
             $result = '<li class="pager__page'.$hiddenClass.'"><a'.$rel.' href="'.$href.'">'.$text.'</a></li>';
 
