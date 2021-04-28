@@ -32,6 +32,7 @@ class HeadtagNode extends Node implements NodeOutputInterface
             ->write('ob_start();'.PHP_EOL)
             ->subcompile($this->getNode('body'))
             ->write('$content = ob_get_clean();'.PHP_EOL)
+            ->write('$content = str_replace(\'/>\', "/>\n", $content);'.PHP_EOL)
             ->write('preg_match("/^\s*/", $content, $matches);'.PHP_EOL)
             ->write('$lines = explode("\n", $content);'.PHP_EOL)
             ->write('$content = preg_replace(\'/^\' . $matches[0]. \'/\', "", $lines);'.PHP_EOL)
