@@ -54,6 +54,7 @@ abstract class AbstractCoreController extends AbstractController
     /**
      * CreateForm And HandleRequest
      *
+     * @deprecated
      * @param string $type
      * @param null   $data
      * @param array  $options
