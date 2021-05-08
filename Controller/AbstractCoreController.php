@@ -59,7 +59,7 @@ abstract class AbstractCoreController extends AbstractController
      * @param array  $options
      * @return FormInterface
      */
-    protected function handleForm(string $type, $data = null, array $options = []): FormInterface
+    public function handleForm(string $type, $data = null, array $options = []): FormInterface
     {
         $form = $this->createForm($type, $data, $options);
         $form->handleRequest($this->getRequest());
