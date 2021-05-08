@@ -2,6 +2,8 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
+use Closure;
+
 class CurlMultiService
 {
     protected $_threads = array();
@@ -9,9 +11,9 @@ class CurlMultiService
     /**
      * Добавить поток
      *
-     * @param string $url
-     * @param string $callback
-     * @param array  $curlOpts
+     * @param string         $url
+     * @param string|Closure $callback
+     * @param array          $curlOpts
      */
     public function addTread($url, $callback, $curlOpts = array())
     {
