@@ -118,14 +118,14 @@ class PageMetaExtension extends AbstractExtension
     {
         if (!$group) $group = 'default';
         $group = 'javascript_' . str_replace('javascript_', '', $group);
-        if (!$items = $this->pageMeta->getFromStorage($group)) {
+        if (!$this->pageMeta->getFromStorage($group)) {
             return '';
         }
 
         $result = "<script type=\"text/javascript\">\n";
         foreach ($this->pageMeta->getFromStorage($group) as $item) {
-            $item = preg_replace('#^\s*<script[^\>]*>#usi', '', $item);
-            $item = preg_replace('#</script[^\>]*>\s*$#usi', '', $item);
+            $item = preg_replace('#^\s*<script[^>]*>#usi', '', $item);
+            $item = preg_replace('#</script[^>]*>\s*$#usi', '', $item);
             $result .= trim($item) . "\n";
 
         }

@@ -60,6 +60,7 @@ class IconExtension extends AbstractExtension
         }
 
         switch ($namespace) {
+            case 'fal':
             case 'fa':
                 $class = 'fal fa-' . $iconName;
                 break;
@@ -68,9 +69,6 @@ class IconExtension extends AbstractExtension
                 break;
             case 'fas':
                 $class = 'fas fa-' . $iconName;
-                break;
-            case 'fal':
-                $class = 'fal fa-' . $iconName;
                 break;
             case 'fab':
                 $class = 'fab fa-' . $iconName;

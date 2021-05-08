@@ -13,7 +13,6 @@ use Evirma\Bundle\CoreBundle\Traits\PagerTrait;
 use Evirma\Bundle\CoreBundle\Traits\ServiceSystemTrait;
 use Evirma\Bundle\CoreBundle\Traits\TranslatorTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 abstract class AbstractCoreController extends AbstractController
@@ -49,23 +48,6 @@ abstract class AbstractCoreController extends AbstractController
     protected function jsonResponse($data, int $status = 200, array $headers = []): JsonResponse
     {
         return new JsonResponse(json_encode($data, JSON_UNESCAPED_UNICODE), $status, $headers, true);
-    }
-
-    /**
-     * CreateForm And HandleRequest
-     *
-     * @deprecated
-     * @param string $type
-     * @param null   $data
-     * @param array  $options
-     * @return FormInterface
-     */
-    public function handleForm(string $type, $data = null, array $options = []): FormInterface
-    {
-        $form = $this->createForm($type, $data, $options);
-        $form->handleRequest($this->getRequest());
-
-        return $form;
     }
 
     /**

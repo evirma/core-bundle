@@ -385,7 +385,7 @@ class StringUtil
             $cnt = $cnt + $sect;
         }
 
-        return isset($pathArray[$cnt]) ? $pathArray[$cnt] : null;
+        return $pathArray[$cnt] ?? null;
     }
 
     /**

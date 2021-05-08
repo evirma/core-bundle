@@ -261,6 +261,7 @@ class CurlService
                     $delim = '/';
                 }
 
+                /** @noinspection HttpUrlsUsage */
                 $location = 'http://' . parse_url($this->getLastUrl(), PHP_URL_HOST) . $delim . $location;
             }
 

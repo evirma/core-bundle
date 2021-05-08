@@ -18,8 +18,9 @@ class FileStorageService
         if (!$storage) return false;
         if (!$data = is_array($data) ? @json_encode($data, JSON_UNESCAPED_UNICODE) : (string)$data) return false;
         $file = $this->getStorageFile($storage, $id);
-        $this->saveFileContents($file, $data);
-        $this->memcached->set($this->getMetaCacheId($storage, $id), time(), $cacheTtl);
+        if ($this->saveFileContents($file, $data)) {
+            $this->memcached->set($this->getMetaCacheId($storage, $id), time(), $cacheTtl);
+        }
         return $data;
     }
 
@@ -79,7 +80,7 @@ class FileStorageService
         if ($fp !== FALSE) {
             gzwrite($fp, $content);
             gzclose($fp);
-            return $content;
+            return true;
         }
         return false;
     }

@@ -43,7 +43,7 @@ final class DbCachedService
                 $paramsHash = serialize($params);
             }
 
-            return $prefix.'_'.md5($sql.'_'.(string)$salt.'_'.$paramsHash);
+            return $prefix.'_'.md5($sql.'_'.$salt.'_'.$paramsHash);
         }
 
         return $this->cacheId;
