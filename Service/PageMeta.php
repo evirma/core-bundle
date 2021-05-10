@@ -996,4 +996,13 @@ class PageMeta implements HelperInterface
 
         return $this->og;
     }
+
+    public function setNoindexNofollow($flag)
+    {
+        if ($flag) {
+            $this->setMetaRobots('NOINDEX, NOFOLLOW');
+        }
+
+        return $this;
+    }
 }
