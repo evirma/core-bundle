@@ -40,6 +40,8 @@ class CurlMultiService
             $current->setAutodetectEncoding(false);
             $current->setOpt(CURLOPT_CONNECTTIMEOUT, 10);
             $current->setOpt(CURLOPT_TIMEOUT, 10);
+            $current->setOpt(CURLOPT_SSL_VERIFYHOST, 0);
+            $current->setOpt(CURLOPT_SSL_VERIFYPEER, 0);
             $current->setUrl($url);
 
             # Set defined options, set through curlNode->setOpt();

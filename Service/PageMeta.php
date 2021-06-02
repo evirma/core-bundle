@@ -372,7 +372,7 @@ class PageMeta implements HelperInterface
      */
     public function getH1Raw($default = null)
     {
-        $h1 = $this->h1 ? $this->h1 : $default;
+        $h1 = $this->h1 ?: $default;
         if ($this->autotextSeed) {
             $h1 = Autotext::autotext(' ' . $h1, $this->autotextSeed);
         }
@@ -997,7 +997,7 @@ class PageMeta implements HelperInterface
         return $this->og;
     }
 
-    public function setNoindexNofollow($flag)
+    public function setNoindexNofollow(bool $flag)
     {
         if ($flag) {
             $this->setMetaRobots('NOINDEX, NOFOLLOW');
