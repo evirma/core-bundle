@@ -6,6 +6,11 @@ use Evirma\Bundle\CoreBundle\Filter\FilterRule;
 
 class MetaRobots extends FilterRule
 {
+    const NOINDEX_NOFOLLOW = 'NOINDEX,NOFOLLOW';
+    const INDEX_NOFOLLOW = 'INDEX,NOFOLLOW';
+    const NOINDEX_FOLLOW = 'NOINDEX,FOLLOW';
+    const INDEX_FOLLOW = 'INDEX,FOLLOW';
+
     public function filter($value)
     {
         $entityLower = str_replace(' ', '', strtolower(trim($value)));
