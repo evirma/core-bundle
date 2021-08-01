@@ -8,6 +8,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
+use JetBrains\PhpStorm\Pure;
 use Psr\Log\LoggerInterface;
 
 final class DbService
@@ -38,25 +39,16 @@ final class DbService
     private function db($isSlave = false)
     {
         if (!$this->throwException) {
-            return $this->driver;
+            return $isSlave ? $this->driver->setDefaultConnectionName('slave') : $this->driver;
         } else {
-            return $isSlave ? $this->driver->getConnSlave() : $this->driver->getConn();
+            return $isSlave ? $this->getDoctrineManager()->getConnection('slave') : $this->getDoctrineManager()->getConnection();
         }
     }
-
-//    /**
-//     * @param false $isSlave
-//     * @return Connection|object
-//     */
-//    private function db($isSlave = false)
-//    {
-//        return $isSlave ? $this->driver->getConnSlave() : $this->driver->getConn();
-//    }
 
     /**
      * @return ManagerRegistry
      */
-    public function getDoctrineManager(): ManagerRegistry
+    #[Pure] public function getDoctrineManager(): ManagerRegistry
     {
         return $this->driver->getDoctrineManager();
     }
@@ -66,16 +58,17 @@ final class DbService
      */
     public function getEm()
     {
-        return $this->driver->getEm();
+        return $this->getDoctrineManager()->getManager();
     }
 
     /**
-     * @param $name
+     * @param string|null $name
      * @return Connection|object
+     * @noinspection PhpReturnDocTypeMismatchInspection
      */
-    public function getConnection($name)
+    public function getConnection(?string $name = null)
     {
-        return $this->driver->getConnection($name);
+        return $this->driver->getDoctrineManager()->getConnection($name);
     }
 
     /**
@@ -83,7 +76,7 @@ final class DbService
      */
     public function getConn()
     {
-        return $this->driver->getConn();
+        return $this->getConnection();
     }
 
     /**
@@ -91,7 +84,7 @@ final class DbService
      */
     public function getConnSlave()
     {
-        return $this->driver->getConnSlave();
+        return $this->getConnection('slave');
     }
 
     /**
@@ -249,7 +242,7 @@ final class DbService
      */
     public function fetchPairs($query, array $params = [], $types = [], $isSlave = false)
     {
-        return $this->driver->fetchPairs($query, $params, $types, $isSlave);
+        return $this->db($isSlave)->fetchPairs($query, $params, $types);
     }
 
     /**
@@ -263,7 +256,7 @@ final class DbService
      */
     public function fetchUniqIds($query, array $params = [], $types = [], $isSlave = false)
     {
-        return $this->driver->fetchUniqIds($query, $params, $types, $isSlave);
+        return $this->db($isSlave)->fetchUniqIds($query, $params, $types);
     }
 
     /**
@@ -327,7 +320,7 @@ final class DbService
      */
     public function upsert($tableExpression, array $data)
     {
-        return $this->driver->upsert($tableExpression, $data);
+        return $this->db()->upsert($tableExpression, $data);
     }
 
     /**
@@ -339,17 +332,17 @@ final class DbService
      */
     public function prepareMultipleValues($data, $includeFields = [], $excludeFields = [], $cast = [])
     {
-        return $this->driver->prepareMultipleValues($data, $includeFields, $excludeFields, $cast);
+        return $this->db()->prepareMultipleValues($data, $includeFields, $excludeFields, $cast);
     }
 
     public function checkConnection($isSlave = false)
     {
-        return $this->driver->checkConnection($isSlave);
+        return $this->db($isSlave)->checkConnection();
     }
 
     public function reconnect($isSlave = false, $tries = 5)
     {
-        return $this->driver->reconnect($isSlave, $tries);
+        return $this->db($isSlave)->reconnect($tries);
     }
 
     /**

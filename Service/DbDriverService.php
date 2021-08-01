@@ -7,33 +7,16 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ManagerRegistry;
-use InvalidArgumentException;
 use PDO;
 use Psr\Log\LoggerInterface;
 
 final class DbDriverService
 {
-    /**
-     * @var ManagerRegistry
-     */
-    private $manager;
-
-    /**
-     * @var EntityManager
-     */
-    private $em;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var Connection
-     */
-    private $conn;
+    private ManagerRegistry $manager;
+    private LoggerInterface $logger;
+    private ?Connection $conn;
+    private ?string $defaultConnectionName = NULL;
 
     /**
      * DbService constructor.
@@ -47,16 +30,14 @@ final class DbDriverService
         $this->logger = $logger;
     }
 
-    /**
-     * @return LoggerInterface
-     */
-    private function getLogger()
+    private function getConn(): Connection
     {
-        if ($this->logger) {
-            return $this->logger;
+        if ($this->conn) {
+            /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
+            $this->conn = $this->manager->getConnection($this->defaultConnectionName);
         }
 
-        return $this->logger;
+        return $this->conn;
     }
 
     /**
@@ -65,51 +46,6 @@ final class DbDriverService
     public function getDoctrineManager(): ManagerRegistry
     {
         return $this->manager;
-    }
-
-    /**
-     * @return EntityManager|object
-     */
-    public function getEm()
-    {
-        if (!$this->em) {
-            $this->em = $this->manager->getManager();
-        }
-
-        return $this->em;
-    }
-
-    /**
-     * @param $name
-     * @return Connection|object
-     */
-    public function getConnection($name)
-    {
-        return $this->manager->getConnection($name);
-    }
-
-
-    /**
-     * @return Connection|object
-     */
-    public function getConn()
-    {
-        if (!$this->conn) {
-            $this->conn = $this->manager->getConnection();
-        }
-        return $this->conn;
-    }
-
-    /**
-     * @return Connection|object
-     */
-    public function getConnSlave()
-    {
-        try {
-            return $this->manager->getConnection('slave');
-        } catch (InvalidArgumentException $e) {
-            return $this->getConn();
-        }
     }
 
     /**
@@ -132,7 +68,7 @@ final class DbDriverService
         try {
             $this->getConn()->commit();
         } catch (ConnectionException $e) {
-            $this->getLogger()->error('SQL Commit Failed', ['message' => $e->getMessage(), 'exception' => $e]);
+            $this->logger?->error('SQL Commit Failed', ['message' => $e->getMessage(), 'exception' => $e]);
         }
     }
 
@@ -144,7 +80,7 @@ final class DbDriverService
         try {
             $this->getConn()->rollBack();
         } catch (ConnectionException $e) {
-            $this->getLogger()->error('SQL RollBack Failed', ['message' => $e->getMessage(), 'exception' => $e]);
+            $this->logger?->error('SQL RollBack Failed', ['message' => $e->getMessage(), 'exception' => $e]);
         }
     }
 
@@ -155,12 +91,11 @@ final class DbDriverService
      * @param string $query  The SQL query.
      * @param array  $params The query parameters.
      * @param array  $types  The query parameter types.
-     * @param bool   $isSlave
      * @return array|bool False is returned if no rows are found.
      */
-    public function fetchAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
+    public function fetchAssociative(string $query, array $params = [], array $types = [])
     {
-        $query = $this->executeQuery($query, $params, $types, $isSlave);
+        $query = $this->executeQuery($query, $params, $types);
         return $query ? $query->fetchAssociative() : false;
     }
 
@@ -170,13 +105,12 @@ final class DbDriverService
      * @param string                                                               $query  SQL query
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
-     * @param bool $isSlave
      *
      * @return mixed
      */
-    public function fetchAllAssociative(string $query, array $params = [], array $types = [], bool $isSlave = false)
+    public function fetchAllAssociative(string $query, array $params = [], array $types = [])
     {
-        $query = $this->executeQuery($query, $params, $types, $isSlave);
+        $query = $this->executeQuery($query, $params, $types);
         return $query ? $query->fetchAllAssociative() : false;
     }
 
@@ -187,12 +121,11 @@ final class DbDriverService
      * @param string $statement The SQL query to be executed.
      * @param array  $params    The prepared statement params.
      * @param array  $types     The query parameter types.
-     * @param bool   $isSlave
      * @return mixed|bool False is returned if no rows are found.
      */
-    public function fetchOne($statement, array $params = [], array $types = [], $isSlave = false)
+    public function fetchOne($statement, array $params = [], array $types = [])
     {
-        $query = $this->executeQuery($statement, $params, $types, $isSlave);
+        $query = $this->executeQuery($statement, $params, $types);
         return $query ? $query->fetchOne() : false;
     }
 
@@ -204,12 +137,11 @@ final class DbDriverService
      * @param string $query  The SQL query to execute.
      * @param array  $params The parameters to bind to the query, if any.
      * @param array  $types  The types the previous parameters are in.
-     * @param bool   $isSlave
-     * @return array|Statement|false The executed statement.
+     * @return array The executed statement.
      */
-    public function fetchPairs($query, array $params = [], $types = [], $isSlave = false)
+    public function fetchPairs($query, array $params = [], $types = [])
     {
-        $query = $this->executeQuery($query, $params, $types, $isSlave);
+        $query = $this->executeQuery($query, $params, $types);
         if ($query && ($data = $query->fetchAllNumeric())) {
             $result = [];
             foreach ($data as $item) {
@@ -227,12 +159,11 @@ final class DbDriverService
      * @param string $query  The SQL query to execute.
      * @param array  $params The parameters to bind to the query, if any.
      * @param array  $types  The types the previous parameters are in.
-     * @param bool   $isSlave
-     * @return array|Statement|false The executed statement.
+     * @return array The executed statement.
      */
-    public function fetchUniqIds($query, array $params = [], $types = [], $isSlave = false)
+    public function fetchUniqIds($query, array $params = [], $types = [])
     {
-        $query = $this->executeQuery($query, $params, $types, $isSlave);
+        $query = $this->executeQuery($query, $params, $types);
         if ($query && ($data = $query->fetchAllNumeric())) {
             $result = [];
             foreach ($data as $item) {
@@ -252,21 +183,19 @@ final class DbDriverService
      * @param string $query   The SQL query to execute.
      * @param array  $params  The parameters to bind to the query, if any.
      * @param array  $types   The types the previous parameters are in.
-     * @param bool   $isSlave The query cache profile, optional.
      * @return Statement|false The executed statement.
      */
-    public function executeQuery($query, array $params = [], $types = [], $isSlave = false)
+    public function executeQuery($query, array $params = [], $types = [])
     {
         $result = false;
         try {
-            $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
-            $result = $conn->executeQuery($query, $params, $types);
+            $result = $this->getConn()->executeQuery($query, $params, $types);
         } catch (Exception $e) {
             $message = $e->getMessage();
             $message = preg_replace('#VALUES(.*?)ON\s+CONFLICT#usi', 'VALUES ({{VALUES}}) ON CONFLICT', $message);
             $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
 
-            $this->getLogger()->error('SQL Execute Error', ['message' => $message, 'sql' => $query, 'params' => $params, 'types' => $types, 'exception' => $e]);
+            $this->logger?->error('SQL Execute Error', ['message' => $message, 'sql' => $query, 'params' => $params, 'types' => $types, 'exception' => $e]);
         }
 
         return $result;
@@ -287,7 +216,7 @@ final class DbDriverService
         try {
             $result = $this->getConn()->insert($tableExpression, $data, $types);
         } catch (Exception $e) {
-            $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
+            $this->logger?->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
         }
 
         return $result;
@@ -318,7 +247,7 @@ final class DbDriverService
         try {
             $result = $this->getConn()->update($tableExpression, $data, $identifier, $types);
         } catch (Exception $e) {
-            $this->getLogger()->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'identifier' => $identifier, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
+            $this->logger?->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'identifier' => $identifier, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
         }
 
         return $result;
@@ -338,7 +267,7 @@ final class DbDriverService
 
         if ($values) {
             /** @noinspection SqlNoDataSourceInspection */
-            $sql = "INSERT INTO {$tableExpression} ({$includeFieldsStr}) VALUES {$values} ON CONFLICT DO NOTHING";
+            $sql = "INSERT INTO $tableExpression ($includeFieldsStr) VALUES $values ON CONFLICT DO NOTHING";
             return $this->executeQuery($sql, $params);
         }
 
@@ -374,22 +303,22 @@ final class DbDriverService
                 $isFieldExcluded = (!empty($excludeFields) && in_array($key, $excludeFields));
 
                 if ($isFieldIncluded && !$isFieldExcluded) {
-                    $castType = isset($cast[$key]) ? $cast[$key] : '';
+                    $castType = $cast[$key] ?? '';
                     if (is_bool($value)) {
                         $value = $value ? 'TRUE' : 'FALSE';
                     }
                     $castTypeStr = $i ? '' : $castType;
                     if ($castType) {
-                        $sqlValue .= ",{$castTypeStr} ".$conn->quote($value, PDO::PARAM_STR);
+                        $sqlValue .= ",$castTypeStr ".$conn->quote($value, PDO::PARAM_STR);
                     } else {
-                        $sqlValue .= ", :{$key}__{$i}";
-                        $params["{$key}__{$i}"] = $value;
+                        $sqlValue .= ", :".$key."__".$i;
+                        $params[$key."__".$i] = $value;
                     }
                 }
             }
 
             $sqlValue = ltrim($sqlValue, ', ');
-            $sql .= ",\n({$sqlValue})";
+            $sql .= ",\n($sqlValue)";
             $i++;
         }
 
@@ -398,35 +327,51 @@ final class DbDriverService
         return [$sql, $params];
     }
 
-    public function checkConnection($isSlave = false)
+    public function checkConnection()
     {
-        $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
-
         try {
-            $conn->executeQuery("SELECT 1");
+            $this->getConn()->executeQuery("SELECT 1");
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
 
-    public function reconnect($isSlave = false, $tries = 5)
+    public function reconnect($tries = 5)
     {
-        if (!$isConnected = $this->checkConnection($isSlave)) {
-            $conn = $isSlave ? $this->getConnSlave() : $this->getConn();
-            $conn->connect();
+        if (!$isConnected = $this->checkConnection()) {
+            $this->getConn()->connect();
 
-            $isConnected = $this->checkConnection($isSlave);
+            $isConnected = $this->checkConnection();
             if (--$tries <= 0) {
                 return $isConnected;
             }
 
             if (!$isConnected) {
                 sleep((6-$tries)*2);
-                return $this->reconnect($isSlave, $tries);
+                return $this->reconnect($tries);
             }
         }
 
         return $isConnected;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultConnectionName(): string
+    {
+        return $this->defaultConnectionName;
+    }
+
+    /**
+     * @param ?string $defaultConnectionName
+     * @return DbDriverService
+     */
+    public function setDefaultConnectionName(?string $defaultConnectionName = null): DbDriverService
+    {
+        $this->defaultConnectionName = $defaultConnectionName;
+
+        return $this;
     }
 }
