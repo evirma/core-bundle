@@ -39,9 +39,9 @@ final class DbService
     private function db($isSlave = false)
     {
         if (!$this->throwException) {
-            return $isSlave ? $this->driver->setDefaultConnectionName('slave') : $this->driver;
+            return $this->driver->setDefaultConnectionName($isSlave ? 'slave' : null);
         } else {
-            return $isSlave ? $this->getDoctrineManager()->getConnection('slave') : $this->getDoctrineManager()->getConnection();
+            return $this->getDoctrineManager()->getConnection($isSlave ? 'slave' : null);
         }
     }
 
