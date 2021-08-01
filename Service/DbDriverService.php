@@ -14,8 +14,8 @@ use Psr\Log\LoggerInterface;
 final class DbDriverService
 {
     private ManagerRegistry $manager;
-    private LoggerInterface $logger;
-    private ?Connection $conn;
+    private ?LoggerInterface $logger;
+    private ?Connection $conn = null;
     private ?string $defaultConnectionName = NULL;
 
     /**
@@ -32,7 +32,7 @@ final class DbDriverService
 
     private function getConn(): Connection
     {
-        if ($this->conn) {
+        if (!$this->conn) {
             /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
             $this->conn = $this->manager->getConnection($this->defaultConnectionName);
         }
