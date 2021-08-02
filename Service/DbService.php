@@ -239,12 +239,20 @@ final class DbService
      * @param string $query  The SQL query to execute.
      * @param array  $params The parameters to bind to the query, if any.
      * @param array  $types  The types the previous parameters are in.
-     * @param bool   $isSlave
-     * @return array|Statement|false The executed statement.
+     * @return array The executed statement.
      */
     public function fetchPairs($query, array $params = [], $types = [], $isSlave = false)
     {
-        return $this->db($isSlave)->fetchPairs($query, $params, $types);
+        $query = $this->db($isSlave)->executeQuery($query, $params, $types);
+        if ($query && ($data = $query->fetchAllNumeric())) {
+            $result = [];
+            foreach ($data as $item) {
+                $result[$item[0]] = $item[1];
+            }
+            return $result;
+        }
+
+        return null;
     }
 
     /**
@@ -299,6 +307,8 @@ final class DbService
     {
         return $this->db()->lastInsertId($seqName);
     }
+
+
 
     /**
      * Executes an SQL UPDATE statement on a table.

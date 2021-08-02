@@ -130,30 +130,6 @@ final class DbDriverService
     }
 
     /**
-     * Executes an, optionally parametrized, SQL query.
-     * If the query is parametrized, a prepared statement is used.
-     * If an SQLLogger is configured, the execution is logged.
-     *
-     * @param string $query  The SQL query to execute.
-     * @param array  $params The parameters to bind to the query, if any.
-     * @param array  $types  The types the previous parameters are in.
-     * @return array The executed statement.
-     */
-    public function fetchPairs($query, array $params = [], $types = [])
-    {
-        $query = $this->executeQuery($query, $params, $types);
-        if ($query && ($data = $query->fetchAllNumeric())) {
-            $result = [];
-            foreach ($data as $item) {
-                $result[$item[0]] = $item[1];
-            }
-            return $result;
-        }
-
-        return null;
-    }
-
-    /**
      * Альтернативный метод выбора уникальныйх ID, уникальность соблюдается за счет ключа массива
      *
      * @param string $query  The SQL query to execute.
