@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
 use JetBrains\PhpStorm\Pure;
+use PDO;
 use Psr\Log\LoggerInterface;
 
 final class DbService
@@ -320,7 +321,18 @@ final class DbService
      */
     public function upsert($tableExpression, array $data)
     {
-        return $this->db()->upsert($tableExpression, $data);
+        $includeFields = array_keys($data[0]);
+        $includeFieldsStr = implode(', ', $includeFields);
+
+        [$values, $params] = $this->prepareMultipleValues($data, $includeFields);
+
+        if ($values) {
+            /** @noinspection SqlNoDataSourceInspection */
+            $sql = "INSERT INTO $tableExpression ($includeFieldsStr) VALUES $values ON CONFLICT DO NOTHING";
+            return $this->executeQuery($sql, $params);
+        }
+
+        return true;
     }
 
     /**
@@ -332,8 +344,50 @@ final class DbService
      */
     public function prepareMultipleValues($data, $includeFields = [], $excludeFields = [], $cast = [])
     {
-        return $this->db()->prepareMultipleValues($data, $includeFields, $excludeFields, $cast);
+        $sql = '';
+        $params = [];
+        $i = 0;
+        $conn = $this->getConn();
+        foreach ($data as $item) {
+            $sqlValue = '';
+            if (!empty($includeFields)) {
+                uksort(
+                    $item,
+                    function ($a, $b) use ($includeFields) {
+                        return array_search($a, $includeFields) <=> array_search($b, $includeFields);
+                    }
+                );
+            }
+
+            foreach ($item as $key => $value) {
+                $isFieldIncluded = (!empty($includeFields) && in_array($key, $includeFields)) || empty($includeFields);
+                $isFieldExcluded = (!empty($excludeFields) && in_array($key, $excludeFields));
+
+                if ($isFieldIncluded && !$isFieldExcluded) {
+                    $castType = $cast[$key] ?? '';
+                    if (is_bool($value)) {
+                        $value = $value ? 'TRUE' : 'FALSE';
+                    }
+                    $castTypeStr = $i ? '' : $castType;
+                    if ($castType) {
+                        $sqlValue .= ",$castTypeStr ".$conn->quote($value, PDO::PARAM_STR);
+                    } else {
+                        $sqlValue .= ", :".$key."__".$i;
+                        $params[$key."__".$i] = $value;
+                    }
+                }
+            }
+
+            $sqlValue = ltrim($sqlValue, ', ');
+            $sql .= ",\n($sqlValue)";
+            $i++;
+        }
+
+        $sql = ltrim($sql, ', ');
+
+        return [$sql, $params];
     }
+
 
     public function checkConnection($isSlave = false)
     {
