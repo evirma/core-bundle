@@ -4,6 +4,7 @@ namespace Evirma\Bundle\CoreBundle\Service;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ManagerRegistry;
@@ -388,15 +389,33 @@ final class DbService
         return [$sql, $params];
     }
 
-
-    public function checkConnection($isSlave = false)
+    public function checkConnection()
     {
-        return $this->db($isSlave)->checkConnection();
+        try {
+            $this->getConn()->executeQuery("SELECT 1");
+            return true;
+        } catch (Exception) {
+            return false;
+        }
     }
 
-    public function reconnect($isSlave = false, $tries = 5)
+    public function reconnect($tries = 5)
     {
-        return $this->db($isSlave)->reconnect($tries);
+        if (!$isConnected = $this->checkConnection()) {
+            $this->getConn()->connect();
+
+            $isConnected = $this->checkConnection();
+            if (--$tries <= 0) {
+                return $isConnected;
+            }
+
+            if (!$isConnected) {
+                sleep((6-$tries)*2);
+                return $this->reconnect($tries);
+            }
+        }
+
+        return $isConnected;
     }
 
     /**
