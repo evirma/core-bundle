@@ -380,7 +380,7 @@ final class DbService
                         $value = $value ? 'TRUE' : 'FALSE';
                     }
                     $castTypeStr = $i ? '' : $castType;
-                    if ($castType) {
+                    if ($castType && $castType != 'mixed') {
                         $sqlValue .= ",$castTypeStr ".$conn->quote($value, PDO::PARAM_STR);
                     } else {
                         $sqlValue .= ", :".$key."__".$i;
