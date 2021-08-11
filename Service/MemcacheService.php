@@ -230,9 +230,11 @@ class MemcacheService
      */
     public function getMultiple($keys, $default = false, $cached = true)
     {
-        if (!$this->isCacheAllowed($cached)) {
+        if (!$this->isCacheAllowed($cached) || !is_array($keys)) {
             return $default;
         }
+
+        $keys = array_values($keys);
 
         try {
             return $this->getMemcachedAdapter()->getMulti($keys);
