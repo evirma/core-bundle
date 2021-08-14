@@ -52,9 +52,12 @@ class PageCache
         if ($params) $path .= $params;
         $path = trim($path, '/');
 
+        if (str_contains($path, '..') || str_contains($path, './')) {
+            return null;
+        }
+
         $filename = $dir . '/' . $path . '.html.gz';
 
-        $dir = dirname($filename);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
         }
