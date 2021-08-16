@@ -66,6 +66,44 @@ class PageCache
         return $filename;
     }
 
+    public function getNginxFilanameByUrl(string $url)
+    {
+        if (!$url = FilterStatic::filterValue($url, RemoveUtm::class)) {
+            return null;
+        }
+
+        $domain = null;
+        if (preg_match('#^https?://([^/]+)#si', $url, $m)) {
+            $domain = $m[1];
+        }
+
+        if (!$domain) {
+            return null;
+        }
+
+        $dir = $this->storageDir.'/nginx_page_cache/'.$domain;
+
+        $path = preg_replace('#^https?://[^/]+#usi', '', $url);
+
+        $parts = explode('?', $path);
+        $path = $parts[0];
+
+        $params = '';
+        if (count($parts) == 2) {
+            $params = $parts[1];
+        }
+
+        $path = trim($path, '/');
+        if ($params) $path .= $params;
+        $path = trim($path, '/');
+
+        if (str_contains($path, '..') || str_contains($path, './')) {
+            return null;
+        }
+
+        return $dir . '/' . $path . '.html.gz';
+    }
+
     private function saveZipped($file, $content)
     {
         $fp = gzopen($file, 'w9');
@@ -85,7 +123,7 @@ class PageCache
             return false;
         }
 
-        if (!is_object($user = $token->getUser())) {
+        if (!is_object($token->getUser())) {
             // e.g. anonymous authentication
             return false;
         }
