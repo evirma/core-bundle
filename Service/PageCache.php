@@ -57,6 +57,9 @@ class PageCache
         }
 
         $filename = $dir . '/' . $path . '.html.gz';
+        if (!($basename = basename($filename)) || strlen($basename) > 128) {
+            return null;
+        }
 
         $dir = dirname($filename);
         if (!is_dir($dir)) {
