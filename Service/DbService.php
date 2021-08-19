@@ -129,7 +129,7 @@ final class DbService
      * @param array  $params The query parameters.
      * @param array  $types  The query parameter types.
      * @return array|bool False is returned if no rows are found.
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAssociative(string $query, array $params = [], array $types = [])
     {
@@ -144,7 +144,7 @@ final class DbService
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      * @return mixed
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAllAssociative(string $query, array $params = [], array $types = [])
     {
@@ -160,7 +160,7 @@ final class DbService
      * @param array  $params The query parameters.
      * @param array  $types  The query parameter types.
      * @return array|false
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchObjectAll($object, $sql, array $params = [], $types = [])
     {
@@ -214,7 +214,7 @@ final class DbService
      * @param array  $params The prepared statement params.
      * @param array  $types  The query parameter types.
      * @return mixed|bool False is returned if no rows are found.
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchOne(string $query, array $params = [], array $types = [])
     {
@@ -231,7 +231,7 @@ final class DbService
      * @param array  $params The parameters to bind to the query, if any.
      * @param array  $types  The types the previous parameters are in.
      * @return array The executed statement.
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchPairs($query, array $params = [], $types = [])
     {
@@ -254,7 +254,7 @@ final class DbService
      * @param array  $params The parameters to bind to the query, if any.
      * @param array  $types  The types the previous parameters are in.
      * @return array|null The executed statement.
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchUniqIds($query, array $params = [], $types = [])
     {
@@ -279,13 +279,13 @@ final class DbService
      * @param array  $params The parameters to bind to the query, if any.
      * @param array  $types  The types the previous parameters are in.
      * @return Statement|false The executed statement.
-     * @throws Exception
+     * @throws DBALException
      */
     public function executeQuery($query, array $params = [], $types = [])
     {
         try {
             return $this->db()->executeQuery($query, $params, $types);
-        } catch (Exception $e) {
+        } catch (DBALException $e) {
             $message = $e->getMessage();
             $message = preg_replace('#VALUES(.*?)ON\s+CONFLICT#usi', 'VALUES ({{VALUES}}) ON CONFLICT', $message);
             $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
@@ -304,13 +304,13 @@ final class DbService
      * @param array  $data            An associative array containing column-value pairs.
      * @param array  $types           Types of the inserted data.
      * @return int The number of affected rows.
-     * @throws Exception
+     * @throws DBALException
      */
     public function insert($tableExpression, array $data, array $types = [])
     {
         try {
             return $this->db()->insert($tableExpression, $data, $types);
-        } catch (Exception $e) {
+        } catch (DBALException $e) {
             $this->logger?->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
             throw $e;
         }
@@ -334,13 +334,13 @@ final class DbService
      * @param array  $identifier      The update criteria. An associative array containing column-value pairs.
      * @param array  $types           Types of the merged $data and $identifier arrays in that order.
      * @return int The number of affected rows.
-     * @throws Exception
+     * @throws DBALException
      */
     public function update($tableExpression, array $data, array $identifier, array $types = [])
     {
         try {
             return $this->db()->update($tableExpression, $data, $identifier, $types);
-        } catch (Exception $e) {
+        } catch (DBALException $e) {
             $this->logger?->error('SQL Execute Error', ['table' => $tableExpression, 'data' => $data, 'identifier' => $identifier, 'types' => $types, 'e' => $e->getMessage(), 'exception' => $e]);
             throw $e;
         }
@@ -350,7 +350,7 @@ final class DbService
      * @param       $tableExpression
      * @param array $data
      * @return bool|Statement|false
-     * @throws Exception
+     * @throws DBALException
      * @deprecated
      */
     public function upsert($tableExpression, array $data)
@@ -427,7 +427,7 @@ final class DbService
         try {
             $this->db()->executeQuery("SELECT 1");
             return true;
-        } catch (Exception) {
+        } catch (DBALException) {
             return false;
         }
     }
