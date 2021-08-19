@@ -10,6 +10,7 @@ use Evirma\Bundle\CoreBundle\Traits\CommandTrait;
 use Evirma\Bundle\CoreBundle\Traits\DbAwareTrait;
 use Evirma\Bundle\CoreBundle\Traits\LoggerTrait;
 use Exception;
+use JetBrains\PhpStorm\ArrayShape;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
@@ -20,7 +21,6 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\RouterInterface;
@@ -41,13 +41,22 @@ abstract class AbstractCoreCommand extends Command implements ServiceSubscriberI
      */
     protected $container;
 
-    public static function getSubscribedServices()
+    #[ArrayShape([
+        'router' => "string",
+        'request_stack' => "string",
+        'http_kernel' => "string",
+        'security.authorization_checker' => "string",
+        'twig' => "string",
+        'doctrine' => "string",
+        'form.factory' => "string",
+        'security.token_storage' => "string",
+        'parameter_bag' => "string"
+    ])] public static function getSubscribedServices()
     {
         return [
             'router' => '?'.RouterInterface::class,
             'request_stack' => '?'.RequestStack::class,
             'http_kernel' => '?'.HttpKernelInterface::class,
-            'session' => '?'.SessionInterface::class,
             'security.authorization_checker' => '?'.AuthorizationCheckerInterface::class,
             'twig' => '?'.Environment::class,
             'doctrine' => '?'.ManagerRegistry::class,
