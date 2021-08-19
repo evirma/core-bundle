@@ -7,6 +7,8 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception as DBALException;
+use Doctrine\DBAL\ForwardCompatibility\DriverResultStatement;
+use Doctrine\DBAL\ForwardCompatibility\DriverStatement;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ManagerRegistry;
@@ -121,7 +123,7 @@ final class DbService
         try {
             $this->db()->commit();
         } catch (ConnectionException $e) {
-            $this->convertException($e);
+            throw $this->convertException($e);
         }
     }
 
@@ -135,7 +137,7 @@ final class DbService
         try {
             $this->db()->rollBack();
         } catch (ConnectionException $e) {
-            $this->convertException($e);
+            throw $this->convertException($e);
         }
     }
 
@@ -292,6 +294,7 @@ final class DbService
      * @param array $params The parameters to bind to the query, if any.
      * @param array $types  The types the previous parameters are in.
      * @return array|null The executed statement.
+     * @throws SqlDriverException
      */
     public function fetchUniqIds($sql, array $params = [], $types = [])
     {
@@ -315,18 +318,14 @@ final class DbService
 
     /**
      * Executes an, optionally parametrized, SQL query.
-     *
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
      * @param string                                                               $sql    SQL query
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
-     *
-     * @return \Doctrine\DBAL\ForwardCompatibility\DriverStatement|\Doctrine\DBAL\ForwardCompatibility\DriverResultStatement
-     *
+     * @return DriverStatement|DriverResultStatement
      * The executed statement or the cached result statement if a query cache profile is used
-     *
      * @throws SqlDriverException
      */
     public function executeQuery($sql, array $params = [], $types = [])
@@ -574,10 +573,10 @@ final class DbService
     }
 
     /**
-     * @param \Throwable $e
-     * @param null       $sql
-     * @param array      $params
-     * @param array      $types
+     * @param Throwable $e
+     * @param null      $sql
+     * @param array     $params
+     * @param array     $types
      * @return  SqlDriverException
      */
     private function convertException(Throwable $e, $sql = null, array $params = [], array $types = []): SqlDriverException

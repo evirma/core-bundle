@@ -2,12 +2,12 @@
 
 namespace Evirma\Bundle\CoreBundle\Domain\Exception\Repository;
 
-use Doctrine\DBAL\Driver\Exception;
-use DomainException;
+use Doctrine\DBAL\Driver\Exception as DBALDriverException;
+use Exception;
 use JetBrains\PhpStorm\Pure;
 use Throwable;
 
-class SqlDriverException extends DomainException
+class SqlDriverException extends Exception
 {
     private $driverException;
 
@@ -25,7 +25,7 @@ class SqlDriverException extends DomainException
      */
     public function getErrorCode()
     {
-        if ($this->driverException instanceof Exception) {
+        if ($this->driverException instanceof DBALDriverException) {
             return $this->driverException->getCode();
         }
 
@@ -41,7 +41,7 @@ class SqlDriverException extends DomainException
      */
     public function getSQLState()
     {
-        if ($this->driverException instanceof Exception) {
+        if ($this->driverException instanceof DBALDriverException) {
             return $this->driverException->getSQLState();
         }
 
