@@ -25,6 +25,9 @@ final class DbService
     private ?LoggerInterface $logger;
     private $db = null;
 
+    /** @var array<DbService> */
+    private $servers = [];
+
     /**
      * DbService constructor.
      *
@@ -32,11 +35,28 @@ final class DbService
      * @param ?LoggerInterface $logger
      * @param string|null     $connectionName
      */
-    public function __construct(ManagerRegistry $manager, ?LoggerInterface $logger = null, string $connectionName = null)
+    public function __construct(ManagerRegistry $manager, ?LoggerInterface $logger = null, ?string $connectionName = null)
     {
         $this->logger = $logger;
         $this->connectionName = $connectionName;
         $this->manager = $manager;
+    }
+
+    /**
+     * @param string|null $connectionName
+     * @return $this
+     */
+    public function server(string $connectionName = null): Dbservice
+    {
+        if ($this->connectionName == $connectionName) {
+            return $this;
+        }
+
+        $cacheName = $connectionName?: 'default';
+        if (!isset($this->servers[$cacheName])) {
+            $this->servers[$cacheName] = new DbService($this->manager, $this->logger, $connectionName);
+        }
+        return $this->servers[$cacheName];
     }
 
     /**
