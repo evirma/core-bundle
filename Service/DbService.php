@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\DBAL\ForwardCompatibility\DriverResultStatement;
 use Doctrine\DBAL\ForwardCompatibility\DriverStatement;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Evirma\Bundle\CoreBundle\Domain\Exception\Repository\SqlDriverException;
@@ -17,6 +16,7 @@ use Evirma\Bundle\CoreBundle\Traits\CacheTrait;
 use PDO;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use Traversable;
 
 final class DbService
 {
@@ -33,9 +33,9 @@ final class DbService
     /**
      * DbService constructor.
      *
-     * @param ManagerRegistry $manager
+     * @param ManagerRegistry  $manager
      * @param ?LoggerInterface $logger
-     * @param string|null     $connectionName
+     * @param string|null      $connectionName
      */
     public function __construct(ManagerRegistry $manager, ?LoggerInterface $logger = null, ?string $connectionName = null)
     {
@@ -54,10 +54,11 @@ final class DbService
             return $this;
         }
 
-        $cacheName = $connectionName?: 'default';
+        $cacheName = $connectionName ?: 'default';
         if (!isset($this->servers[$cacheName])) {
             $this->servers[$cacheName] = new DbService($this->manager, $this->logger, $connectionName);
         }
+
         return $this->servers[$cacheName];
     }
 
@@ -67,6 +68,25 @@ final class DbService
     public function getDoctrineManager(): ManagerRegistry
     {
         return $this->manager;
+    }
+
+    /**
+     * @param string|null $name
+     * @return EntityManager|object
+     */
+    public function getEm(string $name = null)
+    {
+        return $this->manager->getManager($name);
+    }
+
+    /**
+     * Starts a transaction by suspending auto-commit mode.
+     *
+     * @return void
+     */
+    public function beginTransaction()
+    {
+        $this->db()->beginTransaction();
     }
 
     /**
@@ -84,32 +104,12 @@ final class DbService
 
     /**
      * @param string|null $name
-     * @return EntityManager|object
-     */
-    public function getEm(string $name = null)
-    {
-        return $this->manager->getManager($name);
-    }
-
-    /**
-     * @param string|null $name
      * @return Connection|object
      * @noinspection PhpReturnDocTypeMismatchInspection
      */
     public function getConnection(?string $name = null)
     {
         return $this->manager->getConnection($name);
-    }
-
-
-    /**
-     * Starts a transaction by suspending auto-commit mode.
-     *
-     * @return void
-     */
-    public function beginTransaction()
-    {
-        $this->db()->beginTransaction();
     }
 
     /**
@@ -125,6 +125,32 @@ final class DbService
         } catch (ConnectionException $e) {
             throw $this->convertException($e);
         }
+    }
+
+    /**
+     * @param Throwable $e
+     * @param null      $sql
+     * @param array     $params
+     * @param array     $types
+     * @return  SqlDriverException
+     */
+    private function convertException(Throwable $e, $sql = null, array $params = [], array $types = []): SqlDriverException
+    {
+        $message = $e->getMessage();
+        $message = preg_replace('#VALUES(.*?)ON\s+CONFLICT#usi', 'VALUES ({{VALUES}}) ON CONFLICT', $message);
+        $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
+
+        $exception = new SqlDriverException($message, $e);
+        $this->logger?->error('SQL Execute Error', [
+            'message' => $message,
+            'connection' => $this->connectionName ?: 'default',
+            'sql' => $sql,
+            'params' => $params,
+            'types' => $types,
+            'exception' => $exception,
+        ]);
+
+        return $exception;
     }
 
     /**
@@ -162,21 +188,22 @@ final class DbService
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an array of associative arrays.
+     * Executes an, optionally parametrized, SQL query.
+     * If the query is parametrized, a prepared statement is used.
+     * If an SQLLogger is configured, the execution is logged.
      *
-     * @param string                                                               $sql    SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
-     * @return array<int,array<string,mixed>>|false
+     * @param string $sql    SQL query
+     * @param array  $params Query parameters
+     * @param array  $types  Parameter types
+     * @return DriverStatement|DriverResultStatement The executed statement or the cached result statement if a query cache profile is used
      * @throws SqlDriverException
      */
-    public function fetchAllAssociative(string $sql, array $params = [], array $types = [])
+    public function executeQuery($sql, array $params = [], $types = [])
     {
-        $sql = $this->executeQuery($sql, $params, $types);
         try {
-            return $sql ? $sql->fetchAllAssociative() : false;
-        } catch (Exception $e) {
-            throw $this->convertException($e, $sql, $params, $types);
+            return $this->db()->executeQuery($sql, $params, $types);
+        } catch (DBALException $e) {
+            throw $this->convertException($e);
         }
     }
 
@@ -187,10 +214,10 @@ final class DbService
      * @param string $sql    The SQL query.
      * @param array  $params The query parameters.
      * @param array  $types  The query parameter types.
-     * @return array|false
+     * @return array
      * @throws SqlDriverException
      */
-    public function fetchObjectAll($object, $sql, array $params = [], $types = [])
+    public function fetchObjectAll($object, $sql, array $params = [], $types = []): array
     {
         if ($data = $this->fetchAllAssociative($sql, $params, $types)) {
             foreach ($data as &$item) {
@@ -199,6 +226,40 @@ final class DbService
         }
 
         return $data;
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of associative arrays.
+     *
+     * @param string $sql    SQL query
+     * @param array  $params Query parameters
+     * @param array  $types  Parameter types
+     * @return array
+     * @throws SqlDriverException
+     */
+    public function fetchAllAssociative(string $sql, array $params = [], array $types = [])
+    {
+        $sql = $this->executeQuery($sql, $params, $types);
+        try {
+            return $sql->fetchAllAssociative();
+        } catch (Exception $e) {
+            throw $this->convertException($e, $sql, $params, $types);
+        }
+    }
+
+    /**
+     * @param               $object
+     * @param iterable|null $data
+     * @return mixed
+     */
+    private function createObject($object, iterable $data = null)
+    {
+        $result = new $object;
+        foreach ($data as $k => $v) {
+            $result->$k = $v;
+        }
+
+        return $result;
     }
 
     /**
@@ -262,7 +323,7 @@ final class DbService
      *
      * @param string $sql    SQL query
      * @param array  $params Query parameters
-     * @param array $types  Parameter types
+     * @param array  $types  Parameter types
      * @return array<int,mixed>
      * @throws SqlDriverException
      */
@@ -287,7 +348,7 @@ final class DbService
      * @return array
      * @throws SqlDriverException
      */
-    public function fetchAllKeyValue($sql, array $params = [], $types = [])
+    public function fetchAllKeyValue($sql, array $params = [], $types = []): array
     {
         $stmt = $this->executeQuery($sql, $params, $types);
 
@@ -298,18 +359,82 @@ final class DbService
         }
     }
 
+    /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @param       $sql
+     * @param array $params Query parameters
+     * @param array $types  Parameter types
+     * @return array
+     * @throws SqlDriverException
+     */
+    public function fetchAllAssociativeIndexed($sql, array $params = [], $types = []): array
+    {
+        $stmt = $this->executeQuery($sql, $params, $types);
+
+        try {
+            return $stmt->fetchAllAssociativeIndexed();
+        } catch (Exception $e) {
+            throw $this->convertException($e, $sql, $params, $types);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
+     * as associative arrays.
+     *
+     * @param string $query  SQL query
+     * @param array  $params Query parameters
+     * @param array  $types  Parameter types
+     * @return Traversable
+     * @throws SqlDriverException
+     */
+    public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable
+    {
+        $stmt = $this->executeQuery($query, $params, $types);
+
+        try {
+            return $stmt->iterateKeyValue();
+        } catch (Exception $e) {
+            throw $this->convertException($e, $query, $params, $types);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @param string $query  SQL query
+     * @param array  $params Query parameters
+     * @param array  $types  Parameter types
+     * @return Traversable
+     * @throws SqlDriverException
+     */
+    public function iterateAssociativeIndexed(string $query, array $params = [], array $types = []): Traversable
+    {
+        $stmt = $this->executeQuery($query, $params, $types);
+
+        try {
+            return $stmt->iterateAssociativeIndexed();
+        } catch (Exception $e) {
+            throw $this->convertException($e, $query, $params, $types);
+        }
+    }
 
     /**
      * Executes an, optionally parametrized, SQL query.
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
-     * @deprecated use self::fetchAllKeyValue
      * @param string $sql    The SQL query to execute.
      * @param array  $params The parameters to bind to the query, if any.
      * @param array  $types  The types the previous parameters are in.
      * @return array The executed statement.
      * @throws SqlDriverException
+     * @deprecated use self::fetchAllKeyValue
      */
     public function fetchPairs($sql, array $params = [], $types = [])
     {
@@ -360,27 +485,6 @@ final class DbService
     }
 
     /**
-     * Executes an, optionally parametrized, SQL query.
-     * If the query is parametrized, a prepared statement is used.
-     * If an SQLLogger is configured, the execution is logged.
-     *
-     * @param string                                                               $sql    SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
-     * @return DriverStatement|DriverResultStatement
-     * The executed statement or the cached result statement if a query cache profile is used
-     * @throws SqlDriverException
-     */
-    public function executeQuery($sql, array $params = [], $types = [])
-    {
-        try {
-            return $this->db()->executeQuery($sql, $params, $types);
-        } catch (DBALException $e) {
-            throw $this->convertException($e);
-        }
-    }
-
-    /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      * Could be used for:
      *  - DML statements: INSERT, UPDATE, DELETE, etc.
@@ -390,9 +494,9 @@ final class DbService
      *  - Other statements that don't yield a row set.
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string                                                               $sql    SQL statement
-     * @param array<int, mixed>|array<string, mixed>                               $params Statement parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param string $sql    SQL statement
+     * @param array  $params Statement parameters
+     * @param array  $types  Parameter types
      * @return int The number of affected rows.
      * @throws SqlDriverException
      */
@@ -469,6 +573,7 @@ final class DbService
         if ($values) {
             /** @noinspection SqlNoDataSourceInspection */
             $sql = "INSERT INTO $tableExpression ($includeFieldsStr) VALUES $values ON CONFLICT DO NOTHING";
+
             return $this->executeQuery($sql, $params);
         }
 
@@ -528,16 +633,6 @@ final class DbService
         return [$sql, $params];
     }
 
-    public function checkConnection()
-    {
-        try {
-            $this->db()->executeQuery("SELECT 1");
-            return true;
-        } catch (DBALException) {
-            return false;
-        }
-    }
-
     public function reconnect($tries = 5)
     {
         if (!$isConnected = $this->checkConnection()) {
@@ -549,7 +644,8 @@ final class DbService
             }
 
             if (!$isConnected) {
-                sleep((6-$tries)*2);
+                sleep((6 - $tries) * 2);
+
                 return $this->reconnect($tries);
             }
         }
@@ -557,9 +653,20 @@ final class DbService
         return $isConnected;
     }
 
+    public function checkConnection()
+    {
+        try {
+            $this->db()->executeQuery("SELECT 1");
+
+            return true;
+        } catch (DBALException) {
+            return false;
+        }
+    }
+
     /**
-     * @deprecated
      * @return Connection|object
+     * @deprecated
      */
     public function getConn()
     {
@@ -567,32 +674,18 @@ final class DbService
     }
 
     /**
-     * @deprecated
      * @return Connection|object
+     * @deprecated
      */
     public function getConnSlave()
     {
         return $this->getConnection('slave');
     }
 
-    /**
-     * @param               $object
-     * @param iterable|null $data
-     * @return mixed
-     */
-    private function createObject($object, iterable $data = null)
-    {
-        $result = new $object;
-        foreach ($data as $k => $v) {
-            $result->$k = $v;
-        }
-
-        return $result;
-    }
-
     public function disableLogger()
     {
         $this->logger = null;
+
         return $this;
     }
 
@@ -613,30 +706,5 @@ final class DbService
         $this->logger = $logger;
 
         return $this;
-    }
-
-    /**
-     * @param Throwable $e
-     * @param null      $sql
-     * @param array     $params
-     * @param array     $types
-     * @return  SqlDriverException
-     */
-    private function convertException(Throwable $e, $sql = null, array $params = [], array $types = []): SqlDriverException
-    {
-        $message = $e->getMessage();
-        $message = preg_replace('#VALUES(.*?)ON\s+CONFLICT#usi', 'VALUES ({{VALUES}}) ON CONFLICT', $message);
-        $message = preg_replace('#with params\s*\[.*?]#usi', 'with params [{{PARAMS}}]', $message);
-
-        $exception = new SqlDriverException($message, $e);
-        $this->logger?->error('SQL Execute Error', [
-            'message' => $message,
-            'connection' => $this->connectionName ?: 'default',
-            'sql' => $sql,
-            'params' => $params,
-            'types' => $types,
-            'exception' => $exception]);
-
-        return $exception;
     }
 }
