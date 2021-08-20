@@ -258,10 +258,53 @@ final class DbService
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an array of the first column values.
+     *
+     * @param string $sql    SQL query
+     * @param array  $params Query parameters
+     * @param array $types  Parameter types
+     * @return array<int,mixed>
+     * @throws SqlDriverException
+     */
+    public function fetchFirstColumn($sql, array $params = [], array $types = [])
+    {
+        $stmt = $this->executeQuery($sql, $params, $types);
+
+        try {
+            return $stmt->fetchFirstColumn();
+        } catch (Exception $e) {
+            throw $this->convertException($e, $sql, $params, $types);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * @param string                                           $sql    SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     * @return array
+     * @throws SqlDriverException
+     */
+    public function fetchAllKeyValue($sql, array $params = [], $types = [])
+    {
+        $stmt = $this->executeQuery($sql, $params, $types);
+
+        try {
+            return $stmt->fetchAllKeyValue();
+        } catch (Exception $e) {
+            throw $this->convertException($e, $sql, $params, $types);
+        }
+    }
+
+
+    /**
      * Executes an, optionally parametrized, SQL query.
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
+     * @deprecated use self::fetchAllKeyValue
      * @param string $sql    The SQL query to execute.
      * @param array  $params The parameters to bind to the query, if any.
      * @param array  $types  The types the previous parameters are in.
@@ -298,10 +341,10 @@ final class DbService
      */
     public function fetchUniqIds($sql, array $params = [], $types = [])
     {
-        $query = $this->executeQuery($sql, $params, $types);
+        $stmt = $this->executeQuery($sql, $params, $types);
 
         try {
-            if ($query && ($data = $query->fetchAllNumeric())) {
+            if ($stmt && ($data = $stmt->fetchAllNumeric())) {
                 $result = [];
                 foreach ($data as $item) {
                     $result[$item[0]] = $item[0];
