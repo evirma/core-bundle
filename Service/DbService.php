@@ -558,26 +558,83 @@ final class DbService
     }
 
     /**
-     * @param       $tableExpression
-     * @param array $data
+     * Executes an SQL DELETE statement on a table.
+     * Table expression and columns are not escaped and are not safe for user-input.
+     *
+     * @param string $table    Table name
+     * @param array  $criteria Deletion criteria
+     * @param array  $types    Parameter types
+     * @return int The number of affected rows.
+     * @throws SqlDriverException
+     */
+    public function delete($table, array $criteria, array $types = [])
+    {
+        try {
+            return $this->db()->delete($table, $criteria, $types);
+        } catch (DBALException $e) {
+            throw $this->convertException($e);
+        }
+    }
+
+    /**
+     * @param        $table
+     * @param array  $data
+     * @param array  $cast
+     * @param array  $conflict
+     * @param array  $do
+     * @param string $doWhere
      * @return bool|Statement|false
      * @throws SqlDriverException
      */
-    public function upsert($tableExpression, array $data)
+    public function upsert($table, array $data, array $cast = [], array $conflict = [], array $do = [], string $doWhere = '')
     {
         $includeFields = array_keys($data[0]);
         $includeFieldsStr = implode(', ', $includeFields);
 
-        [$values, $params] = $this->prepareMultipleValues($data, $includeFields);
+        [$values, $params] = $this->prepareMultipleValues($data, $includeFields, [], $cast);
 
         if ($values) {
+            $conflictStr = empty($conflict) ? '' : ' (' . implode(',', $conflict) . ')';
+            $doStr = empty($do) ? 'NOTHING' : $this->prepareDo($do, $doWhere);
+
             /** @noinspection SqlNoDataSourceInspection */
-            $sql = "INSERT INTO $tableExpression ($includeFieldsStr) VALUES $values ON CONFLICT DO NOTHING";
+            $sql = "INSERT INTO $table ($includeFieldsStr) VALUES $values ON CONFLICT$conflictStr DO $doStr";
 
             return $this->executeQuery($sql, $params);
         }
 
         return true;
+    }
+
+    /**
+     * Build Do construction like UPDATE field = EXCLUDED.fields
+     *
+     * @param array  $do
+     * @param string $doWhere
+     * @return string
+     */
+    protected function prepareDo(array $do = [], string $doWhere = ''): string
+    {
+        if (empty($do)) {
+            return 'NOTHING';
+        }
+
+        $doStr = 'DO UPDATE SET ';
+        foreach ($do as $key => $field) {
+            if (is_int($key)) {
+                $doStr .= "$field = EXCLUDED.$field, ";
+            } else {
+                $doStr .= "$key = $field, ";
+            }
+        }
+
+        $doStr = rtrim($doStr, ', ');
+
+        if ($doWhere) {
+            $doStr .= ' WHERE ' . $doWhere;
+        }
+
+        return $doStr;
     }
 
     /**
