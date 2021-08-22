@@ -2,6 +2,8 @@
 
 namespace Evirma\Bundle\CoreBundle\Util;
 
+use ArrayObject;
+
 class ArrayUtil
 {
     public static function reindexArray($array, $keyToIndex = 'id')
@@ -54,5 +56,26 @@ class ArrayUtil
         array_multisort($array);
 
         return md5(serialize($array));
+    }
+
+    public static function hasKeys($keys, array|ArrayObject $array)
+    {
+        if (empty($array)) {
+            return false;
+        }
+
+        if (!is_array($keys)) {
+            $keys = [$keys];
+        }
+
+        foreach ($keys as $key) {
+            if (isset($array[$key]) || array_key_exists($key, $array)) {
+                continue;
+            } else {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
