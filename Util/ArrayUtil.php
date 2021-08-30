@@ -78,4 +78,21 @@ class ArrayUtil
 
         return true;
     }
+
+    public static function getColumn(array $array, string|int $columnName, string $cast = null): array
+    {
+        $result = [];
+        foreach ($array as $item) {
+            if (isset($item[$columnName]) || array_key_exists($columnName, $item)) {
+                $result[] = match ($cast) {
+                    'int' => (int)$item[$columnName],
+                    'string' => (string)$item[$columnName],
+                    'bool' => (bool)$item[$columnName],
+                    default => $item[$columnName],
+                };
+            }
+        }
+
+        return $result;
+    }
 }
