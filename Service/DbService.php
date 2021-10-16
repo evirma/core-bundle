@@ -588,6 +588,10 @@ final class DbService
      */
     public function upsert($table, array $data, array $cast = [], array $conflict = [], array $do = [], string $doWhere = '')
     {
+        if (empty($data)) {
+            return false;
+        }
+
         $includeFields = array_keys($data[0]);
         $includeFieldsStr = implode(', ', $includeFields);
 
