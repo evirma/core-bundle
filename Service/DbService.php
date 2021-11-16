@@ -675,8 +675,12 @@ final class DbService
                         $value = $value ? 'TRUE' : 'FALSE';
                     }
                     $castTypeStr = $i ? '' : $castType;
-                    if ($castType && $castType != 'mixed') {
-                        $sqlValue .= ",$castTypeStr ".$conn->quote($value, PDO::PARAM_STR);
+                    if ($castType) {
+                        if ($castType != 'mixed') {
+                            $sqlValue .= ",$castTypeStr ".$conn->quote($value, PDO::PARAM_STR);
+                        } else {
+                            $sqlValue .= ', '.$conn->quote($value, PDO::PARAM_STR);
+                        }
                     } else {
                         $sqlValue .= ", :".$key."__".$i;
                         $params[$key."__".$i] = $value;
