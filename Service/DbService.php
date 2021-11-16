@@ -671,13 +671,19 @@ final class DbService
 
                 if ($isFieldIncluded && !$isFieldExcluded) {
                     $castType = $cast[$key] ?? '';
+
                     if (is_bool($value)) {
                         $value = $value ? 'TRUE' : 'FALSE';
                     }
+
                     $castTypeStr = $i ? '' : $castType;
                     if ($castType) {
-                        if ($castType != 'mixed') {
+                        if ($value == 'NULL') {
+                            $sqlValue .= ", NULL";
+                        } elseif ($castType != 'mixed') {
                             $sqlValue .= ",$castTypeStr ".$conn->quote($value, PDO::PARAM_STR);
+                        } elseif (is_null($value)) {
+                            $sqlValue .= ', NULL';
                         } else {
                             $sqlValue .= ', '.$conn->quote($value, PDO::PARAM_STR);
                         }
