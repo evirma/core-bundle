@@ -62,19 +62,19 @@ class IconExtension extends AbstractExtension
         switch ($namespace) {
             case 'fal':
             case 'fa':
-                $class = 'fal fa-' . $iconName;
+                $class = 'fal fa-fw fa-' . $iconName;
                 break;
             case 'far':
-                $class = 'far fa-' . $iconName;
+                $class = 'far fa-fw fa-' . $iconName;
                 break;
             case 'fas':
-                $class = 'fas fa-' . $iconName;
+                $class = 'fas fa-fw fa-' . $iconName;
                 break;
             case 'fab':
-                $class = 'fab fa-' . $iconName;
+                $class = 'fab fa-fw fa-' . $iconName;
                 break;
             default:
-                $class = 'fal fa-' . $icon;
+                $class = 'fal fa-fw fa-' . $icon;
                 break;
         }
 
