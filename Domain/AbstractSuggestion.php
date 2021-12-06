@@ -18,7 +18,7 @@ abstract class AbstractSuggestion implements SuggestionInterface
         $result = [];
         $preparedSearchText = FilterStatic::filterValue($searchText, SuggestionSearch::class);
         foreach ($fields as $field) {
-            $result[] = "lower($field) LIKE '{$preparedSearchText}'";
+            $result[] = "lower($field) LIKE '$preparedSearchText'";
         }
 
         if ($id = FilterStatic::filterValue($searchText, SuggestionSearchId::class)) {

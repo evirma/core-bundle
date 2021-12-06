@@ -22,6 +22,7 @@ use Twig\Environment;
 trait ServiceSystemTrait
 {
     /**
+     * @deprecated
      * @return FileStorageService
      */
     public function getFileStorageService()
@@ -30,6 +31,7 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @deprecated
      * @return RequestService
      */
     public function getRequestService()
@@ -38,6 +40,7 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @deprecated
      * @return User|object|string
      */
     protected function getLoggedUser()
@@ -56,6 +59,7 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @deprecated
      * @return TokenStorage
      */
     protected function getTokenStorage()
@@ -78,6 +82,7 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @deprecated
      * @return Request
      */
     protected function getRequest()
@@ -89,6 +94,7 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @deprecated
      * @return Router
      */
     protected function getRouter()
@@ -97,6 +103,7 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @deprecated
      * @return mixed|object|Environment
      */
     protected function getTwig()
@@ -105,6 +112,7 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @deprecated
      * @return Autotext
      */
     protected function getAutotext()
@@ -113,6 +121,7 @@ trait ServiceSystemTrait
     }
 
     /**
+     * @deprecated
      * @return PageMeta|mixed
      */
     protected function getPageMeta()

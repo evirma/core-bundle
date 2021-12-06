@@ -285,6 +285,7 @@ final class DbService
     /**
      * Использовать кеширование для запросов
      *
+     * @deprecated
      * @param bool $cached
      * @param null $cacheId
      * @param null $ttl
