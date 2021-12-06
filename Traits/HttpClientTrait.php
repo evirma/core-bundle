@@ -47,7 +47,7 @@ trait HttpClientTrait
             if ($response->getStatusCode() == 200) {
                 $content = $response->getBody();
             }
-        } catch (GuzzleException $e) {
+        } catch (GuzzleException) {
             if (!isset($options['max_tries']) || !$options['max_tries']) return $content;
             if (!isset($options['try'])) {
                 $options['try'] = 1;

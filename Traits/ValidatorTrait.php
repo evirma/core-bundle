@@ -2,8 +2,8 @@
 
 namespace Evirma\Bundle\CoreBundle\Traits;
 
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
-use \LogicException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -13,10 +13,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 trait ValidatorTrait
 {
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validatorManager;
+    protected ValidatorInterface $validatorManager;
 
     /**
      * @required
@@ -33,7 +30,7 @@ trait ValidatorTrait
     protected function getValidator()
     {
         if (!isset($this->validatorManager)) {
-            throw new LogicException('ValidatorInterface must be defined');
+            throw new InvalidArgumentException('ValidatorInterface must be defined');
         }
 
         return $this->validatorManager;

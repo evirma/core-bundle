@@ -2,14 +2,15 @@
 
 namespace Evirma\Bundle\CoreBundle\Service;
 
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
-class RequestService extends AbstractCoreService
+class RequestService
 {
-    public function getRequestUri()
+    public function __construct(private RouterInterface $router, private RequestStack $requestStack)
     {
-        return $this->getRequest()->getRequestUri();
     }
 
     /**
@@ -27,18 +28,18 @@ class RequestService extends AbstractCoreService
      * @param array $parameters
      * @param int   $referenceType
      *
-     * @return mixed|null|string
+     * @return string
      * @internal param string $link URL, которая будет преобразована. Если не задана - текущий URL страницы
      * @internal param array $params
      */
-    public function urlSaveGet($replace = array(), $delete = array(), $route = null, $parameters = array(), $referenceType = Router::ABSOLUTE_PATH)
+    public function urlSaveGet($replace = [], $delete = [], $route = null, $parameters = [], $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
         if (!$route) {
-            $link = $this->getRequest()->getRequestUri();
+            $link = $this->requestStack->getCurrentRequest()->getRequestUri();
         } else {
             try {
-                $link = $this->getRouter()->generate($route, $parameters, $referenceType);
-            } catch (RouteNotFoundException $e) {
+                $link = $this->router->generate($route, $parameters, $referenceType);
+            } catch (RouteNotFoundException) {
                 $link = $route;
             }
         }
@@ -74,22 +75,22 @@ class RequestService extends AbstractCoreService
                 }
                 $link = preg_replace('/([&?])'.preg_quote($k)."=[^&]*[&]?/i", "\\1", $link);
             }
-            if (substr($link, -1, 1) == '&') {
+            if (str_ends_with($link, '&')) {
                 $link = substr($link, 0, -1);
             }
         }
 
-        if (strpos($link, '?') === false && strpos($link, '&') !== false) {
+        if (!str_contains($link, '?') && str_contains($link, '&')) {
             $ampPos = strpos($link, '&');
             $link = substr_replace($link, '?', $ampPos, 1);
         }
 
         $link = rtrim($link, "?");
 
-        if (strpos($link, '?') !== false && (strpos($link, '%2f') !== false || strpos($link, '%2F') !== false)) {
+        if (str_contains($link, '?') && (str_contains($link, '%2f') || str_contains($link, '%2F'))) {
             [$_link, $_query] = explode('?', $link);
             $link = str_replace(['%2f', '%2F'], '/', $_link).'?'.$_query;
-        } elseif (strpos($link, '%2f') !== false || strpos($link, '%2F') !== false) {
+        } elseif (str_contains($link, '%2f') || str_contains($link, '%2F')) {
             $link = str_replace(array('%2f', '%2F'), '/', $link);
         }
 
