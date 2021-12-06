@@ -3,15 +3,14 @@
 namespace Evirma\Bundle\CoreBundle\Domain\Exception\Repository;
 
 use Doctrine\DBAL\Driver\Exception as DBALDriverException;
-use Exception;
-use JetBrains\PhpStorm\Pure;
+use RuntimeException;
 use Throwable;
 
-class SqlDriverException extends Exception
+class SqlDriverException extends RuntimeException
 {
     private $driverException;
 
-    #[Pure] public function __construct($message, Throwable $exception)
+    public function __construct($message, Throwable $exception)
     {
         $this->driverException = $exception;
         parent::__construct($message, $exception->getCode(), $exception);

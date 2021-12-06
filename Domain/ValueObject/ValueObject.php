@@ -49,4 +49,16 @@ abstract class ValueObject implements JsonSerializable
     {
         return $this->toArray();
     }
+
+    public function getExportContext(): array
+    {
+        return $this->exportContext;
+    }
+
+    public function setExportContext(array $exportContext): ValueObject
+    {
+        $this->exportContext = $exportContext;
+
+        return $this;
+    }
 }

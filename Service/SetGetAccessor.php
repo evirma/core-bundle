@@ -5,8 +5,6 @@ namespace Evirma\Bundle\CoreBundle\Service;
 use ReflectionException;
 use ReflectionMethod;
 use Symfony\Bundle\MakerBundle\Str;
-use function is_callable;
-use function strlen;
 
 class SetGetAccessor
 {
@@ -71,7 +69,7 @@ class SetGetAccessor
             try {
                 $method = new ReflectionMethod($object, $setter);
                 self::$cache[$key] = is_callable([$object, $setter]) && !$method->isStatic();
-            } catch (ReflectionException $e) {
+            } catch (ReflectionException) {
                 self::$cache[$key] = false;
             }
         }
@@ -96,9 +94,9 @@ class SetGetAccessor
         return
             !$method->isStatic() &&
             (
-                ((0 === strpos($method->name, 'get') && 3 < $methodLength) ||
-                    (0 === strpos($method->name, 'is') && 2 < $methodLength) ||
-                    (0 === strpos($method->name, 'has') && 3 < $methodLength)) &&
+                ((str_starts_with($method->name, 'get') && 3 < $methodLength) ||
+                    (str_starts_with($method->name, 'is') && 2 < $methodLength) ||
+                    (str_starts_with($method->name, 'has') && 3 < $methodLength)) &&
                 0 === $method->getNumberOfRequiredParameters()
             );
     }
