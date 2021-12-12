@@ -27,7 +27,7 @@
         "cocur/slugify": "^4.0",
         "ramsey/uuid-doctrine": "^1.6",
         "symfony/orm-pack": "^2.0",
-        "evirma/autotext-bundle": "^1.0",
+        "evirma/autotext-bundle": "^2.0",
         "meniam/typograph-bundle": "^1.0",
         "league/commonmark": "^1.5.0",
         "evirma/commonmark-ext-attributes": "^1.0",
