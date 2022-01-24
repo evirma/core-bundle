@@ -3,7 +3,8 @@
 namespace Evirma\Bundle\CoreBundle\Twig\Extension;
 
 use Evirma\Bundle\CoreBundle\Service\RequestService;
-use Symfony\Component\Routing\Router;
+use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -27,11 +28,12 @@ class UrlExtension extends AbstractExtension
         ];
     }
 
-    public function urlSaveGetFilter($replace = array(), $delete = array(), $route = null, $parameters = array(), $referenceType = Router::ABSOLUTE_PATH)
+    public function urlSaveGetFilter($replace = array(), $delete = array(), $route = null, $parameters = array(), $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH)
     {
         return $this->requestService->urlSaveGet($replace, $delete, $route, $parameters, $referenceType);
     }
 
+    #[ArrayShape(["scheme" => "string", "host" => "string", "port" => "int", "user" => "string", "pass" => "string", "query" => "string", "path" => "string", "fragment" => "string"])]
     public function urlDomainFilter($url)
     {
         return parse_url($url, PHP_URL_HOST);

@@ -45,7 +45,7 @@ abstract class ValueObject implements JsonSerializable
         return self::factory(json_decode($json));
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->toArray();
     }

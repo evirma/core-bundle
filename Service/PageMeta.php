@@ -13,6 +13,7 @@ use Evirma\Bundle\CoreBundle\Filter\Rule\Name;
 use Evirma\Bundle\CoreBundle\Util\StringUtil;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -579,7 +580,7 @@ class PageMeta implements HelperInterface
         $text,
         $route,
         array $parameters = array(),
-        $referenceType = RouterInterface::ABSOLUTE_PATH
+        $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH
     )
     {
         $this->breadcrumbs[] = [
@@ -603,7 +604,7 @@ class PageMeta implements HelperInterface
         $text,
         $route,
         array $parameters = array(),
-        $referenceType = RouterInterface::ABSOLUTE_PATH,
+        $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH,
         array $translationParameters = array(),
         $domain = 'messages'
     )
@@ -629,7 +630,7 @@ class PageMeta implements HelperInterface
         $title,
         $route,
         array $parameters = array(),
-        $referenceType = RouterInterface::ABSOLUTE_PATH
+        $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH
     )
     {
         $this->breadcrumbs[] = [
@@ -655,7 +656,7 @@ class PageMeta implements HelperInterface
         $title,
         $route,
         array $parameters = array(),
-        $referenceType = RouterInterface::ABSOLUTE_PATH,
+        $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH,
         array $translationParameters = array(),
         $domain = 'messages'
     )

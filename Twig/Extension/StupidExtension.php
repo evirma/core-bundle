@@ -313,8 +313,8 @@ class StupidExtension extends AbstractExtension
     /**
      * Wrapper for array_intersect() method
      *
-     * @param array $array1
-     * @param array $array2
+     * @param array|ArrayCollection $array1
+     * @param array|ArrayCollection $array2
      * @return array|ArrayCollection
      */
     public function arrayIntersect($array1, $array2)

@@ -243,7 +243,7 @@ class BootstrapExtension extends AbstractExtension
             'simpleCol' => $this->simpleCol,
         );
 
-        array_push($this->settingsStack, $settings);
+        $this->settingsStack[] = $settings;
     }
 
     /**

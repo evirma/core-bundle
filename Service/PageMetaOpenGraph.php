@@ -47,7 +47,7 @@ class PageMetaOpenGraph
 
                 $result .= "<meta property=\"og:image\" content=\"{$image['url']}\" />\n";
 
-                if (preg_match('#^https://#', $image['url'])) {
+                if (str_starts_with($image['url'], 'https://')) {
                     $result .= "<meta property=\"og:image:secure_url\" content=\"{$image['url']}\" />\n";
                 }
 
