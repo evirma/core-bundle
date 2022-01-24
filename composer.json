@@ -71,11 +71,5 @@
         "allow-plugins": {
             "composer/package-versions-deprecated": true
         }
-    },
-    "extra": {
-        "symfony": {
-            "allow-contrib": false,
-            "require": "5.3.*"
-        }
     }
 }
