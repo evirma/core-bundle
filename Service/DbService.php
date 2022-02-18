@@ -705,6 +705,11 @@ final class DbService
         return [$sql, $params];
     }
 
+    public function close(): void
+    {
+        $this->db()->close();
+    }
+
     public function reconnect($tries = 5)
     {
         if (!$isConnected = $this->checkConnection()) {
