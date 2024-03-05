@@ -45,6 +45,6 @@ class PagerFixedAdapter implements PagerAdapterInterface
      */
     public function getItems($offset, $length): iterable
     {
-        return $this->results;
+        return $this->results ?: [];
     }
 }
